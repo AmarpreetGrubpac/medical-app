@@ -1,0 +1,69 @@
+name: grubpac_driver
+description: "A new Flutter project."
+
+publish_to: 'none'
+## flutter version : 3.41.1
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.6.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  get: ^4.7.2
+  toastification: ^3.0.3
+  pinput: ^5.0.1
+  timer_count_down: ^2.2.2
+  mobile_scanner: ^7.0.1
+  video_player: ^2.10.0
+  carousel_slider: ^5.1.1
+  intl: ^0.20.2
+  url_launcher: ^6.3.1
+  shared_preferences: ^2.5.3
+  flutter_screenutil: ^5.9.3
+  flutter_svg: ^2.2.0
+  dotted_border: ^3.1.0
+  blurrycontainer: ^2.1.0
+  connectivity_plus: ^7.0.0
+  image_picker: ^1.2.1
+  cached_network_image: ^3.4.1
+  interactive_slider:
+    path: package/interactive_slider
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/fonts/
+    - assets/icons/
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter_18pt-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Inter_18pt-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Inter_18pt-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Inter_18pt-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter_18pt-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter_18pt-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter_18pt-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Inter_18pt-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Inter_18pt-Black.ttf
+          weight: 900
