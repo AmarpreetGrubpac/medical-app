@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:grubpac_driver/core/exceptions/failure.dart';
+import 'package:grubpac_driver/core/utils/app_string.dart';
+import 'package:grubpac_driver/core/utils/app_toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 abstract class AppUtils {
@@ -10,9 +13,20 @@ abstract class AppUtils {
     }
   }
 
+  static void apiErrorHandler(dynamic e) {
+    if (e is Failure) {
+      AppToast.showError(message: e.message);
+    } else {
+      AppToast.showError(message: AppString.somethingWentWrong);
+    }
+  }
+
   /// SEND MAIL
   static Future<void> writeMail(String email, String subject) async {
-    final Uri emailUri = Uri(scheme: 'mailto', path: email, query: Uri.encodeFull('subject=$subject'));
+    final Uri emailUri = Uri(
+        scheme: 'mailto',
+        path: email,
+        query: Uri.encodeFull('subject=$subject'));
 
     if (await canLaunchUrl(emailUri)) {
       await launchUrl(emailUri);

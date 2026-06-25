@@ -34,6 +34,18 @@ class AppConstants {
   static const String getProfile = '/delivery-mobile/profile';
   static const String updateProfile = '/delivery-mobile/account';
 
+  //Box apis
+  static const String getAllBoxes = '/delivery-mobile/boxes';
+  static const String registerBox = '/delivery-mobile/boxes';
+  static const String removebox = '/delivery-mobile/boxes/:box_id';
+  static const String updatebox = '/delivery-mobile/boxes/:box_id/settings';
+  static const String connectBox = '/delivery-mobile/boxes/:box_id/connection';
+  static const String disconnectBox =
+      '/delivery-mobile/boxes/:box_id/connection';
+  static const String reqLockOtp = '/delivery-mobile/boxes/:box_id/lock/otp';
+  static const String verifyLockOtp =
+      '/delivery-mobile/boxes/:box_id/lock/verify';
+
   // auth apis
 
   static const String logoutApi = '/delivery-mobile/auth/logout';

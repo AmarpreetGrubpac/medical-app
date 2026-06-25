@@ -36,9 +36,9 @@ class HomeController extends GetxController {
 
   String username = "";
 
-  bool isBoxAdded = true;
-  bool isBoxConnected = false;
-  bool isBoxLocked = true;
+  // bool isBoxAdded = true;
+  // bool isBoxConnected = false;
+  // bool isBoxLocked = true;
 
   /// USERNAME
   void getUserName() {
@@ -61,27 +61,27 @@ class HomeController extends GetxController {
   /// VIEW DETAILS
   void onViewDetailTap() => Navigation.pushNamed(RouteHelper.boxDetails);
 
-  /// DISCONNECT
-  Future<void> onDisconnectTap() async {
-    final data = await Navigation.pushNamed(
-      RouteHelper.disconnectBox,
-      arg: {"is_from": ConnectBoxFrom.fromHome},
-    );
+  // /// DISCONNECT
+  // Future<void> onDisconnectTap() async {
+  //   final data = await Navigation.pushNamed(
+  //     RouteHelper.disconnectBox,
+  //     arg: {"is_from": ConnectBoxFrom.fromHome},
+  //   );
 
-    if (data != null && data["result"] == true) {
-      isBoxConnected = false;
-      update();
-    }
-  }
+  //   if (data != null && data["result"] == true) {
+  //     isBoxConnected = false;
+  //     update();
+  //   }
+  // }
 
   ///
-  void onBoxConnected() {
-    isBoxAdded = true;
-    isBoxConnected = true;
-    update();
+  // void onBoxConnected() {
+  //   isBoxAdded = true;
+  //   isBoxConnected = true;
+  //   update();
 
-    Navigation.doublePop();
-  }
+  //   Navigation.doublePop();
+  // }
 
   ///=====
   bool isTimerCompleted = false;
@@ -176,7 +176,7 @@ class HomeController extends GetxController {
         update();
 
         AppToast.showSuccess(message: AppString.otpVerify);
-        isBoxLocked = false;
+        // isBoxLocked = false;
 
         Navigation.pop();
       });

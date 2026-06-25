@@ -7,6 +7,8 @@ import 'package:grubpac_driver/screens/help_section/help/controller/help_control
 import 'package:grubpac_driver/screens/help_section/help_faq_list/controller/help_repo.dart';
 import 'package:grubpac_driver/screens/settings_section/alerts/controller/alert_repo.dart';
 import 'package:grubpac_driver/screens/settings_section/alerts/controller/alerts_controller.dart';
+import 'package:grubpac_driver/screens/settings_section/box_management/controller/box_management_controller.dart';
+import 'package:grubpac_driver/screens/settings_section/box_management/controller/box_repo.dart';
 import 'package:grubpac_driver/screens/settings_section/profile/profile_details/controller/profile_repo.dart';
 import 'package:grubpac_driver/screens/settings_section/setting/controller/setting_controller.dart';
 import 'package:grubpac_driver/screens/splash/controller/splash_controller.dart';
@@ -38,6 +40,11 @@ Future<void> init() async {
           appBaseUrl: AppConstants.baseUrl, sharedPreferences: Get.find()),
       fenix: true);
 
+  Get.lazyPut(
+      () => BoxManagementRepo(
+          apiClient: Get.find(), sharedPreferences: Get.find()),
+      fenix: true);
+
   //repository
   Get.lazyPut(
       () => AuthRepo(apiClient: Get.find(), sharedPreferences: Get.find()),
@@ -67,6 +74,7 @@ Future<void> init() async {
       fenix: true);
   Get.lazyPut(() => SetPasswordController(authRepo: Get.find()), fenix: true);
   Get.lazyPut(() => ExistingUserController(authRepo: Get.find()), fenix: true);
+  Get.lazyPut(() => BoxManagementController(boxRepo: Get.find()), fenix: true);
   Get.lazyPut(() => ProfileDetailsController(profileRepo: Get.find()),
       fenix: true);
   Get.lazyPut(() => SettingController(), fenix: true);
