@@ -8,6 +8,7 @@ import 'package:grubpac_driver/screens/box_details/widgets/first_details_view.da
 import 'package:grubpac_driver/screens/box_details/widgets/second_details_view.dart';
 
 class BoxDetailsScreen extends StatelessWidget {
+  
   BoxDetailsScreen({super.key});
 
   final BoxDetailsController boxDetailsController = Get.put(BoxDetailsController());

@@ -7,7 +7,7 @@ import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:grubpac_driver/screens/auth/repo/auth_repo.dart';
 import 'package:timer_count_down/timer_controller.dart';
 
-class VerifyOtpController extends GetxController implements GetxService{
+class VerifyOtpController extends GetxController implements GetxService {
   final AuthRepo authRepo;
   VerifyOtpController({required this.authRepo});
 
@@ -124,7 +124,12 @@ class VerifyOtpController extends GetxController implements GetxService{
             otpController.text.trim(),
           );
       }
-
+      // Navigation.replaceAll(RouteHelper.dashboard);
+      // await authRepo.saveUserToken(
+      //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJhZG1pbiIsImlkIjoiMDFLUERCN0ZBNTRaTTBZRUZISk5QNU5GTjMifSwiaWF0IjoxNzgyMjExMDMwfQ.n_DPU5DrI-v-lTWl7EX0XcN6jxrzYTR8y47pnBX7y08");
+      // await authRepo.onUpdateToken(
+      //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJhZG1pbiIsImlkIjoiMDFLUERCN0ZBNTRaTTBZRUZISk5QNU5GTjMifSwiaWF0IjoxNzgyMjExMDMwfQ.n_DPU5DrI-v-lTWl7EX0XcN6jxrzYTR8y47pnBX7y08");
+      // return;
       final body = response.body;
       final message = body?['error'] ?? AppString.somethingWentWrong;
 

@@ -33,6 +33,7 @@ class SplashController extends GetxController implements GetxService {
     }
 
     /// 🔧 MAINTENANCE CHECK
+    /// config.maintenanceMode == "true"
     if (config.maintenanceMode == "true") {
       Get.offAllNamed(RouteHelper.maintenanceScreen);
       return;

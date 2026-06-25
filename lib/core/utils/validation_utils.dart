@@ -32,7 +32,8 @@ class AppValidation {
 
   /// EMAIL
   static String? emailValidator(String? value) {
-    String pattern = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@'
+    String pattern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@'
         r'((\[[0-9]{1,3}(\.[0-9]{1,3}){3}\])|(([a-zA-Z0-9\-]+\.)+[a-zA-Z]{2,63}))$';
     RegExp regex = RegExp(pattern);
 
@@ -47,7 +48,8 @@ class AppValidation {
 
   /// PASSWORD
   static String? passValidator(String? value) {
-    String pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
+    String pattern =
+        r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
     RegExp regex = RegExp(pattern);
 
     if (value == null || value.trim().isEmpty) {
@@ -80,22 +82,24 @@ class AppValidation {
 
   /// OLD PASSWORD
   static String? oldPassValidator(String? value) {
-    String pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
-    RegExp regex = RegExp(pattern);
+    // String pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
+    // RegExp regex = RegExp(pattern);
 
     if (value == null || value.trim().isEmpty) {
       return AppString.enterCurrentPassValidation;
     } else if (value.trim().length < 8) {
       return AppString.currentPassEightChar;
-    } else if (!regex.hasMatch(value)) {
-      return AppString.passValidationError;
     }
+    //  else if (!regex.hasMatch(value)) {
+    //   return AppString.passValidationError;
+    // }
     return null;
   }
 
   /// NEW PASSWORD
   static String? newPassValidator(String? value, String? passValue) {
-    String pattern = r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
+    String pattern =
+        r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
     RegExp regex = RegExp(pattern);
 
     if (value?.trim() == passValue?.trim()) {

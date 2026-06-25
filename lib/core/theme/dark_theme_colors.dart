@@ -55,12 +55,15 @@ class DarkThemeColors {
   static const Color pressedIconColor = Color(0xFFFE8D67);
 
   static final darkTheme = ThemeData(
-    colorScheme: ColorScheme.fromSeed(seedColor: primary, brightness: Brightness.dark),
+    colorScheme:
+        ColorScheme.fromSeed(seedColor: primary, brightness: Brightness.dark),
     brightness: Brightness.dark,
     primaryColor: primary,
     scaffoldBackgroundColor: background,
     fontFamily: FontFamily.inter,
-    appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent, surfaceTintColor: Colors.transparent),
+    appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent),
     useMaterial3: false,
   );
 }

@@ -94,7 +94,6 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
           child: Column(
             children: [
               SizedBox(height: Get.height * 0.06),
-
               Image.asset(
                 ImageAsset.maintenanceImage,
                 height: 220.h,
@@ -117,7 +116,6 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                 textAlign: TextAlign.center,
                 color: AppTheme.contentNeutralSecondary,
               ),
-
               15.h.verticalSpace,
               Center(
                 child: AppText(
@@ -129,7 +127,6 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                 ),
               ),
               36.h.verticalSpace,
-
               const Spacer(),
             ],
           ),

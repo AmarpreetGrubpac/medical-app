@@ -90,7 +90,7 @@ class ProfileDetailsScreen extends StatelessWidget {
                                     icon: IconAsset.mail,
                                     title: AppString.email,
                                     value: controller.email.length > 20
-                                        ? '${controller.email.substring(0, 13)}***'
+                                        ? '${controller.email}'
                                         : controller.email,
                                   ),
 
@@ -139,7 +139,7 @@ class ProfileDetailsScreen extends StatelessWidget {
                               ),
                               AppText(
                                 text:
-                                    "${AppString.acCreated}\t${DateFormat("d MMMM yyyy").format(controller.createdDate)}",
+                                    "${AppString.acCreated}\t${controller.createdDate}", //DateFormat("d MMMM yyyy").format(controller.createdDate)
                                 fontSize: 14.sp,
                                 color: AppTheme.contentNeutralLight,
                                 fontWeight: FontWeight.w400,

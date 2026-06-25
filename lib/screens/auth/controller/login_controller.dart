@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_options.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:grubpac_driver/screens/auth/controller/existing_user_controller.dart';
 import 'package:grubpac_driver/core/utils/app_constant.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/app_toast.dart';
@@ -148,6 +149,7 @@ class LoginController extends GetxController implements GetxService{
         bool isPasswordSet = response.body['is_password_set'] ?? false;
 
         if (isPasswordSet) {
+          Get.find<ExistingUserController>().prefillAuth(input, isPhoneNumber);
           Navigation.pushNamed(
             RouteHelper.existingUserScreen,
             arg: {

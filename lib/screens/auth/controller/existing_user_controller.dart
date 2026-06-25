@@ -7,7 +7,7 @@ import 'package:grubpac_driver/helper/navigation.dart';
 import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:grubpac_driver/screens/auth/repo/auth_repo.dart';
 
-class ExistingUserController extends GetxController implements GetxService{
+class ExistingUserController extends GetxController implements GetxService {
   final AuthRepo authRepo;
   ExistingUserController({required this.authRepo});
 
@@ -77,6 +77,12 @@ class ExistingUserController extends GetxController implements GetxService{
     isBtnDisabled = false;
     update();
     return null;
+  }
+
+  void prefillAuth(String value, bool isNumber) {
+    authController.text = value;
+    isPhoneNumber = isNumber;
+    _validateAuth();
   }
 
   void _validateAuth() {
@@ -190,9 +196,9 @@ class ExistingUserController extends GetxController implements GetxService{
     }
   }
 
-  Future<void> deleteAccount() async {
+  Future<void> deleteAccount(String pass) async {
     update();
-    Response response = await authRepo.deleteAccount();
+    Response response = await authRepo.deleteAccount(pass);
     if (response.statusCode == 200) {
       deleteSavedData();
     } else {

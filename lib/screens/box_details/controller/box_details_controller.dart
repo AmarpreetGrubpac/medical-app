@@ -28,6 +28,14 @@ class BoxDetailsController extends GetxController {
 
     sliderController.value = AppUtils.normalizeSliderValue(firstBattery.toDouble());
 
+    final args = Get.arguments;
+    if (args != null && args['page'] != null) {
+      int initialPage = args['page'] as int;
+      if (pageController.hasClients) {
+        pageController.jumpToPage(initialPage);
+      }
+    }
+
     update();
   }
 

@@ -12,4 +12,8 @@ class ProfileRepo {
   Future<Response> getProfileData() async {
     return apiClient.getData(AppConstants.getProfile);
   }
+
+  // Future<Response> updatePassword(Map<String, dynamic> body) async {
+  //   return apiClient.putData(AppConstants.updateProfile, body);
+  // }
 }

@@ -178,9 +178,10 @@ class AuthRepo {
     return await apiClient.postData(AppConstants.logoutApi, '');
   }
 
-  Future<Response> deleteAccount() async {
+  Future<Response> deleteAccount(String password) async {
     return await apiClient.deleteData(
       AppConstants.deleteAccount,
+      body: {"password": password},
     );
   }
 

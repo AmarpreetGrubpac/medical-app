@@ -26,6 +26,11 @@ Future<void> init() async {
   // Get.lazyPut(() => sharedPreferences);
   final sharedPreferences = await SharedPreferences.getInstance();
 
+  // // Mock Token Injection for Testing
+  // await sharedPreferences.setString(
+  //   AppConstants.token,
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJhZG1pbiIsImlkIjoiMDFLUERCN0ZBNTRaTTBZRUZISk5QNU5GTjMifSwiaWF0IjoxNzgyMjExMDMwfQ.n_DPU5DrI-v-lTWl7EX0XcN6jxrzYTR8y47pnBX7y08",
+  // );
   // ✅ IMPORTANT: use Get.put, not lazyPut
   Get.put<SharedPreferences>(sharedPreferences, permanent: true);
   Get.lazyPut(
@@ -45,7 +50,7 @@ Future<void> init() async {
       () => ProfileRepo(apiClient: Get.find(), sharedPreferences: Get.find()),
       fenix: true);
   Get.lazyPut(
-          () => AlertRepo(apiClient: Get.find(), sharedPreferences: Get.find()),
+      () => AlertRepo(apiClient: Get.find(), sharedPreferences: Get.find()),
       fenix: true);
 
   //controller

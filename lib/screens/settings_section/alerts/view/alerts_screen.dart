@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:grubpac_driver/common_components/app_text.dart';
 import 'package:grubpac_driver/common_components/common_app_name_bar.dart';
 import 'package:grubpac_driver/common_components/common_button.dart';
 import 'package:grubpac_driver/common_components/common_text_button.dart';
+import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_images.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/helper/navigation.dart';
@@ -13,8 +15,6 @@ import 'package:grubpac_driver/screens/settings_section/alerts/widget/alert_box.
 
 class AlertsScreen extends StatelessWidget {
   const AlertsScreen({super.key});
-
-  // final AlertsController alertsController = Get.put(AlertsController());
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +35,54 @@ class AlertsScreen extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: alertsController.alerts.length,
-                  padding: EdgeInsets.only(bottom: 80.h),
-                  itemBuilder: (context, index) {
-                    return AlertBox(
-                        onTap: () {}, data: alertsController.alerts[index]);
-                  },
-                ),
+                child: alertsController.filteredAlerts.isEmpty
+                    ? Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 24.w),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AppText(
+                                text: "No alerts found",
+                                fontSize: 24.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.contentNeutralPrimary,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 8.h, bottom: 24.h),
+                                child: AppText(
+                                  text: "Try adjusting or resetting your filter criteria.",
+                                  fontWeight: FontWeight.w400,
+                                  textAlign: TextAlign.center,
+                                  color: AppTheme.contentNeutralSecondary,
+                                ),
+                              ),
+                              IntrinsicWidth(
+                                child: CommonButton(
+                                  onPressed: alertsController.resetFilters,
+                                  fontSize: 16.sp,
+                                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                                  title: "RESET FILTERS",
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: alertsController.filteredAlerts.length,
+                        padding: EdgeInsets.only(bottom: 80.h),
+                        itemBuilder: (context, index) {
+                          return AlertBox(
+                              onTap: () {
+                                Navigation.pushNamed(
+                                  RouteHelper.boxDetails,
+                                  arg: {"page": 1},
+                                );
+                              },
+                              data: alertsController.filteredAlerts[index]);
+                        },
+                      ),
               ),
             ],
           ),
@@ -52,7 +92,7 @@ class AlertsScreen extends StatelessWidget {
           child: IntrinsicWidth(
             child: IntrinsicHeight(
               child: CommonButton(
-                onPressed: alertsController.onFilterTap,
+                onPressed: () => alertsController.onFilterTap(context),
                 title: AppString.filter,
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                 icon: IconAsset.filter,
@@ -67,3 +107,4 @@ class AlertsScreen extends StatelessWidget {
     });
   }
 }
+

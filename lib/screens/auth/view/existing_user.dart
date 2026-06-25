@@ -30,41 +30,50 @@ class ExistingUserScreen extends StatelessWidget {
       body: SafeArea(
           bottom: false,
           child: GetBuilder<ExistingUserController>(builder: (controller) {
-            return SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 0.h),
-                child: Column(
-                  children: [
-                    SvgPicture.asset(
-                      IconAsset.appLogo,
-                      width: 223.w,
-                      height: 48.h,
-                      colorFilter:
-                          ColorFilter.mode(AppTheme.primary, BlendMode.srcIn),
-                    ),
-                    Padding(
-                      padding: EdgeInsetsGeometry.symmetric(vertical: 36.h),
-                      child: AppText(
-                        text: AppString.enterRegisteredPrompt,
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w400,
-                        textAlign: TextAlign.center,
-                        color: AppTheme.contentNeutralSecondary,
+            return PopScope(
+              canPop: true,
+              onPopInvokedWithResult: (didPop, result) {
+                if (didPop) {
+                  controller.passController.clear();
+                }
+              },
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 0.h),
+                  child: Column(
+                    children: [
+                      SvgPicture.asset(
+                        IconAsset.appLogo,
+                        width: 223.w,
+                        height: 48.h,
+                        colorFilter:
+                            ColorFilter.mode(AppTheme.primary, BlendMode.srcIn),
                       ),
-                    ),
-                    CommonTextField(
-                      suffix: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: GestureDetector(
-                          onTap: () {
-                            controller.authController.clear();
-                            Navigation.replaceAll(RouteHelper.login);
-                          },
-                          child: Image.asset(
-                            ImageAsset.closeEmail,
-                            height: 12,
-                            width: 12,
-                          ),
+                      Padding(
+                        padding: EdgeInsetsGeometry.symmetric(vertical: 36.h),
+                        child: AppText(
+                          text: AppString.enterRegisteredPrompt,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w400,
+                          textAlign: TextAlign.center,
+                          color: AppTheme.contentNeutralSecondary,
+                        ),
+                      ),
+                      CommonTextField(
+                        isEnabled: false,
+                        suffix: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: GestureDetector(
+                            onTap: () {
+                              controller.authController.clear();
+                              controller.passController.clear();
+                              Navigation.replaceAll(RouteHelper.login);
+                            },
+                            child: Image.asset(
+                              ImageAsset.closeEmail,
+                              height: 12,
+                              width: 12,
+                            ),
                         ),
                       ),
                       controller: controller.authController,
@@ -168,7 +177,7 @@ class ExistingUserScreen extends StatelessWidget {
                         // isDisabled: !controller.isFormValid,
                         isDisabled: true,
                         isLoading: controller.isOtpLoading,
-                        allowTapWhenDisabled: true,       // 👈 BUT clickable
+                        allowTapWhenDisabled: true, // 👈 BUT clickable
 
                         title: AppString.LOGINUSINGOTP,
                       ),
@@ -203,8 +212,9 @@ class ExistingUserScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            );
-          })),
+            ),
+          );
+        })),
     );
   }
 }

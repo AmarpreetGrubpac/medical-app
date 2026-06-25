@@ -59,7 +59,7 @@ class DeleteAcScreen extends StatelessWidget {
                 padding: EdgeInsets.only(top: 36.h),
                 child: CommonButton(
                   onPressed: () async {
-                    Get.find<ExistingUserController>().deleteAccount();
+                    Get.find<ExistingUserController>().deleteAccount("");
                   },
                   title: AppString.deleteAccountBtn,
                 ),

@@ -28,21 +28,21 @@ class Profile {
   String? lastName;
   String? countryCode;
   String? mobileNumber;
-  Null? employeeId;
+  String? employeeId;
   String? role;
-  Null? joiningDate;
-  Null? profilePic;
+  String? joiningDate;
+  String? profilePic;
 
   Profile(
       {this.email,
-        this.firstName,
-        this.lastName,
-        this.countryCode,
-        this.mobileNumber,
-        this.employeeId,
-        this.role,
-        this.profilePic,
-        this.joiningDate});
+      this.firstName,
+      this.lastName,
+      this.countryCode,
+      this.mobileNumber,
+      this.employeeId,
+      this.role,
+      this.profilePic,
+      this.joiningDate});
 
   Profile.fromJson(Map<String, dynamic> json) {
     email = json['email'];

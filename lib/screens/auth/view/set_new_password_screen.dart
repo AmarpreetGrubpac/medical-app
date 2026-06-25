@@ -36,9 +36,9 @@ class SetNewPasswordScreen extends StatelessWidget {
                           .trim()
                           .isEmpty ||
                       controller.confirmPassController.text.trim().isEmpty ||
-                      AppValidation.passValidator(
-                              controller.passController.text) !=
-                          null ||
+                      // AppValidation.passValidator(
+                      //         controller.passController.text) !=
+                      //     null ||
                       AppValidation.confirmPassValidator(
                               controller.confirmPassController.text,
                               controller.passController.text) !=
@@ -49,8 +49,6 @@ class SetNewPasswordScreen extends StatelessWidget {
                     onPressed: () {
                       FocusScope.of(context).unfocus();
                       controller.setNewPassword(); // ✅ CALL API
-
-
                     },
                     isLoading: controller.isLoading,
                     title: AppString.savePassword,

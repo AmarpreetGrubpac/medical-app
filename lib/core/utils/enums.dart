@@ -126,3 +126,5 @@ abstract class BatteryBoxType {
     }
   }
 }
+
+enum AlertCategory { camera, battery, lock, display, other }

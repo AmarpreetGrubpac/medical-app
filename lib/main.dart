@@ -34,7 +34,7 @@ Future<void> main() async {
 
       SystemChrome.setPreferredOrientations(
           [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-      init();
+      await init();
       await ScreenUtil.ensureScreenSize();
       await AppPreference.initMySharedPreferences();
 

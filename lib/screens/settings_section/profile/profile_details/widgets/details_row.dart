@@ -40,7 +40,11 @@ class DetailsRow extends StatelessWidget {
           child: Container(
             constraints: BoxConstraints(minHeight: 24.h),
             alignment: Alignment.centerLeft,
-            child: AppText(text: value, fontWeight: FontWeight.w400),
+            child: AppText(
+              text: value,
+              fontWeight: FontWeight.w400,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
       ],
