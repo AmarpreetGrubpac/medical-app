@@ -23,23 +23,27 @@ class BoxDetailsScreen extends StatelessWidget {
                 children: [
                   CommonAppNameBar(),
                   Expanded(
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          bottom: 170.h,
-                          child: CustomPaint(painter: GlowSemiCirclePainters(isVertical: true, top: 70.h)),
-                        ),
-                        PageView.builder(
-                          scrollDirection: Axis.vertical,
-                          controller: controller.pageController,
-                          onPageChanged: controller.onChangePage,
-                          itemCount: 2,
-                          itemBuilder: (context, index) {
-                            return index == 0 ? FirstDetailsView() : SecondDetailsView();
-                          },
-                        ),
-                      ],
-                    ),
+                    child: controller.isLoading
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : Stack(
+                            children: [
+                              Positioned.fill(
+                                bottom: 170.h,
+                                child: CustomPaint(painter: GlowSemiCirclePainters(isVertical: true, top: 70.h)),
+                              ),
+                              PageView.builder(
+                                scrollDirection: Axis.vertical,
+                                controller: controller.pageController,
+                                onPageChanged: controller.onChangePage,
+                                itemCount: 2,
+                                itemBuilder: (context, index) {
+                                  return index == 0 ? FirstDetailsView() : SecondDetailsView();
+                                },
+                              ),
+                            ],
+                          ),
                   ),
                 ],
               ),

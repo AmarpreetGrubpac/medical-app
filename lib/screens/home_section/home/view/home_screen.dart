@@ -138,8 +138,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               box.isLocked,
                                                           onDisTap: () => controller
                                                               .onDisconnectTap(box.id),
-                                                          onViewTap: controller
-                                                              .onViewDetailTap,
+                                                          onViewTap: () => controller
+                                                              .onViewDetailTap(box.id),
                                                           onLockTap: () =>
                                                               controller
                                                                   .onLockTap(

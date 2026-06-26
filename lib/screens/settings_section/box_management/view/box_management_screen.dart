@@ -85,7 +85,8 @@ class BoxManagementScreen extends StatelessWidget {
                                     IntrinsicWidth(
                                       child: CommonOutlinedButton(
                                         onPressed: box.isConnected
-                                            ? controller.onViewDetailsBoxTap
+                                            ? () => controller
+                                                .onViewDetailsBoxTap(box.id)
                                             : () => controller
                                                 .onConnectBoxTap(box.id),
                                         title: box.isConnected

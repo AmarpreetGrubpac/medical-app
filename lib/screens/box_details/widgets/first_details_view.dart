@@ -32,7 +32,11 @@ class FirstDetailsView extends StatelessWidget {
               child: Column(
                 children: [
                   CommonBackAppBar(
-                    title: AppString.boxNumber,
+                    title: controller.boxInfo?.name.isNotEmpty == true
+                        ? controller.boxInfo!.name
+                        : (controller.boxInfo?.boxDisplayId.isNotEmpty == true
+                            ? controller.boxInfo!.boxDisplayId
+                            : AppString.boxNumber),
                     trailing: CommonCompactIconButton(
                       onTap: controller.onHelpTap,
                       icon: IconAsset.questionCircle,
@@ -298,7 +302,7 @@ class _BatteryDetailsBox extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppText(text: "50%", fontSize: 28.sp, fontWeight: FontWeight.w600),
+                    AppText(text: "${controller.boxInfo?.batteryLevel ?? 0}%", fontSize: 28.sp, fontWeight: FontWeight.w600),
                     CommonCompactTextButton(
                       key: controller.batteryKey,
                       onPressed: () => controller.showBatteryMenu(context),

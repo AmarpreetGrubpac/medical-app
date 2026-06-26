@@ -39,4 +39,15 @@ class BoxManagementRepo {
     final String url = AppConstants.removebox.replaceAll(":box_id", boxId);
     return await apiClient.deleteData(url);
   }
+
+  Future<Response> getBoxDetail(String boxId) async {
+    final String url = AppConstants.removebox.replaceAll(":box_id", boxId);
+    return await apiClient.getData(url);
+  }
+
+  Future<Response> updateBoxSettings(
+      String boxId, Map<String, dynamic> settings) async {
+    final String url = AppConstants.updatebox.replaceAll(":box_id", boxId);
+    return await apiClient.patchData(url, settings);
+  }
 }

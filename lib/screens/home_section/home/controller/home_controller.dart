@@ -48,7 +48,8 @@ class HomeController extends GetxController {
   }
 
   /// VIEW DETAILS
-  void onViewDetailTap() => Navigation.pushNamed(RouteHelper.boxDetails);
+  void onViewDetailTap(String boxId) =>
+      Navigation.pushNamed(RouteHelper.boxDetails, arg: {"box_id": boxId});
 
   /// DISCONNECT — delegates to BoxManagementController
   Future<void> onDisconnectTap(String boxId) async {

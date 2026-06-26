@@ -33,7 +33,11 @@ class SecondDetailsView extends StatelessWidget {
               child: Column(
                 children: [
                   CommonBackAppBar(
-                    title: "BOX-1245",
+                    title: controller.boxInfo?.name.isNotEmpty == true
+                        ? controller.boxInfo!.name
+                        : (controller.boxInfo?.boxDisplayId.isNotEmpty == true
+                            ? controller.boxInfo!.boxDisplayId
+                            : AppString.boxNumber),
                     backArrow: false,
                     ignoreHPadding: true,
                     trailing: CommonCompactTextButton(
@@ -359,13 +363,13 @@ class _PowerWidget extends StatelessWidget {
               isExpanded: controller.isBatteryBoxExpanded,
               icon: IconAsset.powerBank,
               title: AppString.batteryLabel,
-              trailing: AppText(text: "50%", fontWeight: FontWeight.w600),
+              trailing: AppText(text: "${controller.boxInfo?.batteryLevel ?? 0}%", fontWeight: FontWeight.w600),
               child: Column(
                 spacing: 12.h,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AppText(
-                    text: AppString.aboutFifty,
+                    text: AppString.aboutFifty.replaceAll("50%", "${controller.boxInfo?.batteryLevel ?? 0}%"),
                     maxLines: 3,
                     fontWeight: FontWeight.w400,
                     fontSize: 14.sp,

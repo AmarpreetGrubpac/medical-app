@@ -165,7 +165,8 @@ class BoxManagementController extends GetxController {
   }
 
   /// VIEW DETAILS BOX
-  void onViewDetailsBoxTap() => Navigation.pushNamed(RouteHelper.boxDetails);
+  void onViewDetailsBoxTap(String boxId) =>
+      Navigation.pushNamed(RouteHelper.boxDetails, arg: {"box_id": boxId});
 
   /// ON VERIFY OTP
   void verify() {

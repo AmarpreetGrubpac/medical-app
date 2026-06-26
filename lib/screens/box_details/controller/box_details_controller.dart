@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:grubpac_driver/core/exceptions/failure.dart';
 import 'package:grubpac_driver/core/preference/app_preferences.dart';
 import 'package:grubpac_driver/core/preference/pref_key.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
@@ -12,14 +14,27 @@ import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:grubpac_driver/screens/box_details/widgets/details_grublock_bottom_sheet.dart';
 import 'package:grubpac_driver/screens/box_details/widgets/overlay_battery_menu.dart';
 import 'package:grubpac_driver/screens/box_details/widgets/overlay_indicator_menu.dart';
+import 'package:grubpac_driver/screens/settings_section/box_management/controller/box_repo.dart';
+import 'package:grubpac_driver/screens/settings_section/box_management/model/box_info.dart';
 import 'package:interactive_slider/interactive_slider.dart';
 import 'package:timer_count_down/timer_controller.dart';
 
 class BoxDetailsController extends GetxController {
+  final BoxManagementRepo boxRepo = Get.find<BoxManagementRepo>();
+  String boxId = "";
+  BoxInfo? boxInfo;
+  Timer? _debounceTimer;
+
   @override
   void onInit() {
     super.onInit();
     WidgetsBinding.instance.addPostFrameCallback((_) => onInitMethod());
+  }
+
+  @override
+  void onClose() {
+    _debounceTimer?.cancel();
+    super.onClose();
   }
 
   void onInitMethod() {
@@ -29,14 +44,125 @@ class BoxDetailsController extends GetxController {
     sliderController.value = AppUtils.normalizeSliderValue(firstBattery.toDouble());
 
     final args = Get.arguments;
-    if (args != null && args['page'] != null) {
-      int initialPage = args['page'] as int;
-      if (pageController.hasClients) {
-        pageController.jumpToPage(initialPage);
+    if (args != null) {
+      boxId = args['box_id'] ?? "";
+      if (args['page'] != null) {
+        int initialPage = args['page'] as int;
+        if (pageController.hasClients) {
+          pageController.jumpToPage(initialPage);
+        }
       }
     }
 
+    if (boxId.isNotEmpty) {
+      fetchBoxDetails();
+    }
+
     update();
+  }
+
+  Future<void> fetchBoxDetails() async {
+    try {
+      isLoading = true;
+      update();
+      final res = await boxRepo.getBoxDetail(boxId);
+      if (res.statusCode == 200) {
+        boxInfo = BoxInfo.fromJson(res.body['data']);
+        advertSwitch = boxInfo?.settings?.advertDisplayEnabled ?? false;
+        dualZoneSwitch = boxInfo?.settings?.isDualZone ?? false;
+        ioniserSwitch = boxInfo?.settings?.ioniserEnabled ?? false;
+        firstBattery = boxInfo?.settings?.zone1Temp ?? 21;
+        secondBattery = boxInfo?.settings?.zone2Temp ?? 21;
+        boxConnectionStatus = boxInfo?.isConnected ?? false;
+        
+        sliderController.value = AppUtils.normalizeSliderValue(
+          selectedBattery == 1 ? firstBattery.toDouble() : secondBattery.toDouble(),
+        );
+      } else {
+        throw Failure(
+            message: res.body['message'] ?? res.body['error'] ?? 'Failed to load box details',
+            response: res);
+      }
+    } catch (e) {
+      AppUtils.apiErrorHandler(e);
+    } finally {
+      isLoading = false;
+      update();
+    }
+  }
+
+  Future<void> _updateSettings(
+    Map<String, dynamic> changes, {
+    required VoidCallback onRollback,
+  }) async {
+    try {
+      final res = await boxRepo.updateBoxSettings(boxId, changes);
+      if (res.statusCode != 200) {
+        throw Failure(
+          message: res.body['message'] ?? res.body['error'] ?? 'Failed to update settings',
+          response: res,
+        );
+      }
+    } catch (e) {
+      onRollback();
+      AppUtils.apiErrorHandler(e);
+    }
+  }
+
+  Future<void> _connectBoxCall({required VoidCallback onRollback}) async {
+    try {
+      final res = await boxRepo.connectBox(boxId);
+      if (res.statusCode == 200) {
+        AppToast.showSuccess(message: AppString.bluetoothConnectSuccess);
+        fetchBoxDetails();
+      } else {
+        throw Failure(
+            message: res.body['message'] ?? res.body['error'] ?? 'Failed to connect box',
+            response: res);
+      }
+    } catch (e) {
+      onRollback();
+      AppUtils.apiErrorHandler(e);
+    }
+  }
+
+  Future<void> _disconnectBoxCall({required VoidCallback onRollback}) async {
+    try {
+      final res = await boxRepo.disconnectBox(boxId);
+      if (res.statusCode == 200) {
+        AppToast.showSuccess(message: AppString.boxDisConnected);
+        fetchBoxDetails();
+      } else {
+        throw Failure(
+            message: res.body['message'] ?? res.body['error'] ?? 'Failed to disconnect box',
+            response: res);
+      }
+    } catch (e) {
+      onRollback();
+      AppUtils.apiErrorHandler(e);
+    }
+  }
+
+  void _debounceUpdateSettings() {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      final int initialFirst = firstBattery;
+      final int initialSecond = secondBattery;
+      _updateSettings(
+        {
+          "zone_1_temp": firstBattery,
+          "zone_2_temp": secondBattery,
+        },
+        onRollback: () {
+          firstBattery = initialFirst;
+          secondBattery = initialSecond;
+          sliderController.value = AppUtils.normalizeSliderValue(
+            selectedBattery == 1 ? firstBattery.toDouble() : secondBattery.toDouble(),
+          );
+          update();
+        },
+      );
+    });
   }
 
   final PageController pageController = PageController();
@@ -117,6 +243,7 @@ class BoxDetailsController extends GetxController {
       secondBattery = value.toInt();
     }
     update();
+    _debounceUpdateSettings();
   }
 
   /// SELECT BATTERY
@@ -130,26 +257,48 @@ class BoxDetailsController extends GetxController {
     update();
   }
 
-  /// SELECT BATTERY
+  /// SELECT TEMPERATURE BUTTON
   void onSelectTempButtons(int value) {
     sliderController.value = AppUtils.normalizeSliderValue(value.toDouble());
+    if (selectedBattery == 1 || !dualZoneSwitch) {
+      firstBattery = value;
+    } else {
+      secondBattery = value;
+    }
     update();
+    _debounceUpdateSettings();
   }
 
   /// DUAL ZONE
   void toggleDualZone() {
     dualZoneSwitch = !dualZoneSwitch;
     selectedBattery = 1;
-
     sliderController.value = AppUtils.normalizeSliderValue(firstBattery.toDouble());
-
     update();
+
+    _updateSettings(
+      {"is_dual_zone": dualZoneSwitch},
+      onRollback: () {
+        dualZoneSwitch = !dualZoneSwitch;
+        selectedBattery = 1;
+        sliderController.value = AppUtils.normalizeSliderValue(firstBattery.toDouble());
+        update();
+      },
+    );
   }
 
   /// ADVERT
   void toggleAdvert() {
     advertSwitch = !advertSwitch;
     update();
+
+    _updateSettings(
+      {"advert_display_enabled": advertSwitch},
+      onRollback: () {
+        advertSwitch = !advertSwitch;
+        update();
+      },
+    );
   }
 
   /// ZONE BOX 1
@@ -168,6 +317,14 @@ class BoxDetailsController extends GetxController {
   void toggleIoniserSwitch() {
     ioniserSwitch = !ioniserSwitch;
     update();
+
+    _updateSettings(
+      {"ioniser_enabled": ioniserSwitch},
+      onRollback: () {
+        ioniserSwitch = !ioniserSwitch;
+        update();
+      },
+    );
   }
 
   /// BOX
@@ -232,8 +389,21 @@ class BoxDetailsController extends GetxController {
 
   /// BOX CONNECTION STATUS
   void toggleBoxStatus() {
-    boxConnectionStatus = !boxConnectionStatus;
-    update();
+    if (boxConnectionStatus) {
+      boxConnectionStatus = false;
+      update();
+      _disconnectBoxCall(onRollback: () {
+        boxConnectionStatus = true;
+        update();
+      });
+    } else {
+      boxConnectionStatus = true;
+      update();
+      _connectBoxCall(onRollback: () {
+        boxConnectionStatus = false;
+        update();
+      });
+    }
   }
 
   /// OVERLAYS ============
