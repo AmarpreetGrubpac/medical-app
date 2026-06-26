@@ -111,7 +111,10 @@ class ConnectBoxInstructionsScreen extends StatelessWidget {
                   ),
                   CommonOutlinedButton(
                     onPressed: () {
-                      Navigation.pushNamed(RouteHelper.boxConnecting, arg: {"is_from": isFrom});
+                      Navigation.pushNamed(RouteHelper.boxConnecting, arg: {
+                        "is_from": isFrom,
+                        "box_id": Get.arguments?["box_id"],
+                      });
                     },
                     title: AppString.tryToConnect,
                   ),

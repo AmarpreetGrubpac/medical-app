@@ -15,7 +15,8 @@ import 'package:timer_count_down/timer_count_down.dart';
 Widget homeGrublockBottomSheet(BuildContext context) {
   return GetBuilder<HomeController>(
     builder: (controller) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 48.h),
@@ -59,7 +60,8 @@ Widget homeGrublockBottomSheet(BuildContext context) {
                   height: 1.5,
                 ),
                 AppText(
-                  text: "${controller.countryCode}${AppUtils.maskPhoneNumber(controller.phone)}.",
+                  text:
+                      "${controller.countryCode}${AppUtils.maskPhoneNumber(controller.phone)}.",
                   textAlign: TextAlign.center,
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w400,
@@ -78,7 +80,9 @@ Widget homeGrublockBottomSheet(BuildContext context) {
                     interval: const Duration(milliseconds: 100),
                     onFinished: controller.onCountdownFinished,
                     build: (_, time) => CommonCompactTextButton(
-                      onPressed: controller.isTimerCompleted ? controller.onResendCode : () {},
+                      onPressed: controller.isTimerCompleted
+                          ? controller.onResendCode
+                          : () {},
                       title: controller.isTimerCompleted
                           ? AppString.resendCode
                           : "${AppString.resendIn}${AppUtils.timerText(second: time.toInt())}",
@@ -89,7 +93,7 @@ Widget homeGrublockBottomSheet(BuildContext context) {
                 ValueListenableBuilder(
                   valueListenable: controller.otpController,
                   builder: (context, value, child) => CommonOutlinedButton(
-                    onPressed: controller.verify,
+                    onPressed: () {}, //TODO: controller.verify,
                     isLoading: controller.isLoading,
                     isDisabled: value.text.length.isLowerThan(4),
                     title: AppString.verify,

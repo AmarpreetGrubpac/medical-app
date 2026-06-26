@@ -68,9 +68,13 @@ class BoxManagementScreen extends StatelessWidget {
                                           isConnected: box.isConnected),
                                     ),
                                     AppText(
-                                        text: box.id,
+                                        text: box.name,
                                         fontSize: 18.sp,
                                         fontWeight: FontWeight.w600),
+                                    AppText(
+                                        text: box.boxDisplayId,
+                                        fontSize: 13.sp,
+                                        fontWeight: FontWeight.w200),
                                     Padding(
                                       padding: EdgeInsets.only(
                                           top: 8.h, bottom: 24.h),
@@ -82,7 +86,8 @@ class BoxManagementScreen extends StatelessWidget {
                                       child: CommonOutlinedButton(
                                         onPressed: box.isConnected
                                             ? controller.onViewDetailsBoxTap
-                                            : controller.onConnectBoxTap,
+                                            : () => controller
+                                                .onConnectBoxTap(box.id),
                                         title: box.isConnected
                                             ? AppString.viewDetails
                                             : AppString.connectBox,
@@ -97,7 +102,8 @@ class BoxManagementScreen extends StatelessWidget {
                                       child: IntrinsicWidth(
                                         child: CommonTextButton(
                                           onPressed: box.isConnected
-                                              ? controller.onDisconnectBoxTap
+                                              ? () => controller
+                                                  .onDisconnectBoxTap(box.id)
                                               : controller.onRemoveBoxTap,
                                           title: box.isConnected
                                               ? AppString.disconnectBtn

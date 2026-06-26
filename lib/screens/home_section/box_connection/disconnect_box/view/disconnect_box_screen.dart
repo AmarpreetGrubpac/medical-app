@@ -10,6 +10,7 @@ import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/app_toast.dart';
 import 'package:grubpac_driver/helper/navigation.dart';
+import 'package:grubpac_driver/screens/settings_section/box_management/controller/box_management_controller.dart';
 
 class DisconnectBoxScreen extends StatelessWidget {
   DisconnectBoxScreen({super.key});
@@ -40,7 +41,7 @@ class DisconnectBoxScreen extends StatelessWidget {
                     child: CommonBox(isConnected: true),
                   ),
                   AppText(
-                    text: AppString.boxNumber,
+                    text: Get.arguments?["box_id"] ?? AppString.boxNumber,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.contentBrandDefault,
                   ),
@@ -60,12 +61,21 @@ class DisconnectBoxScreen extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                     ),
                   ),
-                  CommonOutlinedButton(
-                    onPressed: () {
-                      AppToast.showSuccess(message: AppString.boxDisConnected);
-                      Navigation.pop(data: {"result": true});
+                  GetBuilder<BoxManagementController>(
+                    builder: (controller) {
+                      return CommonOutlinedButton(
+                        isLoading: controller.isLoading,
+                        onPressed: () async {
+                          final String boxId = Get.arguments?["box_id"] ?? "";
+                          final success = await controller.disconnectBox(boxId);
+                          if (success) {
+                            AppToast.showSuccess(message: AppString.boxDisConnected);
+                            Navigation.pop(data: {"result": true});
+                          }
+                        },
+                        title: AppString.disconnectBtn,
+                      );
                     },
-                    title: AppString.disconnectBtn,
                   ),
                 ],
               ),

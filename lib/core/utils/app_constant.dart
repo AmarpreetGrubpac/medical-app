@@ -8,9 +8,9 @@ class AppConstants {
 
   // config
   // static const String baseUrl = 'https://grubpac-api-dev.sqaby.org/api/v1';
-  // static const String baseUrl = 'https://43.204.34.10/api/v1';
-  static const String baseUrl =
-      'https://nktbq7k7-8000.inc1.devtunnels.ms/api/v1';
+  static const String baseUrl = 'https://43.204.34.10/api/v1';
+  // static const String baseUrl =
+  //     'https://nktbq7k7-8000.inc1.devtunnels.ms/api/v1';
 
   static const String configApi = '/delivery-mobile/config';
   static const String checkAccountApi = '/delivery-mobile/auth/check-account';

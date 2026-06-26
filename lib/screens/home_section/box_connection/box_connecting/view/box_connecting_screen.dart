@@ -8,10 +8,9 @@ import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_images.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/app_toast.dart';
-import 'package:grubpac_driver/core/utils/enums.dart';
 import 'package:grubpac_driver/helper/navigation.dart';
 import 'package:grubpac_driver/helper/route_helper.dart';
-import 'package:grubpac_driver/screens/home_section/home/controller/home_controller.dart';
+import 'package:grubpac_driver/screens/settings_section/box_management/controller/box_management_controller.dart';
 
 class BoxConnectingScreen extends StatefulWidget {
   const BoxConnectingScreen({super.key});
@@ -24,33 +23,30 @@ class _BoxConnectingScreenState extends State<BoxConnectingScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async => await redirectToNext());
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) async => await redirectToNext());
   }
 
-  final bool isError = false;
   final String isFrom = Get.arguments?["is_from"] ?? "";
 
   /// REDIRECT TO NEXT
   Future<void> redirectToNext() async {
-    if (!isError) {
+    final String boxId = Get.arguments?["box_id"] ?? "";
+    final controller = Get.find<BoxManagementController>();
+
+    final success = await controller.connectBox(boxId);
+
+    if (success) {
       AppToast.showSuccess(message: AppString.bluetoothConnectSuccess);
+      await Future.delayed(const Duration(seconds: 2));
+      Navigation.doublePop();
+    } else {
+      Navigation.doublePop();
+      Navigation.pushNamed(
+        RouteHelper.boxConnectionError,
+        arg: {"is_from": isFrom},
+      );
     }
-
-    await Future.delayed(Duration(seconds: 2), () {
-      if (isError) {
-        Navigation.doublePop();
-
-        Navigation.pushNamed(RouteHelper.boxConnectionError, arg: {"is_from": isFrom});
-      } else {
-        if (isFrom == ConnectBoxFrom.fromHome) {
-          final controller = Get.find<HomeController>();
-
-          controller.onBoxConnected();
-        } else {
-          Navigation.doublePop();
-        }
-      }
-    });
   }
 
   @override
@@ -72,7 +68,8 @@ class _BoxConnectingScreenState extends State<BoxConnectingScreen> {
                         IconAsset.boxScanning,
                         height: 200.h,
                         width: 200.h,
-                        colorFilter: ColorFilter.mode(AppTheme.contentNeutralLight, BlendMode.srcIn),
+                        colorFilter: ColorFilter.mode(
+                            AppTheme.contentNeutralLight, BlendMode.srcIn),
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: 36.h, bottom: 8.h),

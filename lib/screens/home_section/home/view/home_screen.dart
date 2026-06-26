@@ -16,11 +16,12 @@ import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/date_helper.dart';
 import 'package:grubpac_driver/screens/home_section/home/controller/home_controller.dart';
 import 'package:grubpac_driver/screens/home_section/home/widgets/info_card.dart';
+import 'package:grubpac_driver/screens/settings_section/box_management/controller/box_management_controller.dart';
+import 'package:grubpac_driver/screens/settings_section/box_management/model/box_info.dart';
 import 'package:grubpac_driver/screens/settings_section/profile/profile_details/controller/profile_details_controller.dart';
 
 import '../../../../helper/navigation.dart';
 import '../../../../helper/route_helper.dart';
-import '../../../fallback_screens/buttons_screens.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -43,164 +44,172 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return GetBuilder<HomeController>(
       builder: (controller) {
-        return SafeArea(
-          child: Stack(
-            children: [
-              Positioned(
-                top: 0,
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: controller.isBoxAdded
-                    ? CustomPaint(painter: GlowSemiCirclePainters())
-                    : SizedBox.shrink(),
-              ),
-              // Positioned(
-              //   bottom: 24,
-              //   right: 24,
-              //   child: Material(
-              //     color: Colors.transparent,
-              //     child: FloatingActionButton(
-              //       onPressed: () {
-              //         print('on pressed is working');
-              //         Navigation.replace(
-              //           RouteHelper.statusButtonsScreen,
-              //         );
-              //       },
-              //       backgroundColor: Theme.of(context).primaryColor,
-              //       child: const Icon(Icons.interests),
-              //     ),
-              //   ),
-              // ),
-              Column(
+        return GetBuilder<BoxManagementController>(
+          builder: (boxCtrl) {
+            // Derive state from the real box list
+            final bool isBoxAdded = boxCtrl.boxes.isNotEmpty;
+            final BoxInfo? currentBox = isBoxAdded &&
+                    boxCtrl.currentPage < boxCtrl.boxes.length
+                ? boxCtrl.boxes[boxCtrl.currentPage]
+                : null;
+            final bool isBoxConnected = currentBox?.isConnected ?? false;
+            final bool isBoxLocked = currentBox?.isLocked ?? true;
+
+            return SafeArea(
+              child: Stack(
                 children: [
-                  CommonAppNameBar(isHome: true),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        GetBuilder<ProfileDetailsController>(
-                            builder: (profileController) {
-                          return CommonBackAppBar(
+                  Positioned.fill(
+                    child: isBoxAdded
+                        ? CustomPaint(painter: GlowSemiCirclePainters())
+                        : const SizedBox.shrink(),
+                  ),
+                  Column(
+                    children: [
+                      CommonAppNameBar(isHome: true),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            GetBuilder<ProfileDetailsController>(
+                              builder: (profileController) {
+                                return CommonBackAppBar(
                                   title:
                                       "${getGreeting()} ${Get.find<ProfileDetailsController>().firstname}!",
                                   fontSize: 18.sp,
                                   backArrow: false,
                                 );
-                        }),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 24.w),
-                          child: Row(
-                            spacing: 16.w,
-                            children: [
-                              Expanded(
-                                child: InfoCard(
-                                  icon: IconAsset.locationPin,
-                                  label: AppString.location,
-                                  value: "Delhi",
-                                ),
+                              },
+                            ),
+                            Padding(
+                              padding:
+                                  EdgeInsets.symmetric(horizontal: 24.w),
+                              child: Row(
+                                spacing: 16.w,
+                                children: [
+                                  Expanded(
+                                    child: InfoCard(
+                                      icon: IconAsset.locationPin,
+                                      label: AppString.location,
+                                      value: "Delhi",
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: InfoCard(
+                                      icon: IconAsset.thermometer,
+                                      label: AppString.temperature,
+                                      value: AppString.temperatureValue,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Expanded(
-                                child: InfoCard(
-                                  icon: IconAsset.thermometer,
-                                  label: AppString.temperature,
-                                  value: AppString.temperatureValue,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                            isBoxAdded
+                                ? Expanded(
+                                    child: Column(
+                                      children: [
+                                        CommonBackAppBar(
+                                          title: AppString.addedBoxes,
+                                          fontSize: 18.sp,
+                                          fontColor:
+                                              AppTheme.contentNeutralSecondary,
+                                          backArrow: false,
+                                          trailing: CommonCompactTextButton(
+                                            onPressed: controller.onManageTap,
+                                            title: AppString.manage,
+                                            fontSize: 18.sp,
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Stack(
+                                            children: [
+                                              PageView.builder(
+                                                controller:
+                                                    boxCtrl.pageController,
+                                                itemCount: boxCtrl.boxes.length,
+                                                onPageChanged:
+                                                    boxCtrl.onPageChanged,
+                                                itemBuilder:
+                                                    (context, index) {
+                                                  final box =
+                                                      boxCtrl.boxes[index];
+                                                  return box.isConnected
+                                                      ? _ConnectedView(
+                                                          box: box,
+                                                          isBoxLocked:
+                                                              box.isLocked,
+                                                          onDisTap: () => controller
+                                                              .onDisconnectTap(box.id),
+                                                          onViewTap: controller
+                                                              .onViewDetailTap,
+                                                          onLockTap: () =>
+                                                              controller
+                                                                  .onLockTap(
+                                                                      context),
+                                                        )
+                                                      : _DisconnectedView(
+                                                          box: box,
+                                                          onConnectTap: () =>
+                                                              controller
+                                                                  .onConnectTap(box.id),
+                                                        );
+                                                },
+                                              ),
+                                              Positioned(
+                                                top: 114.h,
+                                                left: 24.w,
+                                                child: CommonCompactIconButton(
+                                                  onTap:
+                                                      boxCtrl.goToPreviousBox,
+                                                  icon: IconAsset.arrowLeft,
+                                                  size: 20.h,
+                                                  iconColor: AppTheme
+                                                      .contentBrandDefault,
+                                                  pressedIconColor: AppTheme
+                                                      .contentBrandDefault,
+                                                  pressedBgColor: AppTheme
+                                                      .pressedTextBtnColor,
+                                                ),
+                                              ),
+                                              Positioned(
+                                                top: 114.h,
+                                                right: 24.w,
+                                                child: CommonCompactIconButton(
+                                                  onTap: boxCtrl.goToNextBox,
+                                                  icon: IconAsset.arrowRight,
+                                                  size: 20.h,
+                                                  iconColor: AppTheme
+                                                      .contentBrandDefault,
+                                                  pressedIconColor: AppTheme
+                                                      .contentBrandDefault,
+                                                  pressedBgColor: AppTheme
+                                                      .pressedTextBtnColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : _EmptyView(onTap: controller.onAddBoxTap),
+                          ],
                         ),
-                        controller.isBoxAdded
-                            ? Expanded(
-                                child: Column(
-                                  children: [
-                                    CommonBackAppBar(
-                                      title: AppString.addedBoxes,
-                                      fontSize: 18.sp,
-                                      fontColor:
-                                          AppTheme.contentNeutralSecondary,
-                                      backArrow: false,
-                                      trailing: CommonCompactTextButton(
-                                        onPressed: controller.onManageTap,
-                                        title: AppString.manage,
-                                        fontSize: 18.sp,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Stack(
-                                        children: [
-                                          PageView.builder(
-                                            controller:
-                                                controller.pageController,
-                                            itemCount: 2,
-                                            onPageChanged:
-                                                controller.onPageChanged,
-                                            itemBuilder: (BuildContext context,
-                                                int index) {
-                                              return controller.isBoxConnected
-                                                  ? _ConnectedView(
-                                                      onDisTap: controller
-                                                          .onDisconnectTap,
-                                                      onViewTap: controller
-                                                          .onViewDetailTap,
-                                                    )
-                                                  : _DisconnectedView(
-                                                      onConnectTap: controller
-                                                          .onConnectTap);
-                                            },
-                                          ),
-                                          Positioned(
-                                            top: 114.h,
-                                            left: 24.w,
-                                            child: CommonCompactIconButton(
-                                              onTap: controller.goToPreviousBox,
-                                              icon: IconAsset.arrowLeft,
-                                              size: 20.h,
-                                              iconColor:
-                                                  AppTheme.contentBrandDefault,
-                                              pressedIconColor:
-                                                  AppTheme.contentBrandDefault,
-                                              pressedBgColor:
-                                                  AppTheme.pressedTextBtnColor,
-                                            ),
-                                          ),
-                                          Positioned(
-                                            top: 114.h,
-                                            right: 24.w,
-                                            child: CommonCompactIconButton(
-                                              onTap: controller.goToNextBox,
-                                              icon: IconAsset.arrowRight,
-                                              size: 20.h,
-                                              iconColor:
-                                                  AppTheme.contentBrandDefault,
-                                              pressedIconColor:
-                                                  AppTheme.contentBrandDefault,
-                                              pressedBgColor:
-                                                  AppTheme.pressedTextBtnColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : _EmptyView(onTap: controller.onAddBoxTap),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 }
 
+// ─── Empty State ────────────────────────────────────────────────────────────
+
 class _EmptyView extends StatelessWidget {
   final VoidCallback onTap;
-
   const _EmptyView({required this.onTap});
 
   @override
@@ -246,65 +255,22 @@ class _EmptyView extends StatelessWidget {
   }
 }
 
+// ─── Connected View ─────────────────────────────────────────────────────────
+
 class _ConnectedView extends StatelessWidget {
-  final VoidCallback onViewTap, onDisTap;
+  final BoxInfo box;
+  final bool isBoxLocked;
+  final VoidCallback onViewTap;
+  final Future<void> Function() onDisTap;
+  final VoidCallback onLockTap;
 
-  const _ConnectedView({required this.onViewTap, required this.onDisTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GetBuilder<HomeController>(
-      builder: (controller) => SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 24.w),
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 24.h),
-              child: CommonBox(
-                onTap: () => controller.onLockTap(context),
-                isGrubLock: true,
-                isBoxLocked: controller.isBoxLocked,
-              ),
-            ),
-            AppText(
-              text: "BOX-1245",
-              fontSize: 24.sp,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.contentNeutralPrimary,
-            ),
-            24.h.verticalSpace,
-            IntrinsicWidth(
-              child: CommonOutlinedButton(
-                onPressed: onViewTap,
-                title: AppString.viewDetails,
-                fontSize: 18.sp,
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.h),
-              child: IntrinsicWidth(
-                child: CommonTextButton(
-                  onPressed: onDisTap,
-                  title: AppString.disconnectBtn,
-                  height: 46.h,
-                  fontSize: 18.sp,
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DisconnectedView extends StatelessWidget {
-  final VoidCallback onConnectTap;
-
-  const _DisconnectedView({required this.onConnectTap});
+  const _ConnectedView({
+    required this.box,
+    required this.isBoxLocked,
+    required this.onViewTap,
+    required this.onDisTap,
+    required this.onLockTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -313,10 +279,71 @@ class _DisconnectedView extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-              padding: EdgeInsets.symmetric(vertical: 24.h),
-              child: CommonBox(isConnected: false)),
+            padding: EdgeInsets.symmetric(vertical: 24.h),
+            child: CommonBox(
+              onTap: onLockTap,
+              isGrubLock: true,
+              isBoxLocked: isBoxLocked,
+            ),
+          ),
           AppText(
-            text: "BOX-1245",
+            text: box.name.isNotEmpty ? box.name : box.boxDisplayId,
+            fontSize: 24.sp,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.contentNeutralPrimary,
+          ),
+          24.h.verticalSpace,
+          IntrinsicWidth(
+            child: CommonOutlinedButton(
+              onPressed: onViewTap,
+              title: AppString.viewDetails,
+              fontSize: 18.sp,
+              padding:
+                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.h),
+            child: IntrinsicWidth(
+              child: CommonTextButton(
+                onPressed: onDisTap,
+                title: AppString.disconnectBtn,
+                height: 46.h,
+                fontSize: 18.sp,
+                padding:
+                    EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Disconnected View ───────────────────────────────────────────────────────
+
+class _DisconnectedView extends StatelessWidget {
+  final BoxInfo box;
+  final VoidCallback onConnectTap;
+
+  const _DisconnectedView({
+    required this.box,
+    required this.onConnectTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 24.h),
+            child: const CommonBox(isConnected: false),
+          ),
+          AppText(
+            text: box.name.isNotEmpty ? box.name : box.boxDisplayId,
             textAlign: TextAlign.center,
             fontSize: 24.sp,
             fontWeight: FontWeight.w600,

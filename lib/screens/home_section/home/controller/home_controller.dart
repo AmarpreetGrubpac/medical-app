@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:grubpac_driver/core/preference/app_preferences.dart';
 import 'package:grubpac_driver/core/preference/pref_key.dart';
-import 'package:grubpac_driver/core/utils/app_string.dart';
-import 'package:grubpac_driver/core/utils/app_toast.dart';
 import 'package:grubpac_driver/core/utils/enums.dart';
 import 'package:grubpac_driver/helper/navigation.dart';
 import 'package:grubpac_driver/helper/route_helper.dart';
@@ -27,18 +25,9 @@ class HomeController extends GetxController {
     update();
   }
 
-  int currentPage = 0;
-
-  final PageController pageController = PageController();
-
   String phone = "";
   String countryCode = "";
-
   String username = "";
-
-  // bool isBoxAdded = true;
-  // bool isBoxConnected = false;
-  // bool isBoxLocked = true;
 
   /// USERNAME
   void getUserName() {
@@ -53,35 +42,27 @@ class HomeController extends GetxController {
   void onAddBoxTap() => Navigation.pushNamed(RouteHelper.scanBox);
 
   /// CONNECT
-  void onConnectTap() {
+  void onConnectTap(String boxId) {
     Navigation.pushNamed(RouteHelper.connectBoxInstructions,
-        arg: {"is_from": ConnectBoxFrom.fromHome});
+        arg: {"is_from": ConnectBoxFrom.fromHome, "box_id": boxId});
   }
 
   /// VIEW DETAILS
   void onViewDetailTap() => Navigation.pushNamed(RouteHelper.boxDetails);
 
-  // /// DISCONNECT
-  // Future<void> onDisconnectTap() async {
-  //   final data = await Navigation.pushNamed(
-  //     RouteHelper.disconnectBox,
-  //     arg: {"is_from": ConnectBoxFrom.fromHome},
-  //   );
-
-  //   if (data != null && data["result"] == true) {
-  //     isBoxConnected = false;
-  //     update();
-  //   }
-  // }
-
-  ///
-  // void onBoxConnected() {
-  //   isBoxAdded = true;
-  //   isBoxConnected = true;
-  //   update();
-
-  //   Navigation.doublePop();
-  // }
+  /// DISCONNECT — delegates to BoxManagementController
+  Future<void> onDisconnectTap(String boxId) async {
+    final data = await Navigation.pushNamed(
+      RouteHelper.disconnectBox,
+      arg: {
+        "is_from": ConnectBoxFrom.fromHome,
+        "box_id": boxId,
+      },
+    );
+    if (data != null && data["result"] == true) {
+      update();
+    }
+  }
 
   ///=====
   bool isTimerCompleted = false;
@@ -98,18 +79,16 @@ class HomeController extends GetxController {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent, // Important for blur
+      backgroundColor: Colors.transparent,
       builder: (context) {
         return Stack(
           children: [
-            // Blurred Background
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
               child: Container(
-                color: Colors.black.withValues(alpha: 0.05), // Optional tint
+                color: Colors.black.withValues(alpha: 0.05),
               ),
             ),
-            // Bottom Sheet Content
             Align(
               alignment: Alignment.bottomCenter,
               child: homeGrublockBottomSheet(context),
@@ -131,58 +110,5 @@ class HomeController extends GetxController {
     countdownController.restart();
     isTimerCompleted = false;
     update();
-  }
-
-  /// GO TO PREVIOUS
-  void goToPreviousBox() {
-    if (currentPage > 0) {
-      currentPage--;
-      pageController.animateToPage(
-        currentPage,
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-      update();
-    }
-  }
-
-  /// GO TO NEXT
-  void goToNextBox() {
-    if (currentPage < 1) {
-      currentPage++;
-      pageController.animateToPage(
-        currentPage,
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-      update();
-    }
-  }
-
-  /// ON PAGE CHANGED
-  void onPageChanged(int index) {
-    currentPage = index;
-    update();
-  }
-
-  /// ON VERIFY OTP
-  void verify() {
-    if (otpController.text == "1111") {
-      isLoading = true;
-      update();
-
-      Future.delayed(const Duration(seconds: 1), () {
-        isLoading = false;
-        update();
-
-        AppToast.showSuccess(message: AppString.otpVerify);
-        // isBoxLocked = false;
-
-        Navigation.pop();
-      });
-    } else {
-      AppToast.showError(
-          message: AppString.otpTryAgain, title: AppString.invalidOTP);
-    }
   }
 }
