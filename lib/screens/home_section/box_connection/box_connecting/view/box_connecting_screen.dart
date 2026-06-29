@@ -42,7 +42,7 @@ class _BoxConnectingScreenState extends State<BoxConnectingScreen> {
       Navigation.doublePop();
     } else {
       Navigation.doublePop();
-      Navigation.pushNamed(
+      Navigation.pushNamed( 
         RouteHelper.boxConnectionError,
         arg: {"is_from": isFrom},
       );

@@ -131,7 +131,11 @@ class _GrublockBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<BoxDetailsController>(
-      builder: (controller) => GrubLockBox(onTap: () => controller.onLockTap(context)),
+      builder: (controller) => GrubLockBox(
+        onTap: controller.boxConnectionStatus
+            ? () => controller.onLockTap(context)
+            : null,
+      ),
     );
   }
 }
@@ -141,140 +145,149 @@ class _BatteryBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<BoxDetailsController>(
-      builder: (controller) => Container(
-        height: 318.h,
-        margin: EdgeInsetsGeometry.fromLTRB(24.w, 15.h, 0, 15.h),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: 12.h),
-                    child: Row(
-                      spacing: 8.w,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CommonSwitch(
-                          onToggle: controller.toggleDualZone,
-                          isOn: controller.dualZoneSwitch,
-                          isGreen: false,
-                        ),
-                        AppText(
-                          text: AppString.dualZone,
-                          fontWeight: FontWeight.w400,
-                          color: AppTheme.contentNeutralPrimary,
-                          height: 1,
-                        ),
-                      ],
+      builder: (controller) {
+        final isConnected = controller.boxConnectionStatus;
+        return Container(
+          height: 318.h,
+          margin: EdgeInsetsGeometry.fromLTRB(24.w, 15.h, 0, 15.h),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 12.h),
+                      child: Row(
+                        spacing: 8.w,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CommonSwitch(
+                            onToggle: isConnected ? controller.toggleDualZone : () {},
+                            isOn: controller.dualZoneSwitch,
+                            isGreen: false,
+                          ),
+                          AppText(
+                            text: AppString.dualZone,
+                            fontWeight: FontWeight.w400,
+                            color: AppTheme.contentNeutralPrimary,
+                            height: 1,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: controller.sliderController,
-                    builder: (context, value, child) {
-                      return Container(
-                        height: 240.h,
-                        margin: EdgeInsets.symmetric(vertical: 14.h),
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Positioned(
-                              top: -12.h,
-                              child: TempratureButtons(
-                                onTap: () => controller.onSelectTempButtons(70),
-                                value: 70,
-                                isSelected: AppUtils.denormalizeSliderValue(value) == 70,
-                                title: AppString.hot,
+                    ValueListenableBuilder(
+                      valueListenable: controller.sliderController,
+                      builder: (context, value, child) {
+                        return Container(
+                          height: 240.h,
+                          margin: EdgeInsets.symmetric(vertical: 14.h),
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Positioned(
+                                top: -12.h,
+                                child: TempratureButtons(
+                                  onTap: isConnected
+                                      ? () => controller.onSelectTempButtons(70)
+                                      : null,
+                                  value: 70,
+                                  isSelected: AppUtils.denormalizeSliderValue(value) == 70,
+                                  title: AppString.hot,
+                                ),
                               ),
-                            ),
-                            Positioned(
-                              top: 0,
-                              bottom: 0,
-                              child: TempratureButtons(
-                                onTap: () => controller.onSelectTempButtons(25),
-                                value: 25,
-                                isSelected: AppUtils.denormalizeSliderValue(value) == 25,
-                                title: AppString.warm,
+                              Positioned(
+                                top: 0,
+                                bottom: 0,
+                                child: TempratureButtons(
+                                  onTap: isConnected
+                                      ? () => controller.onSelectTempButtons(25)
+                                      : null,
+                                  value: 25,
+                                  isSelected: AppUtils.denormalizeSliderValue(value) == 25,
+                                  title: AppString.warm,
+                                ),
                               ),
-                            ),
-                            Positioned(
-                              bottom: -12.h,
-                              child: TempratureButtons(
-                                onTap: () => controller.onSelectTempButtons(-20),
-                                value: -20,
-                                isSelected: AppUtils.denormalizeSliderValue(value) == -20,
-                                title: AppString.cold,
+                              Positioned(
+                                bottom: -12.h,
+                                child: TempratureButtons(
+                                  onTap: isConnected
+                                      ? () => controller.onSelectTempButtons(-20)
+                                      : null,
+                                  value: -20,
+                                  isSelected: AppUtils.denormalizeSliderValue(value) == -20,
+                                  title: AppString.cold,
+                                ),
                               ),
-                            ),
-                            Positioned(
-                              top: 0,
-                              bottom: 0,
-                              left: 60.w,
-                              child: CommonTempSlider(
-                                onChanged: controller.onSliderChange,
-                                controller: controller.sliderController,
+                              Positioned(
+                                top: 0,
+                                bottom: 0,
+                                left: 60.w,
+                                child: CommonTempSlider(
+                                  onChanged: isConnected ? controller.onSliderChange : null,
+                                  controller: controller.sliderController,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Stack(
+                children: [
+                  Image.asset(ImageAsset.batteryBox, fit: BoxFit.fill, height: 318.h, width: 183.w),
+
+                  /// SINGLE
+                  if (!controller.dualZoneSwitch)
+                    Positioned(
+                      top: 41.h,
+                      bottom: 50.h,
+                      left: 22.w,
+                      child: BatteryBoxWidget(
+                        isSelected: true,
+                        title: "Zone 1",
+                        temp: controller.firstBattery,
+                        type: BatteryBoxType.full,
+                      ),
+                    ),
+
+                  /// FIRST
+                  if (controller.dualZoneSwitch)
+                    Positioned(
+                      top: 41.h,
+                      left: 22.w,
+                      child: BatteryBoxWidget(
+                        onTap: isConnected ? () => controller.onSelectBattery(1) : null,
+                        isSelected: controller.selectedBattery == 1,
+                        title: "Zone 1",
+                        temp: controller.firstBattery,
+                        type: BatteryBoxType.first,
+                      ),
+                    ),
+
+                  /// SECOND
+                  if (controller.dualZoneSwitch)
+                    Positioned(
+                      bottom: 50.h,
+                      left: 22.w,
+                      child: BatteryBoxWidget(
+                        onTap: isConnected ? () => controller.onSelectBattery(2) : null,
+                        isSelected: controller.selectedBattery == 2,
+                        title: "Zone 2",
+                        temp: controller.secondBattery,
+                        type: BatteryBoxType.second,
+                      ),
+                    ),
                 ],
               ),
-            ),
-            Stack(
-              children: [
-                Image.asset(ImageAsset.batteryBox, fit: BoxFit.fill, height: 318.h, width: 183.w),
-
-                /// SINGLE
-                if (!controller.dualZoneSwitch)
-                  Positioned(
-                    top: 41.h,
-                    bottom: 50.h,
-                    left: 22.w,
-                    child: BatteryBoxWidget(
-                      isSelected: true,
-                      title: "Zone 1",
-                      temp: controller.firstBattery,
-                      type: BatteryBoxType.full,
-                    ),
-                  ),
-
-                /// FIRST
-                if (controller.dualZoneSwitch)
-                  Positioned(
-                    top: 41.h,
-                    left: 22.w,
-                    child: BatteryBoxWidget(
-                      onTap: () => controller.onSelectBattery(1),
-                      isSelected: controller.selectedBattery == 1,
-                      title: "Zone 1",
-                      temp: controller.firstBattery,
-                      type: BatteryBoxType.first,
-                    ),
-                  ),
-
-                /// SECOND
-                if (controller.dualZoneSwitch)
-                  Positioned(
-                    bottom: 50.h,
-                    left: 22.w,
-                    child: BatteryBoxWidget(
-                      onTap: () => controller.onSelectBattery(2),
-                      isSelected: controller.selectedBattery == 2,
-                      title: "Zone 2",
-                      temp: controller.secondBattery,
-                      type: BatteryBoxType.second,
-                    ),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -436,7 +449,12 @@ class _AdvertBox extends StatelessWidget {
               child: Row(
                 spacing: 8.w,
                 children: [
-                  CommonSwitch(onToggle: controller.toggleAdvert, isOn: controller.advertSwitch),
+                  CommonSwitch(
+                    onToggle: controller.boxConnectionStatus
+                        ? controller.toggleAdvert
+                        : () {},
+                    isOn: controller.advertSwitch,
+                  ),
                   AppText(
                     text: controller.advertSwitch ? AppString.on : AppString.off,
                     fontWeight: FontWeight.w400,

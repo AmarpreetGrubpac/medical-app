@@ -84,6 +84,9 @@ class BoxDetailsController extends GetxController {
               ? firstBattery.toDouble()
               : secondBattery.toDouble(),
         );
+
+        // Sync with BoxManagementController
+        _syncConnectionStatusToManagement(boxConnectionStatus);
       } else {
         throw Failure(
             message: res.body['message'] ??
@@ -227,7 +230,8 @@ class BoxDetailsController extends GetxController {
     currentAction = (boxInfo?.isLocked ?? true) ? "unlock" : "lock";
 
     // Call the sendBoxOtp function in parallel (not awaited)
-    Get.find<BoxManagementController>().sendBoxOtp(boxId, action: currentAction);
+    Get.find<BoxManagementController>()
+        .sendBoxOtp(boxId, action: currentAction);
 
     isTimerCompleted = false;
     countdownController.restart();
@@ -419,18 +423,41 @@ class BoxDetailsController extends GetxController {
     if (boxConnectionStatus) {
       boxConnectionStatus = false;
       update();
+      _syncConnectionStatusToManagement(false);
       _disconnectBoxCall(onRollback: () {
         boxConnectionStatus = true;
         update();
+        _syncConnectionStatusToManagement(true);
       });
     } else {
       boxConnectionStatus = true;
       update();
+      _syncConnectionStatusToManagement(true);
       _connectBoxCall(onRollback: () {
         boxConnectionStatus = false;
         update();
+        _syncConnectionStatusToManagement(false);
       });
     }
+  }
+
+  void _syncConnectionStatusToManagement(bool isConnected) {
+    try {
+      final boxManagementController = Get.find<BoxManagementController>();
+      final index = boxManagementController.boxes
+          .indexWhere((element) => element.id == boxId);
+      if (index != -1) {
+        if (boxInfo != null) {
+          boxManagementController.boxes[index] =
+              boxInfo!.copyWith(isConnected: isConnected);
+        } else {
+          boxManagementController.boxes[index] = boxManagementController
+              .boxes[index]
+              .copyWith(isConnected: isConnected);
+        }
+        boxManagementController.update();
+      }
+    } catch (_) {}
   }
 
   /// OVERLAYS ============
@@ -522,12 +549,13 @@ class BoxDetailsController extends GetxController {
   /// ON RESEND
   void onResendCode() async {
     if (isLoading) return;
-    
+
     isLoading = true;
     update();
 
     try {
-      final success = await Get.find<BoxManagementController>().sendBoxOtp(boxId, action: currentAction);
+      final success = await Get.find<BoxManagementController>()
+          .sendBoxOtp(boxId, action: currentAction);
       if (success) {
         countdownController.restart();
         isTimerCompleted = false;

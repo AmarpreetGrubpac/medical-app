@@ -23,7 +23,7 @@ class BoxDetailsScreen extends StatelessWidget {
                 children: [
                   CommonAppNameBar(),
                   Expanded(
-                    child: controller.isLoading
+                    child: controller.isLoading && controller.boxInfo == null
                         ? const Center(
                             child: CircularProgressIndicator(),
                           )
@@ -42,6 +42,10 @@ class BoxDetailsScreen extends StatelessWidget {
                                   return index == 0 ? FirstDetailsView() : SecondDetailsView();
                                 },
                               ),
+                              if (controller.isLoading)
+                                const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
                             ],
                           ),
                   ),

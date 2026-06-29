@@ -66,6 +66,9 @@ class DeleteAcScreen extends StatelessWidget {
                       context: context,
                       builder: (context) {
                         return AlertDialog(
+                          constraints: BoxConstraints(
+                            maxHeight: 275.h,
+                          ),
                           title: AppText(
                             text: AppString.deleteAccount,
                             fontSize: 20.sp,

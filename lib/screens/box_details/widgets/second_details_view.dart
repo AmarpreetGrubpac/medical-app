@@ -109,35 +109,39 @@ class _ZoneBoxes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<BoxDetailsController>(
-      builder: (controller) => Row(
-        spacing: 16.w,
-        children: [
-          Expanded(
-            child: ZoneCard(
-              zoneName: "Zone 1",
-              targetTemp: "${controller.firstBattery}",
-              achievedTemp: "${controller.firstBattery}",
-              isOn: controller.zoneBox1Switch,
-              onToggle: controller.toggleZoneBox1,
-              type: controller.zoneBox1Switch
-                  ? ZoneBoxType.getType(controller.firstBattery)
-                  : ZoneBoxType.disabled,
+      builder: (controller) {
+        final isConnected = controller.boxConnectionStatus;
+        return Row(
+          spacing: 16.w,
+          children: [
+            Expanded(
+              child: ZoneCard(
+                zoneName: "Zone 1",
+                targetTemp: "${controller.firstBattery}",
+                achievedTemp: "${controller.firstBattery}",
+                isOn: controller.zoneBox1Switch,
+                onToggle: isConnected ? controller.toggleZoneBox1 : () {},
+                type: controller.zoneBox1Switch
+                    ? ZoneBoxType.getType(controller.firstBattery)
+                    : ZoneBoxType.disabled,
+              ),
             ),
-          ),
-          Expanded(
-            child: ZoneCard(
-              zoneName: "Zone 2",
-              targetTemp: "${controller.secondBattery}",
-              achievedTemp: "${controller.secondBattery}",
-              isOn: controller.zoneBox2Switch,
-              onToggle: controller.toggleZoneBox2,
-              type: controller.zoneBox2Switch
-                  ? ZoneBoxType.getType(controller.secondBattery)
-                  : ZoneBoxType.disabled,
-            ),
-          ),
-        ],
-      ),
+            if (controller.dualZoneSwitch)
+              Expanded(
+                child: ZoneCard(
+                  zoneName: "Zone 2",
+                  targetTemp: "${controller.secondBattery}",
+                  achievedTemp: "${controller.secondBattery}",
+                  isOn: controller.zoneBox2Switch,
+                  onToggle: isConnected ? controller.toggleZoneBox2 : () {},
+                  type: controller.zoneBox2Switch
+                      ? ZoneBoxType.getType(controller.secondBattery)
+                      : ZoneBoxType.disabled,
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
@@ -147,158 +151,165 @@ class _BoxWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<BoxDetailsController>(
-      builder: (controller) => ExpandableTile(
-        onTap: controller.toggleBox,
-        isExpanded: controller.isBoxExpanded,
-        title: AppString.boxSmall,
-        child: Column(
-          spacing: 12.h,
-          children: [
-            ExpandableBox(
-              onTap: controller.toggleStatusBox,
-              isExpanded: controller.isStatusBoxExpanded,
-              icon: IconAsset.heart,
-              title: AppString.status,
-              trailing: CommonStatusPill(
-                title: controller.boxConnectionStatus
-                    ? AppString.connectedBtn
-                    : AppString.disconnectBtn,
-                type: controller.boxConnectionStatus
-                    ? StatusType.connected
-                    : StatusType.disconnected,
-              ),
-              child: Column(
-                spacing: 12.h,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppText(
-                    text: controller.boxConnectionStatus
-                        ? AppString.currentlyConnected
-                        : AppString.currentlyDisconnected,
+      builder: (controller) {
+        final isConnected = controller.boxConnectionStatus;
+        return ExpandableTile(
+            onTap: controller.toggleBox,
+            isExpanded: controller.isBoxExpanded,
+            title: AppString.boxSmall,
+            child: Column(
+              spacing: 12.h,
+              children: [
+                ExpandableBox(
+                  onTap: controller.toggleStatusBox,
+                  isExpanded: controller.isStatusBoxExpanded,
+                  icon: IconAsset.heart,
+                  title: AppString.status,
+                  trailing: CommonStatusPill(
+                    title: isConnected
+                        ? AppString.connectedBtn
+                        : AppString.disconnectedBtn,
+                    type: isConnected
+                        ? StatusType.connected
+                        : StatusType.disconnected,
+                  ),
+                  child: Column(
+                    spacing: 12.h,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppText(
+                        text: isConnected
+                            ? AppString.currentlyConnected
+                            : AppString.currentlyDisconnected,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14.sp,
+                      ),
+                      CommonOutlinedButton(
+                        onPressed: controller.toggleBoxStatus,
+                        height: 32.h,
+                        title: isConnected
+                            ? AppString.disconnectClick
+                            : AppString.connectClick,
+                        fontSize: 14.sp,
+                      ),
+                    ],
+                  ),
+                ),
+                ExpandableBox(
+                  onTap: controller.toggleAdvertBox,
+                  isExpanded: controller.isAdvertBoxExpanded,
+                  icon: IconAsset.advertScreen,
+                  title: AppString.advert,
+                  trailing: Row(
+                    spacing: 8.w,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CommonSwitch(
+                          onToggle:
+                              isConnected ? controller.toggleAdvert : () {},
+                          isOn: controller.advertSwitch),
+                      AppText(
+                        text: controller.advertSwitch
+                            ? AppString.on
+                            : AppString.off,
+                        fontWeight: FontWeight.w400,
+                        height: 1,
+                      ),
+                    ],
+                  ),
+                  child: AppText(
+                    text: controller.advertSwitch
+                        ? AppString.externalDisplayOn
+                        : AppString.externalDisplayOff,
                     fontWeight: FontWeight.w400,
                     fontSize: 14.sp,
                   ),
-                  CommonOutlinedButton(
-                    onPressed: controller.toggleBoxStatus,
-                    height: 32.h,
-                    title: controller.boxConnectionStatus
-                        ? AppString.disconnectClick
-                        : AppString.connectClick,
-                    fontSize: 14.sp,
+                ),
+                ExpandableBox(
+                  icon: IconAsset.lock,
+                  title: AppString.grublock,
+                  isGrublock: true,
+                  trailing: CommonStatusPill(
+                      title: AppString.locked, type: StatusType.disconnected),
+                ),
+                ExpandableBox(
+                  icon: IconAsset.ioniser,
+                  title: AppString.ioniserLabel,
+                  trailing: Row(
+                    spacing: 8.w,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CommonSwitch(
+                          onToggle: isConnected
+                              ? controller.toggleIoniserSwitch
+                              : () {},
+                          isOn: controller.ioniserSwitch),
+                      AppText(
+                        text: controller.ioniserSwitch
+                            ? AppString.on
+                            : AppString.off,
+                        fontWeight: FontWeight.w400,
+                        height: 1,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            ExpandableBox(
-              onTap: controller.toggleAdvertBox,
-              isExpanded: controller.isAdvertBoxExpanded,
-              icon: IconAsset.advertScreen,
-              title: AppString.advert,
-              trailing: Row(
-                spacing: 8.w,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CommonSwitch(
-                      onToggle: controller.toggleAdvert,
-                      isOn: controller.advertSwitch),
-                  AppText(
-                    text:
-                        controller.advertSwitch ? AppString.on : AppString.off,
-                    fontWeight: FontWeight.w400,
-                    height: 1,
-                  ),
-                ],
-              ),
-              child: AppText(
-                text: controller.advertSwitch
-                    ? AppString.externalDisplayOn
-                    : AppString.externalDisplayOff,
-                fontWeight: FontWeight.w400,
-                fontSize: 14.sp,
-              ),
-            ),
-            ExpandableBox(
-              icon: IconAsset.lock,
-              title: AppString.grublock,
-              isGrublock: true,
-              trailing: CommonStatusPill(
-                  title: AppString.locked, type: StatusType.disconnected),
-            ),
-            ExpandableBox(
-              icon: IconAsset.ioniser,
-              title: AppString.ioniserLabel,
-              trailing: Row(
-                spacing: 8.w,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CommonSwitch(
-                      onToggle: controller.toggleIoniserSwitch,
-                      isOn: controller.ioniserSwitch),
-                  AppText(
-                    text:
-                        controller.ioniserSwitch ? AppString.on : AppString.off,
-                    fontWeight: FontWeight.w400,
-                    height: 1,
-                  ),
-                ],
-              ),
-            ),
-            ExpandableBox(
-              onTap: controller.toggleThermoBox,
-              isExpanded: controller.isThermoBoxExpanded,
-              icon: IconAsset.sun,
-              title: AppString.thermostat,
-              trailing: AppText(text: "23°C", fontWeight: FontWeight.w600),
-              child: Column(
-                spacing: 12.h,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppText(
-                    text: AppString.externalThermostat,
-                    maxLines: 3,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 14.sp,
-                  ),
-                  OutlinedBox(
-                    borderColor: AppTheme.primary,
-                    child: Row(
-                      spacing: 8.w,
-                      children: [
-                        SvgPicture.asset(
-                          IconAsset.thermometer,
-                          height: 32.h,
-                          width: 32.h,
-                          colorFilter: ColorFilter.mode(
-                            AppTheme.contentBrandPrimaryOrange,
-                            BlendMode.srcIn,
-                          ),
+                ),
+                ExpandableBox(
+                  onTap: controller.toggleThermoBox,
+                  isExpanded: controller.isThermoBoxExpanded,
+                  icon: IconAsset.sun,
+                  title: AppString.thermostat,
+                  trailing: AppText(text: "23°C", fontWeight: FontWeight.w600),
+                  child: Column(
+                    spacing: 12.h,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppText(
+                        text: AppString.externalThermostat,
+                        maxLines: 3,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14.sp,
+                      ),
+                      OutlinedBox(
+                        borderColor: AppTheme.primary,
+                        child: Row(
+                          spacing: 8.w,
+                          children: [
+                            SvgPicture.asset(
+                              IconAsset.thermometer,
+                              height: 32.h,
+                              width: 32.h,
+                              colorFilter: ColorFilter.mode(
+                                AppTheme.contentBrandPrimaryOrange,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                            AppText(
+                              text: AppString.outSideTemp,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            AppText(
+                              text: "23°C",
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.contentNeutralPrimary,
+                            ),
+                          ],
                         ),
-                        AppText(
-                          text: AppString.outSideTemp,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        AppText(
-                          text: "23°C",
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.contentNeutralPrimary,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            ExpandableBox(
-              icon: IconAsset.gyrosensor,
-              title: AppString.gyrosensor,
-              trailing: CommonStatusPill(
-                  title: AppString.detected, type: StatusType.connected),
-            ),
-          ],
-        ),
-      ),
+                ),
+                ExpandableBox(
+                  icon: IconAsset.gyrosensor,
+                  title: AppString.gyrosensor,
+                  trailing: CommonStatusPill(
+                      title: AppString.detected, type: StatusType.connected),
+                ),
+              ],
+            ));
+      },
     );
   }
 }
@@ -363,13 +374,16 @@ class _PowerWidget extends StatelessWidget {
               isExpanded: controller.isBatteryBoxExpanded,
               icon: IconAsset.powerBank,
               title: AppString.batteryLabel,
-              trailing: AppText(text: "${controller.boxInfo?.batteryLevel ?? 0}%", fontWeight: FontWeight.w600),
+              trailing: AppText(
+                  text: "${controller.boxInfo?.batteryLevel ?? 0}%",
+                  fontWeight: FontWeight.w600),
               child: Column(
                 spacing: 12.h,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AppText(
-                    text: AppString.aboutFifty.replaceAll("50%", "${controller.boxInfo?.batteryLevel ?? 0}%"),
+                    text: AppString.aboutFifty.replaceAll(
+                        "50%", "${controller.boxInfo?.batteryLevel ?? 0}%"),
                     maxLines: 3,
                     fontWeight: FontWeight.w400,
                     fontSize: 14.sp,
