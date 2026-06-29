@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:grubpac_driver/common_components/app_text.dart';
 import 'package:grubpac_driver/common_components/common_back_button.dart';
-import 'package:grubpac_driver/common_components/common_button.dart';
 import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/screens/scan_box/controller/scan_box_controller.dart';
@@ -20,59 +19,83 @@ class ScanBoxScreen extends StatelessWidget {
       builder: (controller) {
         final screenSize = MediaQuery.of(context).size;
         final scanBoxSize = 294.h;
-        final verticalOffset = 60.0;
+        const verticalOffset = 60.0;
 
-        // Calculate consistent top and left positions
         final scanBoxTop = (screenSize.height - scanBoxSize) / 2 - verticalOffset;
         final scanBoxLeft = (screenSize.width - scanBoxSize) / 2;
 
         final scanRect = Rect.fromLTWH(scanBoxLeft, scanBoxTop, scanBoxSize, scanBoxSize);
 
-        return Scaffold(
-          body: Stack(
-            children: [
-              // 👁 Camera view
-              MobileScanner(controller: controller.scannerController, onDetect: controller.onDetect),
+        return PopScope(
+          // Block back navigation while an API call is in-flight.
+          canPop: !controller.isProcessing,
+          child: Scaffold(
+            body: Stack(
+              children: [
+                // 👁 Camera view — always live
+                MobileScanner(
+                  controller: controller.scannerController,
+                  onDetect: controller.onDetect,
+                ),
 
-              // 🔲 Blur mask outside scan box
-              Positioned.fill(child: CustomPaint(painter: _ScanOverlayPainter(scanRect: scanRect))),
+                // 🔲 Dimmed overlay outside scan area
+                Positioned.fill(
+                  child: CustomPaint(painter: _ScanOverlayPainter(scanRect: scanRect)),
+                ),
 
-              // ⬜️ Scan box border aligned exactly with scanRect
-              Positioned(
-                top: scanBoxTop,
-                left: scanBoxLeft,
-                child: Container(
-                  width: scanBoxSize,
-                  height: scanBoxSize,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppTheme.primary, width: 4),
-                    borderRadius: BorderRadius.circular(8.r),
+                // ⬜ Scan box border
+                Positioned(
+                  top: scanBoxTop,
+                  left: scanBoxLeft,
+                  child: Container(
+                    width: scanBoxSize,
+                    height: scanBoxSize,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppTheme.primary, width: 4),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
                   ),
                 ),
-              ),
 
-              // 🔙 Back Button
-              Positioned(top: 24.h, left: 24.w, child: SafeArea(child: CommonBackButton())),
-
-              // SCAN & INFO
-              Positioned(
-                bottom: 48.h,
-                left: 24.w,
-                right: 24.w,
-                child: SafeArea(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: 36.h,
-                    children: [
-                      // 🔘 Manual Scan Button
-                      CommonButton(
-                        onPressed: controller.onManualScan,
-                        isLoading: controller.isLoading,
-                        title: AppString.scanText,
+                // ⏳ Loading overlay — covers screen while addNewBox runs
+                if (controller.isProcessing)
+                  Positioned.fill(
+                    child: Container(
+                      color: Colors.black54,
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 16.h,
+                          children: [
+                            CircularProgressIndicator(color: AppTheme.primary),
+                            AppText(
+                              text: AppString.addingBox,
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
                       ),
+                    ),
+                  ),
 
-                      // 📄 Bottom Info Text
-                      Container(
+                // 🔙 Back button (hidden during loading)
+                if (!controller.isProcessing)
+                  Positioned(
+                    top: 24.h,
+                    left: 24.w,
+                    child: SafeArea(child: CommonBackButton()),
+                  ),
+
+                // 📄 Bottom hint card
+                if (!controller.isProcessing)
+                  Positioned(
+                    bottom: 48.h,
+                    left: 24.w,
+                    right: 24.w,
+                    child: SafeArea(
+                      child: Container(
                         width: double.maxFinite,
                         padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 8.h),
                         decoration: BoxDecoration(
@@ -87,11 +110,10 @@ class ScanBoxScreen extends StatelessWidget {
                           color: AppTheme.commonColor,
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -106,10 +128,9 @@ class _ScanOverlayPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint =
-        Paint()
-          ..color = Colors.black.withAlpha(140)
-          ..style = PaintingStyle.fill;
+    final paint = Paint()
+      ..color = Colors.black.withAlpha(140)
+      ..style = PaintingStyle.fill;
 
     final path = Path.combine(
       PathOperation.difference,

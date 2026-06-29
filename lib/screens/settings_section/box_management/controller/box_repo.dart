@@ -50,4 +50,14 @@ class BoxManagementRepo {
     final String url = AppConstants.updatebox.replaceAll(":box_id", boxId);
     return await apiClient.patchData(url, settings);
   }
+
+  Future<Response> getBoxOtp(String boxId, {String action = "unlock"}) async {
+    final String url = AppConstants.reqLockOtp.replaceAll(":box_id", boxId);
+    return await apiClient.postData(url, {"action": action});
+  }
+
+  Future<Response> verifyBoxOtp(String boxId, String otp, String action) async {
+    final String url = AppConstants.verifyLockOtp.replaceAll(":box_id", boxId);
+    return await apiClient.postData(url, {"action": action, "code": otp});
+  }
 }

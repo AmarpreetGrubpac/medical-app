@@ -7,10 +7,16 @@ import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/screens/dashboard/controller/dashboard_controller.dart';
 import 'package:grubpac_driver/screens/dashboard/widgets/bottom_bar_item.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   DashboardScreen({super.key});
 
-  final DashboardController dashboardController = Get.put(DashboardController());
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  final DashboardController dashboardController =
+      Get.put(DashboardController());
 
   @override
   Widget build(BuildContext context) {

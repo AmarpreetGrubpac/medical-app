@@ -49,14 +49,17 @@ class ProfileDetailsScreen extends StatelessWidget {
                             children: [
                               CircleAvatar(
                                 radius: 60.h,
-                                backgroundColor:
-                                    AppTheme.contentBrandPrimaryOrange,
-                                child: AppText(
-                                  text: AppUtils.getInitials(controller.name),
-                                  fontSize: 28.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
+                                backgroundImage: NetworkImage(
+                                  controller.image,
                                 ),
+                                // backgroundColor:
+                                //     AppTheme.contentBrandPrimaryOrange,
+                                // child: AppText(
+                                //   text: AppUtils.getInitials(controller.name),
+                                //   fontSize: 28.sp,
+                                //   fontWeight: FontWeight.w600,
+                                //   color: Colors.white,
+                                // ),
                               ),
                               Padding(
                                 padding: EdgeInsets.symmetric(vertical: 24.h),

@@ -105,7 +105,8 @@ class BoxManagementScreen extends StatelessWidget {
                                           onPressed: box.isConnected
                                               ? () => controller
                                                   .onDisconnectBoxTap(box.id)
-                                              : controller.onRemoveBoxTap,
+                                              : () => controller
+                                                  .onRemoveBoxTap(box.id),
                                           title: box.isConnected
                                               ? AppString.disconnectBtn
                                               : AppString.removeBox,

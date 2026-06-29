@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:grubpac_driver/core/exceptions/failure.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
@@ -26,28 +27,55 @@ class BoxManagementController extends GetxController {
     super.onInit();
   }
 
-  final List<BoxInfo> boxes = <BoxInfo>[];
+  List<BoxInfo> boxes = <BoxInfo>[];
 
-  void fetchBoxes() async {
+  void fetchBoxes({bool isRefresh = true}) async {
     try {
-      loadingBoxes = true;
-      update();
-      var res = await boxRepo.getBoxList();
-      if (res.statusCode == 200) {
-        var boxList = <BoxInfo>[];
-        for (var item in res.body['data']) {
-          boxList.add(BoxInfo.fromJson(item));
+      if (isRefresh || boxes.isEmpty) {
+        loadingBoxes = true;
+        update();
+        var res = await boxRepo.getBoxList();
+        if (res.statusCode == 200) {
+          var boxList = <BoxInfo>[];
+          for (var item in res.body['data']) {
+            boxList.add(BoxInfo.fromJson(item));
+          }
+          boxes.clear();
+          boxes.addAll(boxList);
+        } else {
+          throw Failure(
+              message: res.body['message'] ?? res.body['error'], response: res);
         }
-        boxes.clear();
-        boxes.addAll(boxList);
-      } else {
-        throw Failure(
-            message: res.body['message'] ?? res.body['error'], response: res);
       }
     } catch (e) {
       AppUtils.apiErrorHandler(e);
     } finally {
       loadingBoxes = false;
+      update();
+    }
+  }
+
+  Future<void> addNewBox(String displayId) async {
+    try {
+      isLoading = true;
+      update();
+      var res = await boxRepo.registerbox(displayId);
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        var box = BoxInfo.fromJson(res.body['data']);
+        boxes = [...boxes, box];
+        update();
+        AppToast.showSuccess(message: AppString.boxAddedSuccess);
+        Navigation.pop(data: {"result": true});
+      } else {
+        throw Failure(
+            message:
+                res.body['message'] ?? res.body['error'] ?? "Failed to add box",
+            response: res);
+      }
+    } catch (e) {
+      AppUtils.apiErrorHandler(e);
+    } finally {
+      isLoading = false;
       update();
     }
   }
@@ -127,18 +155,17 @@ class BoxManagementController extends GetxController {
   }
 
   /// REMOVE BOX
-  void onRemoveBoxTap() {
+  void onRemoveBoxTap(String boxId) {
     Navigation.pushNamed(RouteHelper.removeBox,
-        arg: {"is_from": ConnectBoxFrom.fromBoxManagement});
+        arg: {"is_from": ConnectBoxFrom.fromBoxManagement, "box_id": boxId});
   }
 
   /// DISCONNECT BOX
   void onDisconnectBoxTap(String boxId) {
-    Navigation.pushNamed(RouteHelper.disconnectBox,
-        arg: {
-          "is_from": ConnectBoxFrom.fromBoxManagement,
-          "box_id": boxId,
-        });
+    Navigation.pushNamed(RouteHelper.disconnectBox, arg: {
+      "is_from": ConnectBoxFrom.fromBoxManagement,
+      "box_id": boxId,
+    });
   }
 
   /// DISCONNECT BOX API
@@ -152,7 +179,9 @@ class BoxManagementController extends GetxController {
         return true;
       } else {
         throw Failure(
-            message: res.body['message'] ?? res.body['error'] ?? 'Failed to disconnect box',
+            message: res.body['message'] ??
+                res.body['error'] ??
+                'Failed to disconnect box',
             response: res);
       }
     } catch (e) {
@@ -164,25 +193,88 @@ class BoxManagementController extends GetxController {
     }
   }
 
+  Future<void> removeBox(String boxId) async {
+    try {
+      isLoading = true;
+      update();
+      var res = await boxRepo.removeBox(boxId);
+      if (res.statusCode == 200) {
+        boxes.removeWhere((box) => box.id == boxId);
+        AppToast.showSuccess(message: AppString.boxRemoved);
+        Navigation.pop(data: {"result": true});
+      } else {
+        throw Failure(
+            message: res.body['message'] ??
+                res.body['error'] ??
+                'Failed to remove box',
+            response: res);
+      }
+    } catch (e) {
+      AppUtils.apiErrorHandler(e);
+    } finally {
+      isLoading = false;
+      update();
+    }
+  }
+
   /// VIEW DETAILS BOX
   void onViewDetailsBoxTap(String boxId) =>
       Navigation.pushNamed(RouteHelper.boxDetails, arg: {"box_id": boxId});
 
-  /// ON VERIFY OTP
-  void verify() {
-    if (otpController.text == "1111") {
+  Future<bool> sendBoxOtp(String boxId, {String action = "unlock"}) async {
+    try {
       isLoading = true;
       update();
+      var res = await boxRepo.getBoxOtp(boxId, action: action);
+      if (res.statusCode == 200) {
+        AppToast.showSuccess(
+            message: res.body['message'] ?? "OTP sent successfully");
+        return true;
+      } else {
+        throw Failure(
+            message: res.body['message'] ??
+                res.body['error'] ??
+                'Failed to send OTP',
+            response: res);
+      }
+    } catch (e) {
+      AppUtils.apiErrorHandler(e);
+      return false;
+    } finally {
+      isLoading = false;
+      update();
+    }
+  }
 
-      Future.delayed(const Duration(seconds: 1), () {
-        isLoading = false;
-        update();
-        AppToast.showSuccess(message: AppString.otpVerify);
-        Navigation.pop();
-      });
-    } else {
-      AppToast.showError(
-          message: AppString.otpTryAgain, title: AppString.invalidOTP);
+  /// ON VERIFY OTP
+
+  Future<bool> verifyBoxOtp(String boxId, String otp,
+      {String action = "lock"}) async {
+    try {
+      isLoading = true;
+      update();
+      var res = await boxRepo.verifyBoxOtp(
+        boxId,
+        otp,
+        action,
+      );
+      if (res.statusCode == 200) {
+        AppToast.showSuccess(
+            message: res.body['message'] ?? "OTP verified successfully");
+        return true;
+      } else {
+        throw Failure(
+            message: res.body['message'] ??
+                res.body['error'] ??
+                'Failed to verify OTP',
+            response: res);
+      }
+    } catch (e) {
+      AppUtils.apiErrorHandler(e);
+      return false;
+    } finally {
+      isLoading = false;
+      update();
     }
   }
 }

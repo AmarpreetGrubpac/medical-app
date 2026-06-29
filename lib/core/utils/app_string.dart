@@ -11,13 +11,15 @@ class AppString {
 
   // Login/Onboarding carousel
   static const String linkYourBoxTitle = 'Link your Box';
-  static const String linkYourBoxDesc = 'Scan the box and connect via Bluetooth -- it\'s fast and easy.';
+  static const String linkYourBoxDesc =
+      'Scan the box and connect via Bluetooth -- it\'s fast and easy.';
   static const String scanText = 'SCAN';
   static const String avoidBlamesTitle = 'Avoid Blames';
   static const String avoidBlamesDesc =
       'If there\'s any issue with the delivery, the box captures it -- so you\'re protected.';
   static const String stayInformedTitle = 'Stay informed';
-  static const String stayInformedDesc = 'Get real-time updates for issues -- before they become trouble.';
+  static const String stayInformedDesc =
+      'Get real-time updates for issues -- before they become trouble.';
   static const String getSupportTitle = 'Get Support';
   static const String somethingWentWrong = 'Something Went Wrong';
   static const String otpResendSucceessfully = ' OTP resent successfully';
@@ -25,7 +27,8 @@ class AppString {
       'Contact your restaurant directly from the app for any box or delivery issue.';
 
   // Login form
-  static const String enterRegisteredPrompt = 'Enter your registered email or phone number';
+  static const String enterRegisteredPrompt =
+      'Enter your registered email or phone number';
   static const String mobileEmailHint = 'Mobile number/Email ID';
   static const String continueBtn = 'CONTINUE';
   static const String privacyPolicy = 'PRIVACY POLICY';
@@ -33,7 +36,8 @@ class AppString {
   static const String termsOfService = 'TERMS OF SERVICE';
   static const String forgotPassword = 'FORGOT PASSWORD';
   static const String accountNotFound = 'Account not found';
-  static const String incorrectMsg = 'We couldn’t find your details. Please contact your restaurant admin.';
+  static const String incorrectMsg =
+      'We couldn’t find your details. Please contact your restaurant admin.';
 
   // Otp
   static const String otpVerification = 'OTP Verification';
@@ -44,13 +48,15 @@ class AppString {
   static const String verify = 'VERIFY';
   static const String next = 'NEXT';
   static const String forgotpassword = 'Forgot Password?';
-  static const String forgotpasswordDescription = 'It happens to the best of us. Enter your email and we’ll send you a link to reset it';
+  static const String forgotpasswordDescription =
+      'It happens to the best of us. Enter your email and we’ll send you a link to reset it';
 
   // set password screen
   static const String setPassword = 'Set Password';
   static const String setPasswordSuccessfully = 'Password set successfully!';
   static const String setNewPassword = 'Set New Password';
-  static const String setNewPassworddescription = 'Enter and confirm your new password below. Choose a strong password you haven’t used before.';
+  static const String setNewPassworddescription =
+      'Enter and confirm your new password below. Choose a strong password you haven’t used before.';
   static const String logOut = "LOG OUT";
   static const String setPassSubtitle = "Add a password to make login easy";
   static const String savePassword = "SAVE PASSWORD";
@@ -66,7 +72,8 @@ class AppString {
       "You’re ready to start your deliveries\nwith da Pizzeria Corner, Delhi.";
   static const String scanQrBox = "Scan the QR Code on your box to add it.";
   static const String addMyBox = 'ADD MY BOX';
-  static const String pointCamera = 'Point your camera at the QR code on the box, and click on scan.';
+  static const String pointCamera =
+      'Point your camera at the QR code on the box, and click on scan.';
 
   //home screen
   static const String disconnectedBtn = 'DISCONNECTED';
@@ -79,7 +86,8 @@ class AppString {
   static const String boxNumber = 'BOX-1245';
   static const String noBox = 'No box added';
   static const String viewLogs = 'VIEW LOGS';
-  static const String readyToConnect = 'Ready to connect your box via Bluetooth?';
+  static const String readyToConnect =
+      'Ready to connect your box via Bluetooth?';
   static const String connect = 'CONNECT';
   static const String box = 'Box';
   static const String boxSmall = 'Box';
@@ -96,7 +104,8 @@ class AppString {
   static const String holdOn = 'Hold on...';
   static const String beforeStart = 'Before you connect, make sure to';
   static const String lookingFor = 'Looking for your box...';
-  static const String makeSure = 'Make sure you\'re near the box and Bluetooth is on.';
+  static const String makeSure =
+      'Make sure you\'re near the box and Bluetooth is on.';
   static const String notConnected = 'Couldn’t connect';
   static const String makeSureInstruction =
       'Make sure the box is powered on and the Bluetooth button is pressed.';
@@ -119,7 +128,8 @@ class AppString {
   //
   static const String whyIsMyBoxOffline = 'Why is my box offline?';
   static const String howDoIReconnectMyBox = 'How do I reconnect my box?';
-  static const String notReceivingAlerts = "What should I do if I'm not receiving alerts?";
+  static const String notReceivingAlerts =
+      "What should I do if I'm not receiving alerts?";
   static const String testConnection = 'Is there a way to test my connection?';
 
   //
@@ -144,16 +154,21 @@ class AppString {
   static const String writeToUsButton = "WRITE TO US";
 
   // FAQ Answer One Screen
-  static const reconnectInstruction = 'To reconnect your box, follow these simple steps:';
-  static const reconnectStep1 = 'Make sure your box is powered on and within range of your network.';
+  static const reconnectInstruction =
+      'To reconnect your box, follow these simple steps:';
+  static const reconnectStep1 =
+      'Make sure your box is powered on and within range of your network.';
   static const reconnectStep2 = 'Go to the home page in the app.';
-  static const reconnectStep3 = 'Press the "Try to connect" button and connect the device.';
+  static const reconnectStep3 =
+      'Press the "Try to connect" button and connect the device.';
   static const reconnectFailureNote =
       'If the connection still fails, double-check your network settings or restart your box.';
 
   // FAQ Answer Two Screen
-  static const notReceivingAlertsTitle = 'What should I do if I\'m not receiving alerts?';
-  static const notReceivingAlertsIntro = 'If you are not receiving alerts, follow the following steps:';
+  static const notReceivingAlertsTitle =
+      'What should I do if I\'m not receiving alerts?';
+  static const notReceivingAlertsIntro =
+      'If you are not receiving alerts, follow the following steps:';
   static const alertsStep1 =
       'Check Your Connection:\nEnsure your phone has a stable internet connection and that the app’s notifications are enabled in your device settings.';
   static const alertsStep2 =
@@ -178,8 +193,10 @@ class AppString {
   static const String deleteAccountDescription2 =
       'However, any data stored by your employer (e.g. delivery history, contact info) will not be affected.';
   static const String deleteAccountBtn = 'DELETE MY ACCOUNT';
-  static const String disconnectionSurety = 'Are you sure you want to disconnect?';
-  static const String removeBoxSurety = 'Are you sure you want to remove the box?';
+  static const String disconnectionSurety =
+      'Are you sure you want to disconnect?';
+  static const String removeBoxSurety =
+      'Are you sure you want to remove the box?';
   static const String scanQRLine = 'Scan the QR Code on your box to add it.';
   static const String required = 'Required';
   static const String skip = 'Skip';
@@ -187,11 +204,14 @@ class AppString {
   static const String welcomeTrip = 'Let’s get you trip ready!';
   static const String welcomeRavi = 'Welcome Ravi!';
   static const String enterPassValidation = 'Please enter password';
-  static const String passEightChar = 'Password must be at least 8 characters long';
+  static const String passEightChar =
+      'Password must be at least 8 characters long';
   static const String enterBewPass = 'Please enter new password';
   static const String passNumber = 'Password must contain at least one number';
-  static const String passSpecial = 'Password contain at least one special character';
-  static const String sameOldNewPass = 'New password should not be the same as the old password.';
+  static const String passSpecial =
+      'Password contain at least one special character';
+  static const String sameOldNewPass =
+      'New password should not be the same as the old password.';
   static const String passReEnter = 'Please re-enter password';
   static const String passNotMatch = 'Passwords do not match';
   static const String passSetSuccess = 'Password set successfully!';
@@ -199,14 +219,16 @@ class AppString {
   static RegExp hasSpecialChar = RegExp(r'[!@#$%^&*(),.?":{}|<>]');
   static const String otpVerify = 'OTP verified!';
   static const String passwordchanged = 'Password Changed!';
-  static const String bluetoothConnectSuccess = 'Connected to BOX-1245 successfully!';
+  static const String bluetoothConnectSuccess =
+      'Connected to BOX-1245 successfully!';
   static const String otpTryAgain = 'Please try again.';
   static const String invalidOTP = 'Invalid OTP';
   static const String bocAdded = "Box added successfully!";
   static const String boxNotRegister =
       "This box isn't registered with your restaurant. Please check the code or try another box.";
   static const String turnOnBluetooth = "Turn on Bluetooth on your phone";
-  static const String bluetoothLocation = "Press the Bluetooth button on the box to enable pairing";
+  static const String bluetoothLocation =
+      "Press the Bluetooth button on the box to enable pairing";
   static const String tryToConnect = 'TRY TO CONNECT';
   static const String tryAgain = 'TRY AGAIN';
   static const String boxDisConnected = "BOX-1245 disconnected successfully!";
@@ -258,14 +280,17 @@ class AppString {
   ///
   static const String target = "Target";
   static const String achieved = "Achieved";
-  static const String passChangeSuccess = "Your password has been changed successfully!";
+  static const String passChangeSuccess =
+      "Your password has been changed successfully!";
 
   static const String currentlyConnected = 'The box is currently connected.';
-  static const String currentlyDisconnected = 'The box is currently disconnected.';
+  static const String currentlyDisconnected =
+      'The box is currently disconnected.';
   static const String disconnectClick = 'CLICK HERE TO DISCONNECT';
   static const String connectClick = 'CLICK HERE TO CONNECT';
 
-  static const String externalThermostat = 'The external thermostat sensor is currently on and working well.';
+  static const String externalThermostat =
+      'The external thermostat sensor is currently on and working well.';
   static const String outSideTemp = 'Outside temperature :';
 
   static const String wifiLabel = "Wifi";
@@ -289,7 +314,8 @@ class AppString {
   static const String memoryCardLabel = "Memory card";
   static const String saveToCardLabel = "Save to card";
 
-  static const String aboutFifty = 'Your battery is about 50%, and will last about 3 more hours.';
+  static const String aboutFifty =
+      'Your battery is about 50%, and will last about 3 more hours.';
 
   static const String storage = "Storage";
   static const String camera = "Camera";
@@ -308,6 +334,7 @@ class AppString {
   static const String enterValidNumber = "Enter a valid mobile number";
   static const String enterValidEmail = "Enter a valid email";
   static const String logoutSuccess = "Logged out Successfully";
+  static const String sessionExpired = "Session expired. Please log in again.";
   static const String mobileNo = "Mobile number";
   static const String filter = "FILTER";
   static const String acCreated = "Account created:";
@@ -327,43 +354,57 @@ class AppString {
   static const String closeBtn = "CLOSE";
   static const String browseAllBtn = "BROWSE ALL";
 
-  static const String nameMustBe2Char = 'Full name must be at least 2 characters';
-  static const String validFullName = 'Full name must contain only letters and spaces';
+  static const String nameMustBe2Char =
+      'Full name must be at least 2 characters';
+  static const String validFullName =
+      'Full name must contain only letters and spaces';
   static const String passValidationError =
       'Password must contain at least one uppercase letter, one number, and one special character.';
-  static const String enterCurrentPassValidation = 'Please enter current password';
+  static const String enterCurrentPassValidation =
+      'Please enter current password';
   static const String enterNewPassValidation = 'Please enter new password';
-  static const String currentPassEightChar = 'Current password must be at least 8 characters long';
-  static const String newPassEightChar = 'New password must be at least 8 characters long';
-  static const String sameCurrentNewPass = 'New password should not be the same as the current password.';
+  static const String currentPassEightChar =
+      'Current password must be at least 8 characters long';
+  static const String newPassEightChar =
+      'New password must be at least 8 characters long';
+  static const String sameCurrentNewPass =
+      'New password should not be the same as the current password.';
 
   static const String boxAddedSuccess = "Box added successfully!";
+  static const String addingBox = "Adding box, please wait…";
   static const String boxNotRegistered = "Box not registered!";
   static const String boxNotRegisteredMsg =
       "This box isn't registered with your restaurant. Please check the code or try another box.";
+  static const String invalidQr = "Invalid QR Code";
+  static const String invalidQrMsg =
+      "This QR code doesn't belong to a GrubPac . Please scan the QR code printed on the box.";
   static const String fullName = 'Full name';
   static const String emailID = 'Email ID';
   static const String contactSupport = 'CONTACT SUPPORT';
   static const String grublockCapital = "GRUBLOCK";
-  static const String currentState = 'This box is currently locked.\nEnter the OTP sent to the customer on';
+  static const String currentState =
+      'This box is currently locked.\nEnter the OTP sent to the customer on';
   static const String ioniserLabel = "Ioniser";
-  static const String externalDisplayOn = "The external display is on and working well.";
+  static const String externalDisplayOn =
+      "The external display is on and working well.";
   static const String externalDisplayOff = "The external display is off.";
-
 
   // Maintance Screen
   static const String maintenanceTitle = "We’ll be back soon";
   static const String tryAgainMAintance = "TRY AGAIN";
   static const String mainteanceSubTitle = "Thank you for your patience :)";
-  static const String mainteanceTimerText = "Maintenance started at [start_time].";
-  static const String maintenanceDescription = "We are undergoing scheduled maintenance to improve performance and reliability.We’ll be back online at [end_time].";
-
+  static const String mainteanceTimerText =
+      "Maintenance started at [start_time].";
+  static const String maintenanceDescription =
+      "We are undergoing scheduled maintenance to improve performance and reliability.We’ll be back online at [end_time].";
 
   // update
   static const String updateTitle = "Updated required!";
   static const String internelServerTitle = "Something went wrong on our end";
-  static const String internelServerSubTitle = "Don’t worry, your data is safe :)";
-  static const String updateDesccription = "A newer version of your app is available.Please update now to continue using the latest features and improvements.";
+  static const String internelServerSubTitle =
+      "Don’t worry, your data is safe :)";
+  static const String updateDesccription =
+      "A newer version of your app is available.Please update now to continue using the latest features and improvements.";
   static const String update = "UPDATE NOW";
   static const String learnMore = "LEARN MORE";
   static const String whatNewUpdate = "What’s new in this update";
@@ -373,13 +414,18 @@ class AppString {
   static const String releaseName = "Release date: [release_date]";
   static const String newVersionAvailable = "New version available";
   static const String remendmeLater = "REMIND ME LATER";
-  static const String internetServertitle = "If this keeps happening, please contact support@grubpac.com.";
+  static const String internetServertitle =
+      "If this keeps happening, please contact support@grubpac.com.";
   static const String noInternetConnection = "No internet connection";
-  static const String noInternet = "No Internet , Please check your connection and try again";
+  static const String noInternet =
+      "No Internet , Please check your connection and try again";
 
-  static const String note = "NOTE : Older versions will no longer be supported after [support_end_date].";
-  static const String internelServerDescription = "We’re sorry, an unexpected error occurred.Our team has been notified and is working to fix it.";
-  static const String newVersionAvailableDescription = "We’ve made improvements to performance and reliability.\nUpdate now to get the best experience.";
-  static const String noInternetConnectionDescription = "Looks like you’re offline. Please check your connection and try again.\nSome features may not be available without internet access.";
-
+  static const String note =
+      "NOTE : Older versions will no longer be supported after [support_end_date].";
+  static const String internelServerDescription =
+      "We’re sorry, an unexpected error occurred.Our team has been notified and is working to fix it.";
+  static const String newVersionAvailableDescription =
+      "We’ve made improvements to performance and reliability.\nUpdate now to get the best experience.";
+  static const String noInternetConnectionDescription =
+      "Looks like you’re offline. Please check your connection and try again.\nSome features may not be available without internet access.";
 }

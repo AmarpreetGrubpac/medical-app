@@ -36,8 +36,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => homeController.getUserName());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<BoxManagementController>().fetchBoxes(isRefresh: false);
+      homeController.getUserName();
+    });
   }
 
   @override
@@ -48,10 +50,10 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (boxCtrl) {
             // Derive state from the real box list
             final bool isBoxAdded = boxCtrl.boxes.isNotEmpty;
-            final BoxInfo? currentBox = isBoxAdded &&
-                    boxCtrl.currentPage < boxCtrl.boxes.length
-                ? boxCtrl.boxes[boxCtrl.currentPage]
-                : null;
+            final BoxInfo? currentBox =
+                isBoxAdded && boxCtrl.currentPage < boxCtrl.boxes.length
+                    ? boxCtrl.boxes[boxCtrl.currentPage]
+                    : null;
             final bool isBoxConnected = currentBox?.isConnected ?? false;
             final bool isBoxLocked = currentBox?.isLocked ?? true;
 
@@ -80,8 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                             ),
                             Padding(
-                              padding:
-                                  EdgeInsets.symmetric(horizontal: 24.w),
+                              padding: EdgeInsets.symmetric(horizontal: 24.w),
                               child: Row(
                                 spacing: 16.w,
                                 children: [
@@ -127,8 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 itemCount: boxCtrl.boxes.length,
                                                 onPageChanged:
                                                     boxCtrl.onPageChanged,
-                                                itemBuilder:
-                                                    (context, index) {
+                                                itemBuilder: (context, index) {
                                                   final box =
                                                       boxCtrl.boxes[index];
                                                   return box.isConnected
@@ -136,20 +136,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           box: box,
                                                           isBoxLocked:
                                                               box.isLocked,
-                                                          onDisTap: () => controller
-                                                              .onDisconnectTap(box.id),
-                                                          onViewTap: () => controller
-                                                              .onViewDetailTap(box.id),
+                                                          onDisTap: () =>
+                                                              controller
+                                                                  .onDisconnectTap(
+                                                                      box.id),
+                                                          onViewTap: () =>
+                                                              controller
+                                                                  .onViewDetailTap(
+                                                                      box.id),
                                                           onLockTap: () =>
                                                               controller
                                                                   .onLockTap(
-                                                                      context),
+                                                            context,
+                                                          ),
                                                         )
                                                       : _DisconnectedView(
                                                           box: box,
                                                           onConnectTap: () =>
                                                               controller
-                                                                  .onConnectTap(box.id),
+                                                                  .onConnectTap(
+                                                                      box.id),
                                                         );
                                                 },
                                               ),
@@ -298,8 +304,7 @@ class _ConnectedView extends StatelessWidget {
               onPressed: onViewTap,
               title: AppString.viewDetails,
               fontSize: 18.sp,
-              padding:
-                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             ),
           ),
           Padding(
@@ -310,8 +315,7 @@ class _ConnectedView extends StatelessWidget {
                 title: AppString.disconnectBtn,
                 height: 46.h,
                 fontSize: 18.sp,
-                padding:
-                    EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               ),
             ),
           ),

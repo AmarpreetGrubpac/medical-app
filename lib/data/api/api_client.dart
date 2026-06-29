@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:grubpac_driver/core/utils/app_constant.dart';
+import 'package:grubpac_driver/core/utils/app_string.dart';
+import 'package:grubpac_driver/core/utils/app_toast.dart';
+import 'package:grubpac_driver/helper/navigation.dart';
+import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:http_parser/http_parser.dart';
 import 'dart:io';
 
@@ -23,6 +27,9 @@ class ApiClient extends GetxService {
 
   String? token;
   Map<String, String>? _mainHeaders;
+
+  /// Guard flag to prevent multiple simultaneous 401/403 redirects.
+  bool _isHandlingUnauthorized = false;
 
   ApiClient({required this.appBaseUrl, required this.sharedPreferences}) {
     token = sharedPreferences.getString(AppConstants.token);
@@ -232,6 +239,18 @@ class ApiClient extends GetxService {
       statusCode: response.statusCode,
       statusText: response.reasonPhrase,
     );
+
+    // ─── Global 401 / 403 interceptor ────────────────────────────────────────
+    if (_response.statusCode == 401 || _response.statusCode == 403) {
+      if (!_isHandlingUnauthorized) {
+        _isHandlingUnauthorized = true;
+        debugPrint('=====> [AUTH] ${_response.statusCode} detected — forcing logout.');
+        _forceLogout();
+      }
+      return _response;
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
     if (_response.statusCode != 200 &&
         _response.body != null &&
         _response.body is! String) {
@@ -251,8 +270,29 @@ class ApiClient extends GetxService {
       _response = Response(statusCode: 0, statusText: noInternetMessage);
     }
     debugPrint(
-        '====> API Response: [${_response.statusCode}] $uri\n${_response.body}');
+        '=====> API Response: [${_response.statusCode}] $uri\n${_response.body}');
     return _response;
+  }
+
+  /// Clears local auth data and redirects to the login screen.
+  /// Called automatically on 401/403 — does NOT call the logout API
+  /// since the token is already invalid/expired.
+  Future<void> _forceLogout() async {
+    try {
+      // Clear token from memory.
+      token = null;
+      updateHeader(null);
+
+      // Clear token from persistent storage.
+      await sharedPreferences.clear();
+
+      // Navigate to login, clearing the entire back-stack.
+      AppToast.showError(message: AppString.sessionExpired);
+      await Future.delayed(const Duration(milliseconds: 200));
+      Navigation.replaceAll(RouteHelper.login);
+    } finally {
+      _isHandlingUnauthorized = false;
+    }
   }
 }
 

@@ -19,6 +19,8 @@ import 'package:grubpac_driver/screens/settings_section/box_management/model/box
 import 'package:interactive_slider/interactive_slider.dart';
 import 'package:timer_count_down/timer_controller.dart';
 
+import '../../settings_section/box_management/controller/box_management_controller.dart';
+
 class BoxDetailsController extends GetxController {
   final BoxManagementRepo boxRepo = Get.find<BoxManagementRepo>();
   String boxId = "";
@@ -41,7 +43,8 @@ class BoxDetailsController extends GetxController {
     phone = AppPreference.getString(PrefKey.phone);
     countryCode = AppPreference.getString(PrefKey.countryCode);
 
-    sliderController.value = AppUtils.normalizeSliderValue(firstBattery.toDouble());
+    sliderController.value =
+        AppUtils.normalizeSliderValue(firstBattery.toDouble());
 
     final args = Get.arguments;
     if (args != null) {
@@ -74,13 +77,17 @@ class BoxDetailsController extends GetxController {
         firstBattery = boxInfo?.settings?.zone1Temp ?? 21;
         secondBattery = boxInfo?.settings?.zone2Temp ?? 21;
         boxConnectionStatus = boxInfo?.isConnected ?? false;
-        
+
         sliderController.value = AppUtils.normalizeSliderValue(
-          selectedBattery == 1 ? firstBattery.toDouble() : secondBattery.toDouble(),
+          selectedBattery == 1
+              ? firstBattery.toDouble()
+              : secondBattery.toDouble(),
         );
       } else {
         throw Failure(
-            message: res.body['message'] ?? res.body['error'] ?? 'Failed to load box details',
+            message: res.body['message'] ??
+                res.body['error'] ??
+                'Failed to load box details',
             response: res);
       }
     } catch (e) {
@@ -99,7 +106,9 @@ class BoxDetailsController extends GetxController {
       final res = await boxRepo.updateBoxSettings(boxId, changes);
       if (res.statusCode != 200) {
         throw Failure(
-          message: res.body['message'] ?? res.body['error'] ?? 'Failed to update settings',
+          message: res.body['message'] ??
+              res.body['error'] ??
+              'Failed to update settings',
           response: res,
         );
       }
@@ -117,7 +126,9 @@ class BoxDetailsController extends GetxController {
         fetchBoxDetails();
       } else {
         throw Failure(
-            message: res.body['message'] ?? res.body['error'] ?? 'Failed to connect box',
+            message: res.body['message'] ??
+                res.body['error'] ??
+                'Failed to connect box',
             response: res);
       }
     } catch (e) {
@@ -134,7 +145,9 @@ class BoxDetailsController extends GetxController {
         fetchBoxDetails();
       } else {
         throw Failure(
-            message: res.body['message'] ?? res.body['error'] ?? 'Failed to disconnect box',
+            message: res.body['message'] ??
+                res.body['error'] ??
+                'Failed to disconnect box',
             response: res);
       }
     } catch (e) {
@@ -157,7 +170,9 @@ class BoxDetailsController extends GetxController {
           firstBattery = initialFirst;
           secondBattery = initialSecond;
           sliderController.value = AppUtils.normalizeSliderValue(
-            selectedBattery == 1 ? firstBattery.toDouble() : secondBattery.toDouble(),
+            selectedBattery == 1
+                ? firstBattery.toDouble()
+                : secondBattery.toDouble(),
           );
           update();
         },
@@ -166,7 +181,8 @@ class BoxDetailsController extends GetxController {
   }
 
   final PageController pageController = PageController();
-  final InteractiveSliderController sliderController = InteractiveSliderController(0);
+  final InteractiveSliderController sliderController =
+      InteractiveSliderController(0);
 
   String phone = "";
   String countryCode = "";
@@ -205,7 +221,10 @@ class BoxDetailsController extends GetxController {
 
   /// GRUBLOCK
   Future<void> onLockTap(BuildContext context) async {
+    if (isLoading) return;
     otpController.clear();
+    
+  
 
     showModalBottomSheet(
       context: context,
@@ -273,7 +292,8 @@ class BoxDetailsController extends GetxController {
   void toggleDualZone() {
     dualZoneSwitch = !dualZoneSwitch;
     selectedBattery = 1;
-    sliderController.value = AppUtils.normalizeSliderValue(firstBattery.toDouble());
+    sliderController.value =
+        AppUtils.normalizeSliderValue(firstBattery.toDouble());
     update();
 
     _updateSettings(
@@ -281,7 +301,8 @@ class BoxDetailsController extends GetxController {
       onRollback: () {
         dualZoneSwitch = !dualZoneSwitch;
         selectedBattery = 1;
-        sliderController.value = AppUtils.normalizeSliderValue(firstBattery.toDouble());
+        sliderController.value =
+            AppUtils.normalizeSliderValue(firstBattery.toDouble());
         update();
       },
     );
@@ -421,14 +442,16 @@ class BoxDetailsController extends GetxController {
     isOverlayOpen = true;
     update();
 
-    final renderBox = indicatorKey.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox =
+        indicatorKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
 
     final offset = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
 
     _overlayEntry = OverlayEntry(
-      builder: (context) => OverlayBluetoothMenuWidget(offset: offset, size: size, onClose: removeOverlay),
+      builder: (context) => OverlayBluetoothMenuWidget(
+          offset: offset, size: size, onClose: removeOverlay),
     );
 
     Overlay.of(context).insert(_overlayEntry!);
@@ -447,20 +470,22 @@ class BoxDetailsController extends GetxController {
     isBatteryOverlayOpen = true;
     update();
 
-    final renderBox = batteryKey.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox =
+        batteryKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
 
     final offset = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
 
     final double overlayLeft = offset.dx;
-    final double overlayTop = offset.dy - MediaQuery.of(context).size.height * 0.35;
+    final double overlayTop =
+        offset.dy - MediaQuery.of(context).size.height * 0.35;
 
     final overlayOffset = Offset(overlayLeft, overlayTop);
 
     _batteryOverlayEntry = OverlayEntry(
-      builder: (context) =>
-          OverlayBatteryMenuWidget(offset: overlayOffset, size: size, onClose: removeBatteryOverlay),
+      builder: (context) => OverlayBatteryMenuWidget(
+          offset: overlayOffset, size: size, onClose: removeBatteryOverlay),
     );
 
     Overlay.of(context).insert(_batteryOverlayEntry!);
@@ -479,7 +504,8 @@ class BoxDetailsController extends GetxController {
   bool isLoading = false;
 
   TextEditingController otpController = TextEditingController();
-  CountdownController countdownController = CountdownController(autoStart: true);
+  CountdownController countdownController =
+      CountdownController(autoStart: true);
 
   /// ON COUNTDOWN FINISHED
   void onCountdownFinished() {
@@ -495,21 +521,26 @@ class BoxDetailsController extends GetxController {
   }
 
   /// ON VERIFY OTP
-  void verify() {
-    if (otpController.text == "1111") {
-      isLoading = true;
-      update();
+  Future<void> verifyOtp() async {
+    if (isLoading) return;
+    final action = (boxInfo?.isLocked ?? true) ? "unlock" : "lock";
 
-      Future.delayed(const Duration(seconds: 1), () {
-        isLoading = false;
-        update();
+    isLoading = true;
+    update();
 
-        AppToast.showSuccess(message: AppString.otpVerify);
-
+    try {
+      final success = await Get.find<BoxManagementController>().verifyBoxOtp(
+        boxId,
+        otpController.text,
+        action: action,
+      );
+      if (success) {
         Navigation.pop();
-      });
-    } else {
-      AppToast.showError(message: AppString.otpTryAgain, title: AppString.invalidOTP);
+        fetchBoxDetails();
+      }
+    } finally {
+      isLoading = false;
+      update();
     }
   }
 }

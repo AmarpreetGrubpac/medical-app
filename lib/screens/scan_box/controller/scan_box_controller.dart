@@ -1,66 +1,74 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/app_toast.dart';
-import 'package:grubpac_driver/helper/navigation.dart';
-import 'package:grubpac_driver/helper/route_helper.dart';
+import 'package:grubpac_driver/screens/settings_section/box_management/controller/box_management_controller.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanBoxController extends GetxController {
+  final MobileScannerController scannerController = MobileScannerController();
+
+  String scannedCode = "";
+  bool isProcessing = false; // true while the addNewBox API call is running
+
   @override
   void onClose() {
     scannerController.dispose();
     super.onClose();
   }
 
-  String scannedCode = "";
-  bool isScanning = false;
-  bool isLoading = false;
+  /// Called by MobileScanner every time a barcode is captured.
+  Future<void> onDetect(BarcodeCapture capture) async {
+    // Ignore new scans while an API call is already in progress.
+    if (isProcessing) return;
 
-  final MobileScannerController scannerController = MobileScannerController();
+    final barcode = capture.barcodes.firstOrNull;
+    final rawValue = barcode?.rawValue;
 
-  /// ON MANUAL SCAN
-  Future<void> onManualScan() async {
-    isLoading = true;
-    update();
-
-    await Future.delayed(const Duration(seconds: 2), () {
-      AppToast.showSuccess(message: AppString.boxAddedSuccess);
-      isLoading = false;
-      update();
-
-      Navigation.replaceAll(RouteHelper.dashboard);
-    });
-
-    isScanning = true;
-    update();
-
-    scannerController.start();
-  }
-
-  /// ON STOP SCAN
-  void stopScan() {
-    isScanning = false;
-    scannerController.stop();
-    update();
-  }
-
-  /// ON DETECT
-  void onDetect(BarcodeCapture capture) {
-    if (!isScanning) return;
-
-    Barcode? barcode = capture.barcodes.first;
-
-    if (capture.barcodes.isNotEmpty && barcode.rawValue != null) {
-      scannedCode = barcode.rawValue!;
-      update();
-
-      stopScan();
-
-      AppToast.showSuccess(message: AppString.boxAddedSuccess);
-
-      Navigation.replaceAll(RouteHelper.dashboard);
-    } else {
-      AppToast.showError(title: AppString.boxNotRegistered, message: AppString.boxNotRegisteredMsg);
+    if (rawValue == null || rawValue.isEmpty) {
+      AppToast.showError(
+        title: AppString.boxNotRegistered,
+        message: AppString.boxNotRegisteredMsg,
+      );
+      return;
     }
+
+    // ── Parse the QR payload ────────────────────────────────────────────────
+    // Expected format: {"box_display_id": "Qwer"}
+    String? boxDisplayId;
+    try {
+      final Map<String, dynamic> data = jsonDecode(rawValue);
+      boxDisplayId = data['box_display_id']?.toString();
+    } catch (_) {
+      // rawValue is not valid JSON — not a Zabee box QR.
+    }
+
+    if (boxDisplayId == null || boxDisplayId.isEmpty) {
+      AppToast.showError(
+        title: AppString.invalidQr,
+        message: AppString.invalidQrMsg,
+      );
+      return;
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
+    scannedCode = boxDisplayId;
+    isProcessing = true;
+    update();
+
+    // Pause camera while we process to avoid duplicate triggers.
+    await scannerController.stop();
+
+    // Hand off to BoxManagementController which owns the addNewBox API logic.
+    await Get.find<BoxManagementController>().addNewBox(boxDisplayId);
+
+    // Reset so the camera can be re-used if the user comes back.
+    isProcessing = false;
+    scannedCode = "";
+    update();
+
+    // Resume scanning in case the user didn't navigate away (e.g. API error).
+    await scannerController.start();
   }
 }
