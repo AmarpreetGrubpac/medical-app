@@ -25,6 +25,7 @@ class BoxDetailsController extends GetxController {
   final BoxManagementRepo boxRepo = Get.find<BoxManagementRepo>();
   String boxId = "";
   BoxInfo? boxInfo;
+  String currentAction = "unlock";
   Timer? _debounceTimer;
 
   @override
@@ -223,8 +224,13 @@ class BoxDetailsController extends GetxController {
   Future<void> onLockTap(BuildContext context) async {
     if (isLoading) return;
     otpController.clear();
-    
-  
+    currentAction = (boxInfo?.isLocked ?? true) ? "unlock" : "lock";
+
+    // Call the sendBoxOtp function in parallel (not awaited)
+    Get.find<BoxManagementController>().sendBoxOtp(boxId, action: currentAction);
+
+    isTimerCompleted = false;
+    countdownController.restart();
 
     showModalBottomSheet(
       context: context,
@@ -514,16 +520,27 @@ class BoxDetailsController extends GetxController {
   }
 
   /// ON RESEND
-  void onResendCode() {
-    countdownController.restart();
-    isTimerCompleted = false;
+  void onResendCode() async {
+    if (isLoading) return;
+    
+    isLoading = true;
     update();
+
+    try {
+      final success = await Get.find<BoxManagementController>().sendBoxOtp(boxId, action: currentAction);
+      if (success) {
+        countdownController.restart();
+        isTimerCompleted = false;
+      }
+    } finally {
+      isLoading = false;
+      update();
+    }
   }
 
   /// ON VERIFY OTP
   Future<void> verifyOtp() async {
     if (isLoading) return;
-    final action = (boxInfo?.isLocked ?? true) ? "unlock" : "lock";
 
     isLoading = true;
     update();
@@ -532,7 +549,7 @@ class BoxDetailsController extends GetxController {
       final success = await Get.find<BoxManagementController>().verifyBoxOtp(
         boxId,
         otpController.text,
-        action: action,
+        action: currentAction,
       );
       if (success) {
         Navigation.pop();

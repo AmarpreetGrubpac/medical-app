@@ -93,7 +93,7 @@ Widget homeGrublockBottomSheet(BuildContext context) {
                 ValueListenableBuilder(
                   valueListenable: controller.otpController,
                   builder: (context, value, child) => CommonOutlinedButton(
-                    onPressed: () {}, //TODO: controller.verify,
+                    onPressed: controller.verifyOtp,
                     isLoading: controller.isLoading,
                     isDisabled: value.text.length.isLowerThan(4),
                     title: AppString.verify,

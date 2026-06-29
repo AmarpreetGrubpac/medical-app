@@ -10,7 +10,6 @@ import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/app_utils.dart';
 import 'package:grubpac_driver/screens/box_details/controller/box_details_controller.dart';
-import 'package:grubpac_driver/screens/settings_section/box_management/controller/box_management_controller.dart';
 import 'package:timer_count_down/timer_count_down.dart';
 
 Widget detailsGrublockBottomSheet(BuildContext context) {
@@ -94,12 +93,7 @@ Widget detailsGrublockBottomSheet(BuildContext context) {
                 ValueListenableBuilder(
                   valueListenable: controller.otpController,
                   builder: (context, value, child) => CommonOutlinedButton(
-                    onPressed: () =>
-                        Get.find<BoxManagementController>().verifyBoxOtp(
-                      controller.boxId,
-                      value.text,
-                      // controller.action,
-                    ),
+                    onPressed: controller.verifyOtp,
                     isLoading: controller.isLoading,
                     isDisabled: value.text.length.isLowerThan(4),
                     title: AppString.verify,

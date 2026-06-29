@@ -148,6 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               controller
                                                                   .onLockTap(
                                                             context,
+                                                            box.id,
                                                           ),
                                                         )
                                                       : _DisconnectedView(

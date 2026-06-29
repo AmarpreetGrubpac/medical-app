@@ -9,6 +9,7 @@ import 'package:grubpac_driver/helper/navigation.dart';
 import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:grubpac_driver/screens/home_section/home/widgets/home_grublock_bottom_sheet.dart';
 import 'package:grubpac_driver/screens/settings_section/profile/profile_details/controller/profile_details_controller.dart';
+import 'package:grubpac_driver/screens/settings_section/box_management/controller/box_management_controller.dart';
 import 'package:timer_count_down/timer_controller.dart';
 
 class HomeController extends GetxController {
@@ -28,6 +29,8 @@ class HomeController extends GetxController {
   String phone = "";
   String countryCode = "";
   String username = "";
+  String currentBoxId = "";
+  String currentAction = "unlock";
 
   /// USERNAME
   void getUserName() {
@@ -74,8 +77,20 @@ class HomeController extends GetxController {
       CountdownController(autoStart: true);
 
   /// GRUBLOCK
-  Future<void> onLockTap(BuildContext context) async {
+  Future<void> onLockTap(BuildContext context, String boxId) async {
+    if (isLoading) return;
     otpController.clear();
+    currentBoxId = boxId;
+
+    final boxCtrl = Get.find<BoxManagementController>();
+    final box = boxCtrl.boxes.firstWhere((b) => b.id == boxId);
+    currentAction = box.isLocked ? "unlock" : "lock";
+
+    // Call the sendBoxOtp function in parallel (not awaited)
+    Get.find<BoxManagementController>().sendBoxOtp(boxId, action: currentAction);
+
+    isTimerCompleted = false;
+    countdownController.restart();
 
     showModalBottomSheet(
       context: context,
@@ -107,9 +122,44 @@ class HomeController extends GetxController {
   }
 
   /// ON RESEND
-  void onResendCode() {
-    countdownController.restart();
-    isTimerCompleted = false;
+  void onResendCode() async {
+    if (isLoading) return;
+
+    isLoading = true;
     update();
+
+    try {
+      final success = await Get.find<BoxManagementController>().sendBoxOtp(currentBoxId, action: currentAction);
+      if (success) {
+        countdownController.restart();
+        isTimerCompleted = false;
+      }
+    } finally {
+      isLoading = false;
+      update();
+    }
+  }
+
+  /// ON VERIFY OTP
+  Future<void> verifyOtp() async {
+    if (isLoading) return;
+
+    isLoading = true;
+    update();
+
+    try {
+      final success = await Get.find<BoxManagementController>().verifyBoxOtp(
+        currentBoxId,
+        otpController.text,
+        action: currentAction,
+      );
+      if (success) {
+        Navigation.pop();
+        Get.find<BoxManagementController>().fetchBoxes(isRefresh: true);
+      }
+    } finally {
+      isLoading = false;
+      update();
+    }
   }
 }
