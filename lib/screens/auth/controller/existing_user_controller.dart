@@ -197,13 +197,27 @@ class ExistingUserController extends GetxController implements GetxService {
   }
 
   Future<void> deleteAccount(String pass) async {
+    isLoading = true;
     update();
-    Response response = await authRepo.deleteAccount(pass);
-    if (response.statusCode == 200) {
-      deleteSavedData();
-    } else {
-      Get.back();
-      ApiChecker.checkApi(response);
+    try {
+      Response response = await authRepo.deleteAccount(pass);
+      isLoading = false;
+      update();
+      Get.back(); // Dismiss dialog
+      if (response.statusCode == 200) {
+        deleteSavedData();
+      } else {
+        Get.back();
+        final errorMessage = response.body != null && response.body is Map
+            ? response.body['error'] ?? response.statusText
+            : response.statusText ?? AppString.somethingWentWrong;
+        AppToast.showError(message: errorMessage);
+      }
+    } catch (e) {
+      isLoading = false;
+      update();
+      Get.back(); // Dismiss dialog
+      AppToast.showError(message: AppString.somethingWentWrong);
     }
   }
 

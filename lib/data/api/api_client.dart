@@ -71,7 +71,6 @@ class ApiClient extends GetxService {
         Uri.parse(appBaseUrl + uri),
         body: jsonEncode(body),
         headers: headers ?? _mainHeaders,
-        
       ).timeout(Duration(seconds: timeoutInSeconds));
       return handleResponse(_response, uri);
     } catch (e) {
@@ -241,10 +240,12 @@ class ApiClient extends GetxService {
     );
 
     // ─── Global 401 / 403 interceptor ────────────────────────────────────────
-    if (_response.statusCode == 401 || _response.statusCode == 403) {
+    if (_response.statusCode == 401) {
+      //|| _response.statusCode == 403
       if (!_isHandlingUnauthorized) {
         _isHandlingUnauthorized = true;
-        debugPrint('=====> [AUTH] ${_response.statusCode} detected — forcing logout.');
+        debugPrint(
+            '=====> [AUTH] ${_response.statusCode} detected — forcing logout.');
         _forceLogout();
       }
       return _response;

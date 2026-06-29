@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:grubpac_driver/common_components/app_text.dart';
 import 'package:grubpac_driver/common_components/common_back_button.dart';
 import 'package:grubpac_driver/common_components/common_button.dart';
@@ -15,7 +16,9 @@ import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:grubpac_driver/screens/auth/controller/existing_user_controller.dart';
 
 class DeleteAcScreen extends StatelessWidget {
-  const DeleteAcScreen({super.key});
+  DeleteAcScreen({super.key});
+  final TextEditingController deletePasswordController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +61,68 @@ class DeleteAcScreen extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(top: 36.h),
                 child: CommonButton(
-                  onPressed: () async {
-                    Get.find<ExistingUserController>().deleteAccount("");
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: AppText(
+                            text: AppString.deleteAccount,
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.contentNeutralPrimary,
+                          ),
+                          content: Column(
+                            children: [
+                              AppText(
+                                text: AppString.deleteConfirmDescription,
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w400,
+                                color: AppTheme.contentNeutralSecondary,
+                              ),
+                              TextField(
+                                controller: deletePasswordController,
+                              )
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: AppText(
+                                text: AppString.cancel,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w500,
+                                color: AppTheme.contentNeutralSecondary,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                if (deletePasswordController.text.isNotEmpty &&
+                                    deletePasswordController.text.length > 6 &&
+                                    deletePasswordController.text ==
+                                        "CONFIRM") {
+                                  Get.find<ExistingUserController>()
+                                      .deleteAccount("");
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop({});
+                                } else {
+                                  AppToast.showError(
+                                      message:
+                                          "Please enter CONFIRM to delete your account");
+                                }
+                                // Navigator.pop(context);
+                              },
+                              child: AppText(
+                                text: AppString.delete,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   },
                   title: AppString.deleteAccountBtn,
                 ),

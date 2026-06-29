@@ -192,6 +192,10 @@ class AppString {
       'This will permanently delete your account and all personal data stored by GrubPac.';
   static const String deleteAccountDescription2 =
       'However, any data stored by your employer (e.g. delivery history, contact info) will not be affected.';
+  static const String deleteConfirmDescription =
+      'Please type \'CONFIRM\' to permanently delete your account. This action cannot be undone.';
+  static const String cancel = 'Cancel';
+  static const String delete = 'Delete';
   static const String deleteAccountBtn = 'DELETE MY ACCOUNT';
   static const String disconnectionSurety =
       'Are you sure you want to disconnect?';
@@ -202,7 +206,7 @@ class AppString {
   static const String skip = 'Skip';
   static const String requiredPassword = 'Please enter pasword';
   static const String welcomeTrip = 'Let’s get you trip ready!';
-  static const String welcomeRavi = 'Welcome Ravi!';
+  static const String welcomeRavi = 'Welcome!';
   static const String enterPassValidation = 'Please enter password';
   static const String passEightChar =
       'Password must be at least 8 characters long';

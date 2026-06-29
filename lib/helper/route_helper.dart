@@ -50,7 +50,6 @@ class RouteHelper {
   static const String statusButtonsScreen = '/statusButtonsScreen';
   static const String internelServerErrorScreen = '/internelServerErrorScreen';
 
-
   // WELCOME
   static const String welcome = '/welcome-screen';
   static const String scanBox = '/scan-box-screen';
@@ -70,7 +69,8 @@ class RouteHelper {
   static const String faqAnswer = '/faq-answer-screen';
 
   // HOME / CONNECT-BOX
-  static const String connectBoxInstructions = '/connect-box-instructions-screen';
+  static const String connectBoxInstructions =
+      '/connect-box-instructions-screen';
   static const String boxConnecting = '/box-connecting-screen';
   static const String boxConnectionError = '/box-connection-error-screen';
   static const String disconnectBox = '/disconnect-box-screen';
@@ -81,28 +81,92 @@ class RouteHelper {
 
   /// PAGES
   static List<GetPage<dynamic>> pages = [
-    GetPage<dynamic>(name: splash, page: () => const SplashScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: login, page: () => LoginScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: verifyOtp, page: () => VerifyOtpScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: setPassword, page: () => SetPasswordScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: welcome, page: () => WelcomeScreen(), transition: defaultTransition),
-  GetPage<dynamic>(name: scanBox, page: () => ScanBoxScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: dashboard, page: () => DashboardScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: helpFaqList, page: () => HelpFaqListScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: faqAnswer, page: () => FaqAnswerScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: boxManagement, page: () => BoxManagementScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: profileDetails, page: () => ProfileDetailsScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: alerts, page: () => AlertsScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: changePass, page: () => ChangePasswordScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: deleteAc, page: () => const DeleteAcScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: forgotPasswordScreen, page: () =>  ForgotPasswordScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: setNewPassword, page: () =>  SetNewPasswordScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: maintenanceScreen, page: () =>  MaintenanceScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: updateScreen, page: () =>  UpdateScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: newVersionAvailableScreen, page: () =>  NewVersionAvailableScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: noInternetScreen, page: () =>  NoInternetScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: statusButtonsScreen, page: () =>  StatusButtonsScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: internelServerErrorScreen, page: () =>  InternelServerErrorScreen(), transition: defaultTransition),
+    GetPage<dynamic>(
+        name: splash,
+        page: () => const SplashScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: login, page: () => LoginScreen(), transition: defaultTransition),
+    GetPage<dynamic>(
+        name: verifyOtp,
+        page: () => VerifyOtpScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: setPassword,
+        page: () => SetPasswordScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: welcome,
+        page: () => WelcomeScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: scanBox,
+        page: () => ScanBoxScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: dashboard,
+        page: () => DashboardScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: helpFaqList,
+        page: () => HelpFaqListScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: faqAnswer,
+        page: () => FaqAnswerScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: boxManagement,
+        page: () => BoxManagementScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: profileDetails,
+        page: () => ProfileDetailsScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: alerts,
+        page: () => AlertsScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: changePass,
+        page: () => ChangePasswordScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: deleteAc,
+        page: () => DeleteAcScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: forgotPasswordScreen,
+        page: () => ForgotPasswordScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: setNewPassword,
+        page: () => SetNewPasswordScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: maintenanceScreen,
+        page: () => MaintenanceScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: updateScreen,
+        page: () => UpdateScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: newVersionAvailableScreen,
+        page: () => NewVersionAvailableScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: noInternetScreen,
+        page: () => NoInternetScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: statusButtonsScreen,
+        page: () => StatusButtonsScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: internelServerErrorScreen,
+        page: () => InternelServerErrorScreen(),
+        transition: defaultTransition),
     GetPage<dynamic>(
       name: connectBoxInstructions,
       page: () => ConnectBoxInstructionsScreen(),
@@ -118,9 +182,21 @@ class RouteHelper {
       page: () => BoxConnectionErrorScreen(),
       transition: defaultTransition,
     ),
-    GetPage<dynamic>(name: disconnectBox, page: () => DisconnectBoxScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: removeBox, page: () => RemoveBoxScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: boxDetails, page: () => BoxDetailsScreen(), transition: defaultTransition),
-    GetPage<dynamic>(name: existingUserScreen, page: () => ExistingUserScreen(), transition: defaultTransition),
+    GetPage<dynamic>(
+        name: disconnectBox,
+        page: () => DisconnectBoxScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: removeBox,
+        page: () => RemoveBoxScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: boxDetails,
+        page: () => BoxDetailsScreen(),
+        transition: defaultTransition),
+    GetPage<dynamic>(
+        name: existingUserScreen,
+        page: () => ExistingUserScreen(),
+        transition: defaultTransition),
   ];
 }
