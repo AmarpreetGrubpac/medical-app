@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
+import 'package:grubpac_driver/core/exceptions/failure.dart';
 import 'package:grubpac_driver/core/utils/app_constant.dart';
+import 'package:grubpac_driver/core/utils/app_toast.dart';
 import 'package:grubpac_driver/data/api/api_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -172,10 +174,17 @@ class AuthRepo {
   }
 
   Future<Response> logoutAccount() async {
+    Response response;
+    try {
+      response = await apiClient.postData(AppConstants.logoutApi, '');
+      return response;
+    } catch (e) {
+      throw Failure();
+    }
+
     // return Response(
     //     statusCode: 200,
     //     body: {"status": true, "message": "Logout successfully", "data": null});
-    return await apiClient.postData(AppConstants.logoutApi, '');
   }
 
   Future<Response> deleteAccount(String password) async {

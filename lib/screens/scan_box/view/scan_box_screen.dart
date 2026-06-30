@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:grubpac_driver/common_components/app_text.dart';
 import 'package:grubpac_driver/common_components/common_back_button.dart';
+import 'package:grubpac_driver/common_components/common_button.dart';
 import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/screens/scan_box/controller/scan_box_controller.dart';
@@ -21,10 +22,12 @@ class ScanBoxScreen extends StatelessWidget {
         final scanBoxSize = 294.h;
         const verticalOffset = 60.0;
 
-        final scanBoxTop = (screenSize.height - scanBoxSize) / 2 - verticalOffset;
+        final scanBoxTop =
+            (screenSize.height - scanBoxSize) / 2 - verticalOffset;
         final scanBoxLeft = (screenSize.width - scanBoxSize) / 2;
 
-        final scanRect = Rect.fromLTWH(scanBoxLeft, scanBoxTop, scanBoxSize, scanBoxSize);
+        final scanRect =
+            Rect.fromLTWH(scanBoxLeft, scanBoxTop, scanBoxSize, scanBoxSize);
 
         return PopScope(
           // Block back navigation while an API call is in-flight.
@@ -40,7 +43,8 @@ class ScanBoxScreen extends StatelessWidget {
 
                 // 🔲 Dimmed overlay outside scan area
                 Positioned.fill(
-                  child: CustomPaint(painter: _ScanOverlayPainter(scanRect: scanRect)),
+                  child: CustomPaint(
+                      painter: _ScanOverlayPainter(scanRect: scanRect)),
                 ),
 
                 // ⬜ Scan box border
@@ -95,20 +99,35 @@ class ScanBoxScreen extends StatelessWidget {
                     left: 24.w,
                     right: 24.w,
                     child: SafeArea(
-                      child: Container(
-                        width: double.maxFinite,
-                        padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 8.h),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8.r),
-                          color: AppTheme.background,
-                          border: Border.all(color: AppTheme.contentBrandDisabled),
-                        ),
-                        child: AppText(
-                          text: AppString.pointCamera,
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w400,
-                          color: AppTheme.commonColor,
-                        ),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 50.h),
+                            child: CommonButton(
+                                title: AppString.scanText,
+                                isLoading: controller.isScanning,
+                                isDisabled: controller.isScanning,
+                                onPressed: () {
+                                  controller.startScanning();
+                                }),
+                          ),
+                          Container(
+                            width: double.maxFinite,
+                            padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 8.h),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.r),
+                              color: AppTheme.background,
+                              border: Border.all(
+                                  color: AppTheme.contentBrandDisabled),
+                            ),
+                            child: AppText(
+                              text: AppString.pointCamera,
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w400,
+                              color: AppTheme.commonColor,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

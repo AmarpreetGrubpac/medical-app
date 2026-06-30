@@ -191,6 +191,7 @@ class ExistingUserController extends GetxController implements GetxService {
     if (response.statusCode == 200) {
       clearSavedData();
     } else {
+      AppToast.showError(message: "Logout failed");
       Get.back();
       ApiChecker.checkApi(response);
     }

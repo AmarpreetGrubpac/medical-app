@@ -11,6 +11,12 @@ class ScanBoxController extends GetxController {
 
   String scannedCode = "";
   bool isProcessing = false; // true while the addNewBox API call is running
+  bool isScanning = false;   // true when waiting for user to point camera to QR after clicking Scan
+
+  void startScanning() {
+    isScanning = true;
+    update();
+  }
 
   @override
   void onClose() {
@@ -20,17 +26,13 @@ class ScanBoxController extends GetxController {
 
   /// Called by MobileScanner every time a barcode is captured.
   Future<void> onDetect(BarcodeCapture capture) async {
-    // Ignore new scans while an API call is already in progress.
-    if (isProcessing) return;
+    // Ignore new scans while an API call is already in progress or if we haven't started scanning.
+    if (isProcessing || !isScanning) return;
 
     final barcode = capture.barcodes.firstOrNull;
     final rawValue = barcode?.rawValue;
 
     if (rawValue == null || rawValue.isEmpty) {
-      AppToast.showError(
-        title: AppString.boxNotRegistered,
-        message: AppString.boxNotRegisteredMsg,
-      );
       return;
     }
 
@@ -49,12 +51,15 @@ class ScanBoxController extends GetxController {
         title: AppString.invalidQr,
         message: AppString.invalidQrMsg,
       );
+      isScanning = false;
+      update();
       return;
     }
     // ────────────────────────────────────────────────────────────────────────
 
     scannedCode = boxDisplayId;
     isProcessing = true;
+    isScanning = false;
     update();
 
     // Pause camera while we process to avoid duplicate triggers.
