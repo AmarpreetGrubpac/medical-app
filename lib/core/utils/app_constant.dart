@@ -59,21 +59,21 @@ class AppConstants {
   /// notification
   static const String alertList = '/delivery/support/faq?category_id';
 
-  static String privacyPolicyR =
-      // 'https://www.lenskart.com/eyeglasses/gender/all-men-eyeglasses.html';
+  static String privacyPolicyR = 'https://www.grubpac.com/privacypolicy';
+  // 'https://www.lenskart.com/eyeglasses/gender/all-men-eyeglasses.html';
 
-      Get.find<SplashController>().configData?.data?.config?.privacyPolicyR ??
-          'https://www.lenskart.com/eyeglasses/gender/all-women-eyeglasses.html';
+  // Get.find<SplashController>().configData?.data?.config?.privacyPolicyR ??
+  //     'https://www.grubpac.com/privacypolicy';
 
-  static String termsNConditionsR =
-      // 'https://www.lenskart.com/eyeglasses/gender/all-women-eyeglasses.html';
+  static String termsNConditionsR = "https://www.grubpac.com/toc";
+  // 'https://www.lenskart.com/eyeglasses/gender/all-women-eyeglasses.html';
 
-      Get.find<SplashController>()
-              .configData
-              ?.data
-              ?.config
-              ?.termsNConditionsR ??
-          'https://www.lenskart.com/eyeglasses/gender/all-women-eyeglasses.html';
+  // Get.find<SplashController>()
+  //         .configData
+  //         ?.data
+  //         ?.config
+  //         ?.termsNConditionsR ??
+  //     'https://www.grubpac.com/toc';
 
   /// IMAGE URLS
   static String helpImageUrls =

@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,6 +17,8 @@ import 'package:grubpac_driver/core/utils/screen_size.dart';
 import 'package:grubpac_driver/helper/get_di.dart';
 import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:toastification/toastification.dart';
+
+import 'firebase_options.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -39,6 +42,9 @@ Future<void> main() async {
       await ScreenUtil.ensureScreenSize();
       await AppPreference.initMySharedPreferences();
 
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
       runApp(const MyApp());
     },
     (error, stack) {

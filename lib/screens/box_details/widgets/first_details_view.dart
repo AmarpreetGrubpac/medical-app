@@ -46,23 +46,36 @@ class FirstDetailsView extends StatelessWidget {
                       pressedBgColor: AppTheme.pressedTextBtnColor,
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 24.w),
-                    alignment: Alignment.centerLeft,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [_SignalBox(), _GrublockBox()],
+                  Opacity(
+                    opacity: controller.boxConnectionStatus ? 1.0 : 0.4,
+                    child: AbsorbPointer(
+                      absorbing: !controller.boxConnectionStatus,
+                      child: Column(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.symmetric(horizontal: 24.w),
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [_SignalBox(), _GrublockBox()],
+                            ),
+                          ),
+                          _BatteryBox(),
+                          Container(
+                            padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 16.h),
+                            child: Row(
+                              spacing: 16.w,
+                              children: [
+                                Expanded(child: _AdvertBox()),
+                                Expanded(child: _BoxCamBox())
+                              ],
+                            ),
+                          ),
+                          _BatteryDetailsBox(),
+                        ],
+                      ),
                     ),
                   ),
-                  _BatteryBox(),
-                  Container(
-                    padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 16.h),
-                    child: Row(
-                      spacing: 16.w,
-                      children: [Expanded(child: _AdvertBox()), Expanded(child: _BoxCamBox())],
-                    ),
-                  ),
-                  _BatteryDetailsBox(),
                 ],
               ),
             ),
@@ -98,25 +111,29 @@ class _SignalBox extends StatelessWidget {
                 IconAsset.bluetooth,
                 height: 24.h,
                 width: 24.w,
-                colorFilter: ColorFilter.mode(AppTheme.contentBrandDefault, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                    AppTheme.contentBrandDefault, BlendMode.srcIn),
               ),
               SvgPicture.asset(
                 IconAsset.wifiSlash,
                 height: 24.h,
                 width: 24.w,
-                colorFilter: ColorFilter.mode(AppTheme.contentNeutralLight, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                    AppTheme.contentNeutralLight, BlendMode.srcIn),
               ),
               SvgPicture.asset(
                 IconAsset.signal,
                 height: 24.h,
                 width: 24.w,
-                colorFilter: ColorFilter.mode(AppTheme.contentBrandDefault, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                    AppTheme.contentBrandDefault, BlendMode.srcIn),
               ),
               SvgPicture.asset(
                 IconAsset.locationArrow,
                 height: 24.h,
                 width: 24.w,
-                colorFilter: ColorFilter.mode(AppTheme.contentBrandDefault, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                    AppTheme.contentBrandDefault, BlendMode.srcIn),
               ),
             ],
           ),
@@ -164,7 +181,8 @@ class _BatteryBox extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           CommonSwitch(
-                            onToggle: isConnected ? controller.toggleDualZone : () {},
+                            onToggle:
+                                isConnected ? controller.toggleDualZone : () {},
                             isOn: controller.dualZoneSwitch,
                             isGreen: false,
                           ),
@@ -193,7 +211,9 @@ class _BatteryBox extends StatelessWidget {
                                       ? () => controller.onSelectTempButtons(70)
                                       : null,
                                   value: 70,
-                                  isSelected: AppUtils.denormalizeSliderValue(value) == 70,
+                                  isSelected:
+                                      AppUtils.denormalizeSliderValue(value) ==
+                                          70,
                                   title: AppString.hot,
                                 ),
                               ),
@@ -205,7 +225,9 @@ class _BatteryBox extends StatelessWidget {
                                       ? () => controller.onSelectTempButtons(25)
                                       : null,
                                   value: 25,
-                                  isSelected: AppUtils.denormalizeSliderValue(value) == 25,
+                                  isSelected:
+                                      AppUtils.denormalizeSliderValue(value) ==
+                                          25,
                                   title: AppString.warm,
                                 ),
                               ),
@@ -213,10 +235,13 @@ class _BatteryBox extends StatelessWidget {
                                 bottom: -12.h,
                                 child: TempratureButtons(
                                   onTap: isConnected
-                                      ? () => controller.onSelectTempButtons(-20)
+                                      ? () =>
+                                          controller.onSelectTempButtons(-20)
                                       : null,
                                   value: -20,
-                                  isSelected: AppUtils.denormalizeSliderValue(value) == -20,
+                                  isSelected:
+                                      AppUtils.denormalizeSliderValue(value) ==
+                                          -20,
                                   title: AppString.cold,
                                 ),
                               ),
@@ -225,7 +250,9 @@ class _BatteryBox extends StatelessWidget {
                                 bottom: 0,
                                 left: 60.w,
                                 child: CommonTempSlider(
-                                  onChanged: isConnected ? controller.onSliderChange : null,
+                                  onChanged: isConnected
+                                      ? controller.onSliderChange
+                                      : null,
                                   controller: controller.sliderController,
                                 ),
                               ),
@@ -239,7 +266,8 @@ class _BatteryBox extends StatelessWidget {
               ),
               Stack(
                 children: [
-                  Image.asset(ImageAsset.batteryBox, fit: BoxFit.fill, height: 318.h, width: 183.w),
+                  Image.asset(ImageAsset.batteryBox,
+                      fit: BoxFit.fill, height: 318.h, width: 183.w),
 
                   /// SINGLE
                   if (!controller.dualZoneSwitch)
@@ -261,7 +289,9 @@ class _BatteryBox extends StatelessWidget {
                       top: 41.h,
                       left: 22.w,
                       child: BatteryBoxWidget(
-                        onTap: isConnected ? () => controller.onSelectBattery(1) : null,
+                        onTap: isConnected
+                            ? () => controller.onSelectBattery(1)
+                            : null,
                         isSelected: controller.selectedBattery == 1,
                         title: "Zone 1",
                         temp: controller.firstBattery,
@@ -275,7 +305,9 @@ class _BatteryBox extends StatelessWidget {
                       bottom: 50.h,
                       left: 22.w,
                       child: BatteryBoxWidget(
-                        onTap: isConnected ? () => controller.onSelectBattery(2) : null,
+                        onTap: isConnected
+                            ? () => controller.onSelectBattery(2)
+                            : null,
                         isSelected: controller.selectedBattery == 2,
                         title: "Zone 2",
                         temp: controller.secondBattery,
@@ -315,7 +347,10 @@ class _BatteryDetailsBox extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppText(text: "${controller.boxInfo?.batteryLevel ?? 0}%", fontSize: 28.sp, fontWeight: FontWeight.w600),
+                    AppText(
+                        text: "${controller.boxInfo?.batteryLevel ?? 0}%",
+                        fontSize: 28.sp,
+                        fontWeight: FontWeight.w600),
                     CommonCompactTextButton(
                       key: controller.batteryKey,
                       onPressed: () => controller.showBatteryMenu(context),
@@ -406,7 +441,11 @@ class _SwipeUpBox extends StatelessWidget {
           child: Row(
             spacing: 12.w,
             children: [
-              Expanded(child: Divider(height: 1.h, thickness: 1.h, color: AppTheme.contentNeutralLight)),
+              Expanded(
+                  child: Divider(
+                      height: 1.h,
+                      thickness: 1.h,
+                      color: AppTheme.contentNeutralLight)),
               SvgPicture.asset(IconAsset.chevronUp, height: 16.h, width: 16.h),
               AppText(
                 text: AppString.swipeUp,
@@ -414,7 +453,11 @@ class _SwipeUpBox extends StatelessWidget {
                 fontWeight: FontWeight.w400,
                 color: AppTheme.contentNeutralLight,
               ),
-              Expanded(child: Divider(height: 1.h, thickness: 1.h, color: AppTheme.contentNeutralLight)),
+              Expanded(
+                  child: Divider(
+                      height: 1.h,
+                      thickness: 1.h,
+                      color: AppTheme.contentNeutralLight)),
             ],
           ),
         ),
@@ -437,7 +480,8 @@ class _AdvertBox extends StatelessWidget {
               IconAsset.bluetooth,
               height: 24.h,
               width: 24.h,
-              colorFilter: ColorFilter.mode(AppTheme.contentNeutralLight, BlendMode.srcIn),
+              colorFilter: ColorFilter.mode(
+                  AppTheme.contentNeutralLight, BlendMode.srcIn),
             ),
             AppText(
               text: AppString.advert,
@@ -456,7 +500,8 @@ class _AdvertBox extends StatelessWidget {
                     isOn: controller.advertSwitch,
                   ),
                   AppText(
-                    text: controller.advertSwitch ? AppString.on : AppString.off,
+                    text:
+                        controller.advertSwitch ? AppString.on : AppString.off,
                     fontWeight: FontWeight.w400,
                     height: 1,
                   ),
@@ -484,7 +529,8 @@ class _BoxCamBox extends StatelessWidget {
               IconAsset.camera,
               height: 24.h,
               width: 24.h,
-              colorFilter: ColorFilter.mode(AppTheme.contentNeutralLight, BlendMode.srcIn),
+              colorFilter: ColorFilter.mode(
+                  AppTheme.contentNeutralLight, BlendMode.srcIn),
             ),
             AppText(
               text: AppString.boxcam360,
@@ -494,7 +540,8 @@ class _BoxCamBox extends StatelessWidget {
             Container(
               height: 24.h,
               alignment: Alignment.centerLeft,
-              child: CommonStatusPill(title: AppString.on, type: StatusType.connected),
+              child: CommonStatusPill(
+                  title: AppString.on, type: StatusType.connected),
             ),
           ],
         ),
