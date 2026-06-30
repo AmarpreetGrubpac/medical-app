@@ -22,7 +22,7 @@ class HomeController extends GetxController {
   void onInitMethod() {
     phone = AppPreference.getString(PrefKey.phone);
     countryCode = AppPreference.getString(PrefKey.countryCode);
-    Get.find<ProfileDetailsController>().getProfileData();
+    // Get.find<ProfileDetailsController>().getProfileData();
     update();
   }
 
@@ -55,12 +55,13 @@ class HomeController extends GetxController {
       Navigation.pushNamed(RouteHelper.boxDetails, arg: {"box_id": boxId});
 
   /// DISCONNECT — delegates to BoxManagementController
-  Future<void> onDisconnectTap(String boxId) async {
+  Future<void> onDisconnectTap(String boxId, String displayName) async {
     final data = await Navigation.pushNamed(
       RouteHelper.disconnectBox,
       arg: {
         "is_from": ConnectBoxFrom.fromHome,
         "box_id": boxId,
+        "displayName": displayName,
       },
     );
     if (data != null && data["result"] == true) {
@@ -87,7 +88,8 @@ class HomeController extends GetxController {
     currentAction = box.isLocked ? "unlock" : "lock";
 
     // Call the sendBoxOtp function in parallel (not awaited)
-    Get.find<BoxManagementController>().sendBoxOtp(boxId, action: currentAction);
+    Get.find<BoxManagementController>()
+        .sendBoxOtp(boxId, action: currentAction);
 
     isTimerCompleted = false;
     countdownController.restart();
@@ -129,7 +131,8 @@ class HomeController extends GetxController {
     update();
 
     try {
-      final success = await Get.find<BoxManagementController>().sendBoxOtp(currentBoxId, action: currentAction);
+      final success = await Get.find<BoxManagementController>()
+          .sendBoxOtp(currentBoxId, action: currentAction);
       if (success) {
         countdownController.restart();
         isTimerCompleted = false;

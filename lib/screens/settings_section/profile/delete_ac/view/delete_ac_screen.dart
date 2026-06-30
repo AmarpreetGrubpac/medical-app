@@ -15,6 +15,8 @@ import 'package:grubpac_driver/helper/navigation.dart';
 import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:grubpac_driver/screens/auth/controller/existing_user_controller.dart';
 
+import '../../../../../common_components/common_textfield.dart';
+
 class DeleteAcScreen extends StatelessWidget {
   DeleteAcScreen({super.key});
   final TextEditingController deletePasswordController =
@@ -66,8 +68,14 @@ class DeleteAcScreen extends StatelessWidget {
                       context: context,
                       builder: (context) {
                         return AlertDialog(
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 20.sp, vertical: 10.sp),
+                          actionsPadding:
+                              EdgeInsets.only(top: 5.sp, right: 20.sp),
+                          // insetPadding: EdgeInsets.symmetric(
+                          //     horizontal: 30.w, vertical: 30.h),
                           constraints: BoxConstraints(
-                            maxHeight: 275.h,
+                            maxHeight: 282.h,
                           ),
                           title: AppText(
                             text: AppString.deleteAccount,
@@ -83,7 +91,9 @@ class DeleteAcScreen extends StatelessWidget {
                                 fontWeight: FontWeight.w400,
                                 color: AppTheme.contentNeutralSecondary,
                               ),
-                              TextField(
+                              SizedBox(height: 10.sp),
+                              CommonTextField(
+                                hintText: "CONFIRM",
                                 controller: deletePasswordController,
                               )
                             ],

@@ -141,9 +141,10 @@ class ExistingUserController extends GetxController implements GetxService {
 
       if (response.statusCode == 200) {
         String? token = response.body['data']?['auth_token'];
-
+        String? refreshToken = response.body['data']?['refresh_token'];
         if (token != null && token.isNotEmpty) {
           await authRepo.saveUserToken(token);
+          await authRepo.saveUserRefreshToken(refreshToken ?? '');
           await authRepo.onUpdateToken(token);
 
           // Navigation.pushNamed(RouteHelper.dashboard);

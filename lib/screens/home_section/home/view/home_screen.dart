@@ -142,7 +142,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           onDisTap: () =>
                                                               controller
                                                                   .onDisconnectTap(
-                                                                      box.id),
+                                                                      box.id,
+                                                                      box.name),
                                                           onViewTap: () =>
                                                               controller
                                                                   .onViewDetailTap(

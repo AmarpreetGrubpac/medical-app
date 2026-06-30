@@ -67,7 +67,7 @@ class _HelpScreenState extends State<HelpScreen> {
                       ),
                       WriteToUsButton(
                         onPressed: () => AppUtils.writeMail(
-                            'support@example.com', 'Support Request'),
+                            'support@grubpac.com', 'Support Request'),
                       ),
                       Divider(
                           height: 49.h,

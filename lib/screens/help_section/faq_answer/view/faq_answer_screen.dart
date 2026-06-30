@@ -154,9 +154,9 @@ class _FaqAnswerScreenState extends State<FaqAnswerScreen> {
                     //   fontSize: 18.sp,
                     //   fontWeight: FontWeight.w600,
                     // ),
-                // AppText(
-                //           text: faq.categories.c ?? "",
-                //           fontWeight: FontWeight.w400),
+                    // AppText(
+                    //           text: faq.categories.c ?? "",
+                    //           fontWeight: FontWeight.w400),
                     SizedBox(height: 16.h),
 
                     /// Answer
@@ -174,13 +174,12 @@ class _FaqAnswerScreenState extends State<FaqAnswerScreen> {
               padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 24.h),
               child: CommonBottomBox(
                 onPressed: () => AppUtils.writeMail(
-                    'support@example.com', 'Support Request'),
+                    'support@grubpac.com', 'Support Request'),
                 title: AppString.stillHavingDoubts,
                 description: AppString.writeToUsDescription,
                 buttonText: AppString.writeToUs,
               ),
             ),
-
           ],
         ),
       ),

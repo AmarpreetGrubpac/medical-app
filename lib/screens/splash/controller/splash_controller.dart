@@ -7,6 +7,7 @@ import 'package:grubpac_driver/data/api/api_checker.dart';
 import 'package:grubpac_driver/helper/navigation.dart';
 import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:grubpac_driver/screens/auth/controller/existing_user_controller.dart';
+import 'package:grubpac_driver/screens/settings_section/profile/profile_details/controller/profile_details_controller.dart';
 import 'package:grubpac_driver/screens/splash/repo/splash_repo.dart';
 import '../model/config_model.dart';
 
@@ -53,6 +54,7 @@ class SplashController extends GetxController implements GetxService {
     if (!Get.find<ExistingUserController>().isLoggedIn()) {
       Navigation.replaceAll(RouteHelper.login);
     } else {
+      await Get.find<ProfileDetailsController>().getProfileData();
       Navigation.replaceAll(RouteHelper.dashboard);
     }
   }

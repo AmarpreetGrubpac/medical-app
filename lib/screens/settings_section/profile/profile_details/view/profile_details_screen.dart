@@ -74,7 +74,7 @@ class ProfileDetailsScreen extends StatelessWidget {
                                       fontWeight: FontWeight.w600,
                                     ),
                                     AppText(
-                                      text: controller.id,
+                                      text: "#${controller.id}",
                                       textAlign: TextAlign.center,
                                       fontWeight: FontWeight.w400,
                                     ),

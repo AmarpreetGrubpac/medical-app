@@ -83,6 +83,7 @@ class AppConstants {
 
   // SHARED PREFRENCES
   static const String token = 'TOKEN';
+  static const String refreshToken = 'RefreshToken';
   static const String androidAppVersion = "5.0";
   static const String iosAppVersion = "13.0";
 }

@@ -33,7 +33,7 @@ class DetailsRow extends StatelessWidget {
             constraints: BoxConstraints(minHeight: 24.h),
             alignment: Alignment.centerLeft,
             child: AppText(
-              text: "$title:",
+              text: "$title :",
               fontWeight: FontWeight.w400,
               color: AppTheme.contentBrandDefault,
               maxLines: 1,

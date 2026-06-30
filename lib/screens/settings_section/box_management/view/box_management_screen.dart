@@ -154,7 +154,7 @@ class BoxManagementScreen extends StatelessWidget {
           ),
           floatingActionButton: controller.boxes.isNotEmpty
               ? Padding(
-                  padding: EdgeInsets.only(right: 24.w, bottom: 48.h),
+                  padding: EdgeInsets.only(bottom: 33.h),
                   child: IntrinsicHeight(
                     child: IntrinsicWidth(
                       child: CommonButton(
