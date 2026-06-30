@@ -19,6 +19,7 @@ class AppConstants {
   static const String resendOtpApi = '/delivery-mobile/auth/send-otp';
   static const String verifyOtpApi = '/delivery-mobile/auth/verify-otp';
   static const String setPassword = '/delivery-mobile/auth/set-password';
+  static const String refreshTokenApi = '/delivery-mobile/auth/refresh';
 
   /// forgt password urls
   static const String forgotPasswordUrl =

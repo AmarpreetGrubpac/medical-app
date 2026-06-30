@@ -31,6 +31,8 @@ class ApiClient extends GetxService {
   /// Guard flag to prevent multiple simultaneous 401/403 redirects.
   bool _isHandlingUnauthorized = false;
 
+  Future<bool>? _refreshFuture;
+
   ApiClient({required this.appBaseUrl, required this.sharedPreferences}) {
     token = sharedPreferences.getString(AppConstants.token);
     debugPrint('Token: $token');
@@ -56,7 +58,11 @@ class ApiClient extends GetxService {
         Uri.parse(appBaseUrl + uri),
         headers: headers ?? _mainHeaders,
       ).timeout(Duration(seconds: timeoutInSeconds));
-      return handleResponse(_response, uri);
+      return await handleResponse(
+        _response,
+        uri,
+        retryCallback: () => getData(uri, query: query, headers: headers),
+      );
     } catch (e) {
       return Response(statusCode: 1, statusText: noInternetMessage);
     }
@@ -72,7 +78,11 @@ class ApiClient extends GetxService {
         body: jsonEncode(body),
         headers: headers ?? _mainHeaders,
       ).timeout(Duration(seconds: timeoutInSeconds));
-      return handleResponse(_response, uri);
+      return await handleResponse(
+        _response,
+        uri,
+        retryCallback: () => postData(uri, body, headers: headers),
+      );
     } catch (e) {
       return Response(statusCode: 1, statusText: noInternetMessage);
     }
@@ -90,7 +100,11 @@ class ApiClient extends GetxService {
         headers: headers ?? _mainHeaders,
       ).timeout(Duration(seconds: timeoutInSeconds));
 
-      return handleResponse(_response, uri);
+      return await handleResponse(
+        _response,
+        uri,
+        retryCallback: () => patchData(uri, body, headers: headers),
+      );
     } catch (e) {
       return Response(statusCode: 1, statusText: noInternetMessage);
     }
@@ -131,7 +145,11 @@ class ApiClient extends GetxService {
       _request.fields.addAll(body);
       Http.Response _response =
           await Http.Response.fromStream(await _request.send());
-      return handleResponse(_response, uri);
+      return await handleResponse(
+        _response,
+        uri,
+        retryCallback: () => postMultipartData(uri, body, multipartBody, headers: headers),
+      );
     } catch (e) {
       return Response(statusCode: 1, statusText: noInternetMessage);
     }
@@ -191,7 +209,11 @@ class ApiClient extends GetxService {
       Http.Response _response =
           await Http.Response.fromStream(await _request.send());
 
-      return handleResponse(_response, uri);
+      return await handleResponse(
+        _response,
+        uri,
+        retryCallback: () => patchMultipartData(uri, body, multipartBody, headers: headers),
+      );
     } catch (e) {
       return Response(statusCode: 1, statusText: noInternetMessage);
     }
@@ -207,7 +229,11 @@ class ApiClient extends GetxService {
         body: jsonEncode(body),
         headers: headers ?? _mainHeaders,
       ).timeout(Duration(seconds: timeoutInSeconds));
-      return handleResponse(_response, uri);
+      return await handleResponse(
+        _response,
+        uri,
+        retryCallback: () => putData(uri, body, headers: headers),
+      );
     } catch (e) {
       return Response(statusCode: 1, statusText: noInternetMessage);
     }
@@ -220,13 +246,85 @@ class ApiClient extends GetxService {
       Http.Response _response = await Http.delete(Uri.parse(appBaseUrl + uri),
               headers: headers ?? _mainHeaders, body: jsonEncode(body))
           .timeout(Duration(seconds: timeoutInSeconds));
-      return handleResponse(_response, uri);
+      return await handleResponse(
+        _response,
+        uri,
+        retryCallback: () => deleteData(uri, headers: headers, body: body),
+      );
     } catch (e) {
       return Response(statusCode: 1, statusText: noInternetMessage);
     }
   }
 
-  Response handleResponse(Http.Response response, String uri) {
+  Future<bool> _attemptTokenRefresh() async {
+    if (_refreshFuture != null) {
+      return await _refreshFuture!;
+    }
+
+    _refreshFuture = _performTokenRefresh();
+    try {
+      return await _refreshFuture!;
+    } finally {
+      _refreshFuture = null;
+    }
+  }
+
+  Future<bool> _performTokenRefresh() async {
+    try {
+      final String refreshToken =
+          sharedPreferences.getString(AppConstants.refreshToken) ?? "";
+      if (refreshToken.isEmpty) {
+        debugPrint('=====> [AUTH] No refresh token stored.');
+        return false;
+      }
+
+      final body = {
+        "refresh_token": refreshToken,
+      };
+
+      debugPrint('=====> [AUTH] Calling refresh token API: ${AppConstants.refreshTokenApi}');
+      final response = await Http.post(
+        Uri.parse(appBaseUrl + AppConstants.refreshTokenApi),
+        body: jsonEncode(body),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      ).timeout(Duration(seconds: timeoutInSeconds));
+
+      if (response.statusCode == 200) {
+        final bodyData = jsonDecode(response.body);
+        if (bodyData != null && bodyData['success'] == true) {
+          final String newAuthToken = bodyData['data']?['auth_token'] ?? "";
+          final String newRefreshToken =
+              bodyData['data']?['refresh_token'] ?? "";
+
+          if (newAuthToken.isNotEmpty) {
+            token = newAuthToken;
+            updateHeader(newAuthToken);
+            await sharedPreferences.setString(AppConstants.token, newAuthToken);
+            if (newRefreshToken.isNotEmpty) {
+              await sharedPreferences.setString(
+                  AppConstants.refreshToken, newRefreshToken);
+            }
+            debugPrint('=====> [AUTH] New tokens saved successfully.');
+            return true;
+          }
+        }
+      }
+      debugPrint(
+          '=====> [AUTH] Refresh token call failed. Status: ${response.statusCode}');
+      return false;
+    } catch (e) {
+      debugPrint('=====> [AUTH] Exception during token refresh: $e');
+      return false;
+    }
+  }
+
+  Future<Response> handleResponse(
+    Http.Response response,
+    String uri, {
+    Future<Response> Function()? retryCallback,
+  }) async {
     dynamic _body;
     try {
       _body = jsonDecode(response.body);
@@ -241,12 +339,27 @@ class ApiClient extends GetxService {
 
     // ─── Global 401 / 403 interceptor ────────────────────────────────────────
     if (_response.statusCode == 401) {
-      //|| _response.statusCode == 403
-      if (!_isHandlingUnauthorized) {
-        _isHandlingUnauthorized = true;
-        debugPrint(
-            '=====> [AUTH] ${_response.statusCode} detected — forcing logout.');
-        _forceLogout();
+      if (uri == AppConstants.refreshTokenApi) {
+        if (!_isHandlingUnauthorized) {
+          _isHandlingUnauthorized = true;
+          debugPrint(
+              '=====> [AUTH] Refresh token failed with 401 — forcing logout.');
+          await _forceLogout();
+        }
+        return _response;
+      }
+
+      debugPrint('=====> [AUTH] ${_response.statusCode} detected — attempting token refresh.');
+      final isRefreshed = await _attemptTokenRefresh();
+      if (isRefreshed && retryCallback != null) {
+        debugPrint('=====> [AUTH] Token refreshed successfully — retrying request.');
+        return await retryCallback();
+      } else {
+        if (!_isHandlingUnauthorized) {
+          _isHandlingUnauthorized = true;
+          debugPrint('=====> [AUTH] Token refresh failed — forcing logout.');
+          await _forceLogout();
+        }
       }
       return _response;
     }
