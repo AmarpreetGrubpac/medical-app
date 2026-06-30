@@ -126,6 +126,7 @@ class ProfileDetailsScreen extends StatelessWidget {
                                     icon: IconAsset.locationPin,
                                     title: AppString.location,
                                     value: controller.location,
+                                    maxlines: 3,
                                   ),
                                 ],
                               ),

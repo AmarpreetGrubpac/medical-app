@@ -9,9 +9,11 @@ class DetailsRow extends StatelessWidget {
       {super.key,
       required this.icon,
       required this.title,
-      required this.value});
+      required this.value,
+      this.maxlines = 1});
 
   final String icon, title, value;
+  final int maxlines;
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +33,11 @@ class DetailsRow extends StatelessWidget {
             constraints: BoxConstraints(minHeight: 24.h),
             alignment: Alignment.centerLeft,
             child: AppText(
-                text: "$title:",
-                fontWeight: FontWeight.w400,
-                color: AppTheme.contentBrandDefault),
+              text: "$title:",
+              fontWeight: FontWeight.w400,
+              color: AppTheme.contentBrandDefault,
+              maxLines: 1,
+            ),
           ),
         ),
         Expanded(
@@ -44,6 +48,7 @@ class DetailsRow extends StatelessWidget {
               text: value,
               fontWeight: FontWeight.w400,
               overflow: TextOverflow.ellipsis,
+              maxLines: maxlines,
             ),
           ),
         ),
