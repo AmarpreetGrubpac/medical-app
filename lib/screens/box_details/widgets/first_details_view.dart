@@ -248,7 +248,7 @@ class _BatteryBox extends StatelessWidget {
                               Positioned(
                                 top: 0,
                                 bottom: 0,
-                                left: 60.w,
+                                left: 48.w,
                                 child: CommonTempSlider(
                                   onChanged: isConnected
                                       ? controller.onSliderChange

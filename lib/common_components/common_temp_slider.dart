@@ -14,18 +14,19 @@ class CommonTempSlider extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 240.h,
-      width: 12.w,
+      width: 36.w,
       child: RotatedBox(
         quarterTurns: 3,
         child: InteractiveSlider(
           controller: controller,
           onChanged: onChanged,
           padding: EdgeInsets.zero,
-          unfocusedHeight: 12.h,
-          focusedHeight: 12.h,
+          unfocusedHeight: 14.h,
+          focusedHeight: 14.h,
           focusedMargin: EdgeInsets.zero,
           unfocusedMargin: EdgeInsets.zero,
-          shapeBorder: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(100.r))),
+          shapeBorder: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(100.r))),
           min: -20,
           max: 70,
           unfocusedOpacity: 1,
@@ -35,7 +36,7 @@ class CommonTempSlider extends StatelessWidget {
           segmentDividerColor: Colors.transparent,
           thumbBorder: AppTheme.contentBrandDisabled,
           thumbColor: Colors.white,
-          thumbRadius: 10.h,
+          thumbRadius: 14.h,
           gradient: LinearGradient(
             colors: [
               AppTheme.colorTransparentBlue,
@@ -90,16 +91,21 @@ class TempratureButtons extends StatelessWidget {
               width: 66.w,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.r),
-                color: isSelected ? AppTheme.backgroundNeutralSecondary : AppTheme.background,
+                color: isSelected
+                    ? AppTheme.backgroundNeutralSecondary
+                    : AppTheme.background,
                 border: Border.all(
-                    color: isSelected ? AppTheme.strokeInteractiveBrandActiveGreen : AppTheme.boxGreyBorder),
+                    color: isSelected
+                        ? AppTheme.strokeInteractiveBrandActiveGreen
+                        : AppTheme.boxGreyBorder),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
                           offset: Offset(0, 0),
                           blurRadius: 0,
                           spreadRadius: 2,
-                          color: AppTheme.strokeInteractiveBrandActiveGreen.withValues(alpha: 0.4),
+                          color: AppTheme.strokeInteractiveBrandActiveGreen
+                              .withValues(alpha: 0.4),
                         ),
                       ]
                     : [],
@@ -108,8 +114,12 @@ class TempratureButtons extends StatelessWidget {
                 child: AppText(
                   text: title,
                   fontSize: 14.sp,
-                  textDecoration: isSelected ? TextDecoration.underline : TextDecoration.none,
-                  color: isSelected ? AppTheme.contentNeutralLightGrey : AppTheme.contentBrandDefault,
+                  textDecoration: isSelected
+                      ? TextDecoration.underline
+                      : TextDecoration.none,
+                  color: isSelected
+                      ? AppTheme.contentNeutralLightGrey
+                      : AppTheme.contentBrandDefault,
                 ),
               ),
             ),
