@@ -103,8 +103,9 @@ class BoxManagementScreen extends StatelessWidget {
                                       child: IntrinsicWidth(
                                         child: CommonTextButton(
                                           onPressed: box.isConnected
-                                              ? () => controller
-                                                  .onDisconnectBoxTap(box.id)
+                                              ? () =>
+                                                  controller.onDisconnectBoxTap(
+                                                      box.id, box.name)
                                               : () => controller
                                                   .onRemoveBoxTap(box.id),
                                           title: box.isConnected

@@ -23,7 +23,7 @@ class BoxManagementController extends GetxController {
   bool loadingBoxes = false;
   @override
   void onInit() {
-    fetchBoxes();
+    // fetchBoxes();
     super.onInit();
   }
 
@@ -161,10 +161,11 @@ class BoxManagementController extends GetxController {
   }
 
   /// DISCONNECT BOX
-  void onDisconnectBoxTap(String boxId) {
+  void onDisconnectBoxTap(String boxId, String displayName) {
     Navigation.pushNamed(RouteHelper.disconnectBox, arg: {
       "is_from": ConnectBoxFrom.fromBoxManagement,
       "box_id": boxId,
+      "displayName": displayName,
     });
   }
 

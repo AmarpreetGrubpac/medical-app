@@ -27,8 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // await Future.delayed(const Duration(seconds: 3));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkInternetConnection();
     });
   }
@@ -39,11 +38,11 @@ class _SplashScreenState extends State<SplashScreen> {
       _isConnected = connectivityResult.contains(ConnectivityResult.mobile) ||
           connectivityResult.contains(ConnectivityResult.wifi);
     });
-
+    await Future.delayed(const Duration(seconds: 1));
     if (_isConnected) {
-      // _controller.redirectToNext();
-      Get.find<SplashController>().getConfigData().then((isSuccess) {
+      Get.find<SplashController>().getConfigData().then((isSuccess) async {
         if (isSuccess) {
+          // }
           _controller.redirectToNext();
         } else {
           Get.to(

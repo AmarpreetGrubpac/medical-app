@@ -35,13 +35,17 @@ class DisconnectBoxScreen extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 24.h),
               child: Column(
                 children: [
-                  Align(alignment: Alignment.centerLeft, child: CommonBackButton()),
+                  Align(
+                      alignment: Alignment.centerLeft,
+                      child: CommonBackButton()),
                   Padding(
                     padding: EdgeInsets.only(top: 134.h, bottom: 24.h),
                     child: CommonBox(isConnected: true),
                   ),
                   AppText(
-                    text: Get.arguments?["box_id"] ?? AppString.boxNumber,
+                    text: Get.arguments?["displayName"] ??
+                        Get.arguments?["box_id"] ??
+                        AppString.boxNumber,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.contentBrandDefault,
                   ),
@@ -69,7 +73,8 @@ class DisconnectBoxScreen extends StatelessWidget {
                           final String boxId = Get.arguments?["box_id"] ?? "";
                           final success = await controller.disconnectBox(boxId);
                           if (success) {
-                            AppToast.showSuccess(message: AppString.boxDisConnected);
+                            AppToast.showSuccess(
+                                message: AppString.boxDisConnected);
                             Navigation.pop(data: {"result": true});
                           }
                         },

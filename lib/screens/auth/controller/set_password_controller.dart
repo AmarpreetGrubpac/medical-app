@@ -18,6 +18,7 @@ class SetPasswordController extends GetxController implements GetxService{
   String resetToken = "";
 
   bool isLoading = false;
+  bool fromChangePass = false;
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   AutovalidateMode autoValidateMode = AutovalidateMode.disabled;
@@ -36,6 +37,7 @@ class SetPasswordController extends GetxController implements GetxService{
         argsInput = args["input"] ?? "";
         argsCountryCode = args["country_code"] ?? "+91";
         argsIsNumber = args["is_number"] ?? false;
+        fromChangePass = args["from_change_pass"] ?? false;
 
         /// ✅ GET TOKEN HERE
         resetToken = args["token"] ?? "";
@@ -73,7 +75,14 @@ class SetPasswordController extends GetxController implements GetxService{
 
       if (response.statusCode == 200) {
         AppToast.showSuccess(message: AppString.passwordchanged);
-        Navigation.replaceAll(RouteHelper.login);
+        if (fromChangePass) {
+          final newToken = response.body?['data']?['auth_token'] ?? resetToken;
+          await authRepo.saveUserToken(newToken);
+          await authRepo.onUpdateToken(newToken);
+          Navigation.replaceAll(RouteHelper.dashboard);
+        } else {
+          Navigation.replaceAll(RouteHelper.login);
+        }
       } else {
         final errorMessage =
         response.body != null && response.body is Map

@@ -8,7 +8,10 @@ import 'package:grubpac_driver/common_components/common_textfield.dart';
 import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/validation_utils.dart';
+import 'package:grubpac_driver/helper/navigation.dart';
+import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:grubpac_driver/screens/settings_section/profile/change_pass/controller/change_password_controller.dart';
+import 'package:grubpac_driver/screens/settings_section/profile/profile_details/controller/profile_details_controller.dart';
 
 class ChangePasswordScreen extends StatelessWidget {
   const ChangePasswordScreen({super.key});
@@ -41,7 +44,7 @@ class ChangePasswordScreen extends StatelessWidget {
                             fontSize: 18.sp,
                             fontWeight: FontWeight.w400),
                         Padding(
-                          padding: EdgeInsets.only(top: 24.h, bottom: 16.h),
+                          padding: EdgeInsets.only(top: 24.h, bottom: 4.h),
                           child: ValueListenableBuilder(
                             valueListenable: controller.oldPassController,
                             builder: (_, textValue, child) => CommonTextField(
@@ -58,6 +61,44 @@ class ChangePasswordScreen extends StatelessWidget {
                                   : false,
                             ),
                           ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                String userAuth = "";
+                                if (Get.isRegistered<ProfileDetailsController>()) {
+                                  final profileController =
+                                      Get.find<ProfileDetailsController>();
+                                  userAuth = profileController.email.isNotEmpty
+                                      ? profileController.email
+                                      : profileController.phone;
+                                }
+                                Navigation.pushNamed(
+                                  RouteHelper.forgotPasswordScreen,
+                                  arg: {
+                                    "from_change_pass": true,
+                                    "user_auth": userAuth,
+                                  },
+                                );
+                              },
+                              child: Text(
+                                "Forgot Password ?",
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                  color: AppTheme.contentBrandPrimary,
+                                ),
+                                // style: AppTheme.textStyle(
+                                //     fontSize: 14.sp,
+                                //     fontWeight: FontWeight.w400,
+                                //     color: AppTheme.buttonBackground),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 8.h,
                         ),
                         ListenableBuilder(
                           listenable: Listenable.merge([

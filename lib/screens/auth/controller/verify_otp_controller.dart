@@ -19,6 +19,7 @@ class VerifyOtpController extends GetxController implements GetxService {
   bool isTimerCompleted = false;
   bool isLoading = false;
   late String flow; // "login" | "forgot"
+  bool fromChangePass = false;
 
   TextEditingController otpController = TextEditingController();
   CountdownController countdownController =
@@ -34,6 +35,7 @@ class VerifyOtpController extends GetxController implements GetxService {
         argsCountryCode = args["country_code"] ?? "";
         argsIsNumber = args["is_number"] ?? false;
         flow = args["flow"] ?? "login";
+        fromChangePass = args["from_change_pass"] ?? false;
 
         update();
       }
@@ -156,6 +158,7 @@ class VerifyOtpController extends GetxController implements GetxService {
             arg: {
               "token": token,
               "input": argsInput,
+              "from_change_pass": fromChangePass,
             },
           );
         } else {

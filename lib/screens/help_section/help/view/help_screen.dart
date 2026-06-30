@@ -39,7 +39,9 @@ class _HelpScreenState extends State<HelpScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const CommonAppNameBar(),
+              const CommonAppNameBar(
+                isDashboardScreen: true,
+              ),
               Expanded(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 0),
@@ -92,54 +94,56 @@ class _HelpScreenState extends State<HelpScreen> {
                       controller.isInitialLoading
                           ? const CustomLoader(colorcircular: true)
                           : controller.faqCategories == null ||
-                          controller.faqCategories!.isEmpty
-                          ? Padding(
-                        padding: EdgeInsets.only(top: 40.h),
-                        child: Center(
-                          child: AppText(
-                            text: "No question found",
-                            fontSize: 16.sp,
-                          ),
-                        ),
-                      )
-                          : ListView.builder(
-                        controller: controller.scrollController,
-                        itemCount: controller.faqCategories!.length +
-                            (controller.isLoading ? 1 : 0),
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          if (index == controller.faqCategories!.length) {
-                            return const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: CustomLoader(colorcircular: true),
-                            );
-                          }
+                                  controller.faqCategories!.isEmpty
+                              ? Padding(
+                                  padding: EdgeInsets.only(top: 40.h),
+                                  child: Center(
+                                    child: AppText(
+                                      text: "No question found",
+                                      fontSize: 16.sp,
+                                    ),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  controller: controller.scrollController,
+                                  itemCount: controller.faqCategories!.length +
+                                      (controller.isLoading ? 1 : 0),
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemBuilder: (context, index) {
+                                    if (index ==
+                                        controller.faqCategories!.length) {
+                                      return const Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child:
+                                            CustomLoader(colorcircular: true),
+                                      );
+                                    }
 
-                          final item = controller.faqCategories![index];
+                                    final item =
+                                        controller.faqCategories![index];
 
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 16),
-                            child: CommonMenuBox(
-                              onTap: () {
-                                Get.to(
-                                      () => const HelpFaqListScreen(),
-                                  arguments: {
-                                    "id": item.id.toString(),
-                                    "title": item.name.toString(),
+                                    return Padding(
+                                      padding: const EdgeInsets.only(top: 16),
+                                      child: CommonMenuBox(
+                                        onTap: () {
+                                          Get.to(
+                                            () => const HelpFaqListScreen(),
+                                            arguments: {
+                                              "id": item.id.toString(),
+                                              "title": item.name.toString(),
+                                            },
+                                          );
+                                        },
+                                        title: item.name.toString(),
+                                        icon: IconAsset.setup,
+                                        // isProfile: true,
+                                        image:
+                                            '${AppConstants.helpImageUrls}${item.icon!.bucketKey}',
+                                      ),
+                                    );
                                   },
-                                );
-                              },
-                              title: item.name.toString(),
-                              icon: IconAsset.setup,
-                              // isProfile: true,
-                              image:
-                              '${AppConstants.helpImageUrls}${item.icon!.bucketKey}',
-                            ),
-                          );
-                        },
-                      ),
-
+                                ),
                     ],
                   ),
                 ),

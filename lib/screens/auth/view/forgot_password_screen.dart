@@ -27,7 +27,18 @@ class ForgotPasswordScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic>? args = Get.arguments as Map<String, dynamic>?;
+    final bool fromChangePass = args?['from_change_pass'] ?? false;
+    final String userAuth = args?['user_auth'] ?? "";
+
     return GetBuilder<LoginController>(builder: (loginController) {
+      if (fromChangePass &&
+          loginController.emailController.text != userAuth &&
+          userAuth.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          loginController.emailController.text = userAuth;
+        });
+      }
       return Scaffold(
         resizeToAvoidBottomInset: true,
 
@@ -45,6 +56,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                 FocusScope.of(context).unfocus();
                 loginController.forgotPassword(
                   loginController.emailController.text.trim(),
+                  fromChangePass: fromChangePass,
                 );
               },
             ),
@@ -81,6 +93,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                     return CommonTextField(
                       hintText: AppString.emailId,
                       controller: controller.emailController,
+                      isEnabled: !fromChangePass,
                       inputFormatters: [
                         FilteringTextInputFormatter.deny(RegExp(r'\s')),
                         if (controller.isPhoneNumber)

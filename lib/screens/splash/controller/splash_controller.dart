@@ -18,11 +18,12 @@ class SplashController extends GetxController implements GetxService {
   ConfigModel? get configData => _configData;
 
   Future<void> redirectToNext() async {
-    final isSuccess = await getConfigData();
-
-    if (!isSuccess) {
-      Navigation.replaceAll(RouteHelper.login);
-      return;
+    if (configData == null) {
+      final isSuccess = await getConfigData();
+      if (!isSuccess) {
+        Navigation.replaceAll(RouteHelper.login);
+        return;
+      }
     }
 
     final config = configData?.data?.config;

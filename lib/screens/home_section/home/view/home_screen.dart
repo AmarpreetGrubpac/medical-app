@@ -67,7 +67,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Column(
                     children: [
-                      CommonAppNameBar(isHome: true),
+                      CommonAppNameBar(
+                        isHome: true,
+                        isDashboardScreen: true,
+                      ),
                       Expanded(
                         child: Column(
                           children: [

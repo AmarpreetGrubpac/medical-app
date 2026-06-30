@@ -31,7 +31,8 @@ class CommonButton extends StatefulWidget {
 }
 
 class _CommonButtonState extends State<CommonButton> {
-  final ValueNotifier<ButtonState> _stateNotifier = ValueNotifier(ButtonState.defaultState);
+  final ValueNotifier<ButtonState> _stateNotifier =
+      ValueNotifier(ButtonState.defaultState);
   final ValueNotifier<bool> _isProcessing = ValueNotifier(false);
 
   Future<void> _handleTap() async {
@@ -51,7 +52,8 @@ class _CommonButtonState extends State<CommonButton> {
   @override
   void initState() {
     super.initState();
-    _stateNotifier.value = widget.isDisabled ? ButtonState.disabled : ButtonState.defaultState;
+    _stateNotifier.value =
+        widget.isDisabled ? ButtonState.disabled : ButtonState.defaultState;
   }
 
   @override
@@ -98,17 +100,21 @@ class _CommonButtonState extends State<CommonButton> {
         builder: (context, state, _) {
           switch (state) {
             case ButtonState.defaultState:
-              return _button(buttonColor: AppTheme.primary, borderColor: AppTheme.contentBrandPrimaryOrange);
+              return _button(
+                  buttonColor: AppTheme.primary,
+                  borderColor: AppTheme.contentBrandPrimaryOrange);
 
             case ButtonState.active:
-              return _button(buttonColor: AppTheme.primary, borderColor: AppTheme.contentBrandPrimaryOrange);
+              return _button(
+                  buttonColor: AppTheme.primary,
+                  borderColor: AppTheme.contentBrandPrimaryOrange);
 
             case ButtonState.pressed:
               return _button(
                 buttonColor: AppTheme.pressedPrimaryButton,
                 borderColor: AppTheme.pressedPrimaryButtonBorder,
                 shadowColor: AppTheme.primary.withValues(alpha: 0.4),
-                needUnderline: true,
+                needUnderline: false,
               );
 
             case ButtonState.disabled:
@@ -133,10 +139,15 @@ class _CommonButtonState extends State<CommonButton> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.r),
-        boxShadow:
-            shadowColor != null
-                ? [BoxShadow(offset: Offset(0, 0), color: shadowColor, blurRadius: 0, spreadRadius: 4)]
-                : [],
+        boxShadow: shadowColor != null
+            ? [
+                BoxShadow(
+                    offset: Offset(0, 0),
+                    color: shadowColor,
+                    blurRadius: 0,
+                    spreadRadius: 4)
+              ]
+            : [],
       ),
       child: Container(
         height: widget.height ?? (widget.padding != null ? null : 56.h),
@@ -148,37 +159,38 @@ class _CommonButtonState extends State<CommonButton> {
           border: Border.all(color: borderColor),
         ),
         child: Center(
-          child:
-              widget.isLoading
-                  ? SizedBox(
-                    width: 25.h,
-                    height: 25.h,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5.w,
-                        color: textColor ?? AppTheme.contentOnPrimary,
-                      ),
+          child: widget.isLoading
+              ? SizedBox(
+                  width: 25.h,
+                  height: 25.h,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5.w,
+                      color: textColor ?? AppTheme.contentOnPrimary,
                     ),
-                  )
-                  : Row(
-                    spacing: 12.w,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (widget.icon != null)
-                        SvgPicture.asset(
-                          widget.icon ?? "",
-                          height: widget.iconSize ?? 32.h,
-                          width: widget.iconSize ?? 32.h,
-                        ),
-                      AppText(
-                        text: widget.title,
-                        fontSize: widget.fontSize ?? 20.sp,
-                        fontWeight: FontWeight.w500,
-                        color: textColor ?? AppTheme.contentOnPrimary,
-                        textDecoration: needUnderline ? TextDecoration.underline : TextDecoration.none,
-                      ),
-                    ],
                   ),
+                )
+              : Row(
+                  spacing: 12.w,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (widget.icon != null)
+                      SvgPicture.asset(
+                        widget.icon ?? "",
+                        height: widget.iconSize ?? 32.h,
+                        width: widget.iconSize ?? 32.h,
+                      ),
+                    AppText(
+                      text: widget.title,
+                      fontSize: widget.fontSize ?? 20.sp,
+                      fontWeight: FontWeight.w500,
+                      color: textColor ?? AppTheme.contentOnPrimary,
+                      textDecoration: needUnderline
+                          ? TextDecoration.underline
+                          : TextDecoration.none,
+                    ),
+                  ],
+                ),
         ),
       ),
     );

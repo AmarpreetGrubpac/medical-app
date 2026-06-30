@@ -214,8 +214,9 @@ class LoginController extends GetxController implements GetxService{
   }
 
   Future<ResponseModel> forgotPassword(
-    String email,
-  ) async {
+    String email, {
+    bool fromChangePass = false,
+  }) async {
     isLoading = true;
     update();
 
@@ -233,6 +234,7 @@ class LoginController extends GetxController implements GetxService{
           "is_number": isPhoneNumber,
           if (isPhoneNumber) "country_code": "+91",
           "flow": "forgot",
+          "from_change_pass": fromChangePass,
         },
       );
     } else {

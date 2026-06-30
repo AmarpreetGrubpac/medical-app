@@ -23,7 +23,9 @@ class SettingScreen extends StatelessWidget {
         child: GetBuilder<SettingController>(
           builder: (controller) => Column(
             children: [
-              CommonAppNameBar(),
+              CommonAppNameBar(
+                isDashboardScreen: true,
+              ),
               Expanded(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.symmetric(horizontal: 24.w),
