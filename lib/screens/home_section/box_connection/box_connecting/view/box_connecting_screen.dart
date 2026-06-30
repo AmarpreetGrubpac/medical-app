@@ -19,12 +19,42 @@ class BoxConnectingScreen extends StatefulWidget {
   State<BoxConnectingScreen> createState() => _BoxConnectingScreenState();
 }
 
-class _BoxConnectingScreenState extends State<BoxConnectingScreen> {
+class _BoxConnectingScreenState extends State<BoxConnectingScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _opacityAnimation;
+
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+
+    _scaleAnimation = Tween<double>(begin: 0.9, end: 1.1).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _opacityAnimation = Tween<double>(begin: 0.6, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
     WidgetsBinding.instance
         .addPostFrameCallback((_) async => await redirectToNext());
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   final String isFrom = Get.arguments?["is_from"] ?? "";
@@ -42,7 +72,7 @@ class _BoxConnectingScreenState extends State<BoxConnectingScreen> {
       Navigation.doublePop();
     } else {
       Navigation.doublePop();
-      Navigation.pushNamed( 
+      Navigation.pushNamed(
         RouteHelper.boxConnectionError,
         arg: {"is_from": isFrom},
       );
@@ -64,12 +94,18 @@ class _BoxConnectingScreenState extends State<BoxConnectingScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SvgPicture.asset(
-                        IconAsset.boxScanning,
-                        height: 200.h,
-                        width: 200.h,
-                        colorFilter: ColorFilter.mode(
-                            AppTheme.contentNeutralLight, BlendMode.srcIn),
+                      ScaleTransition(
+                        scale: _scaleAnimation,
+                        child: FadeTransition(
+                          opacity: _opacityAnimation,
+                          child: SvgPicture.asset(
+                            IconAsset.boxScanning,
+                            height: 200.h,
+                            width: 200.h,
+                            colorFilter: ColorFilter.mode(
+                                AppTheme.contentNeutralLight, BlendMode.srcIn),
+                          ),
+                        ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: 36.h, bottom: 8.h),
