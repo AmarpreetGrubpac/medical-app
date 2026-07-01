@@ -6,6 +6,7 @@ import 'package:grubpac_driver/common_components/common_button.dart';
 import 'package:grubpac_driver/common_components/common_text_button.dart';
 import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_images.dart';
+import 'package:grubpac_driver/core/utils/enums.dart';
 import 'package:grubpac_driver/helper/navigation.dart';
 import 'package:grubpac_driver/screens/settings_section/alerts/controller/alerts_controller.dart';
 
@@ -129,7 +130,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     // Date range group
                     _buildFilterGroup(
                       title: "DATE",
-                      options: const ["All", "Today", "Yesterday", "Last 7 Days"],
+                      options: const [
+                        "All",
+                        "Today",
+                        "Yesterday",
+                        "Last 7 Days"
+                      ],
                       currentVal: tempDateRange,
                       onSelected: (val) => setState(() => tempDateRange = val),
                     ),
@@ -137,15 +143,20 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     // Alert Severity group
                     _buildFilterGroup(
                       title: "ALERT",
-                      options: const ["All", "Warning", "Error", "Success"],
+                      options: AlertType.values
+                          .map((e) => e.name.toUpperCase())
+                          .toList(),
                       currentVal: tempAlertSeverity,
-                      onSelected: (val) => setState(() => tempAlertSeverity = val),
+                      onSelected: (val) =>
+                          setState(() => tempAlertSeverity = val),
                     ),
 
                     // Category group
                     _buildFilterGroup(
-                      title: "TYPE",
-                      options: const ["All", "Camera", "Battery", "Lock", "Display", "Other"],
+                      title: "Category",
+                      options: AlertCategory.values
+                          .map((e) => e.name.toUpperCase())
+                          .toList(),
                       currentVal: tempCategory,
                       onSelected: (val) => setState(() => tempCategory = val),
                     ),
@@ -194,9 +205,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 duration: const Duration(milliseconds: 150),
                 padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? AppTheme.primary
-                      : Colors.transparent,
+                  color: isSelected ? AppTheme.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(8.r),
                   border: Border.all(
                     color: isSelected

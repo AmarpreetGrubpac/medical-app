@@ -128,4 +128,45 @@ class AlertsController extends GetxController {
       builder: (context) => FilterBottomSheet(controller: this),
     );
   }
+
+  Future<void> onView(String id) async {
+    try {
+      final index = alerts.indexWhere((element) => element.id == id);
+      if (index != -1 && alerts[index].isRead) {
+        return;
+      }
+      Response res = await alertRepo.updateNotifications(
+        ids: [id],
+        isRead: true,
+      );
+      if (res.statusCode == 200) {
+        if (index != -1) {
+          alerts[index].isRead = true;
+          update();
+        }
+      } else {
+        debugPrint("Failed to mark alert as read: ${res.statusText}");
+      }
+    } catch (e) {
+      debugPrint("Error marking alert as read: $e");
+    }
+  }
+
+  Future<void> onClickDismiss(String id) async {
+    try {
+      Response res = await alertRepo.updateNotifications(
+        ids: [id],
+        isDismissed: true,
+      );
+      if (res.statusCode == 200) {
+        alerts.removeWhere((element) => element.id == id);
+        update();
+        AppToast.showSuccess(message: "Notification dismissed");
+      } else {
+        AppToast.showError(message: "Failed to dismiss notification");
+      }
+    } catch (e) {
+      AppToast.showError(message: "Error dismissing notification: $e");
+    }
+  }
 }

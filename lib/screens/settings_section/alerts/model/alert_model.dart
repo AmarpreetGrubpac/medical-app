@@ -9,11 +9,11 @@ import 'package:grubpac_driver/core/utils/enums.dart';
 class AlertModel {
   String id;
   String clientId;
-  dynamic verticalId;
+  String? verticalId;
   String boxId;
   String boxDisplayId;
   String boxName;
-  dynamic restaurantName;
+  String? restaurantName;
   AlertCategory category;
   AlertType type;
   String title;
@@ -42,21 +42,23 @@ class AlertModel {
   });
 
   factory AlertModel.fromJson(Map<String, dynamic> json) => AlertModel(
-        id: json["id"],
-        clientId: json["client_id"],
-        verticalId: json["vertical_id"],
-        boxId: json["box_id"],
-        boxDisplayId: json["box_display_id"],
-        boxName: json["box_name"],
-        restaurantName: json["restaurant_name"],
-        category: _parseCategory(json["category"]),
-        type: _parseType(json["type"]),
-        title: json["title"],
-        description: json["description"],
-        isRead: json["is_read"],
-        isDismissed: json["is_dismissed"],
-        createdAt: DateTime.parse(json["created_at"]),
-        updatedAt: DateTime.parse(json["updated_at"]),
+        id: json["id"] ?? "N.A",
+        clientId: json["client_id"] ?? "N.A",
+        verticalId: json["vertical_id"] ?? "N.A",
+        boxId: json["box_id"] ?? "N.A",
+        boxDisplayId: json["box_display_id"] ?? "N.A",
+        boxName: json["box_name"] ?? "N.A",
+        restaurantName: json["restaurant_name"] ?? "N.A",
+        category: _parseCategory(json["category"] ?? ""),
+        type: _parseType(json["type"] ?? ''),
+        title: json["title"] ?? "N.A",
+        description: json["description"] ?? "N.A",
+        isRead: json["is_read"] ?? false,
+        isDismissed: json["is_dismissed"] ?? false,
+        createdAt:
+            DateTime.parse(json["created_at"] ?? DateTime.now().toString()),
+        updatedAt:
+            DateTime.parse(json["updated_at"] ?? DateTime.now().toString()),
       );
 
   static AlertCategory _parseCategory(String? val) {

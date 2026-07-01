@@ -10,10 +10,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
 class AlertBox extends StatefulWidget {
-  const AlertBox({super.key, required this.data, required this.onTap});
+  const AlertBox({
+    super.key,
+    required this.data,
+    required this.onTap,
+    required this.onDismiss,
+  });
 
   final AlertModel data;
   final VoidCallback onTap;
+  final VoidCallback onDismiss;
 
   @override
   State<AlertBox> createState() => _AlertBoxState();
@@ -118,7 +124,7 @@ class _AlertBoxState extends State<AlertBox> {
                     color: AppTheme.contentBrandDefault,
                   ),
                   InkWell(
-                    onTap: () {},
+                    onTap: widget.onDismiss,
                     child: AppText(
                       text: AppString.dismiss,
                       fontSize: 14.sp,

@@ -4,9 +4,9 @@ import 'package:get/get.dart';
 import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 
-enum AlertType { warning, error, success, notification }
+enum AlertType { all, warning, error, success, notification }
 
-enum AlertCategory { camera, battery, lock, display, other }
+enum AlertCategory { all, camera, battery, lock, display, other }
 
 enum EditFieldType { name, email, phone, pass }
 

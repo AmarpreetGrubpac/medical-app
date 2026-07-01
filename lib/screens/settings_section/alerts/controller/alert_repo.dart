@@ -13,4 +13,17 @@ class AlertRepo {
   Future<Response> getAlerts() async {
     return await apiClient.getData(AppConstants.getAlerts);
   }
+
+  Future<Response> updateNotifications({
+    required List<String> ids,
+    bool? isRead,
+    bool? isDismissed,
+  }) async {
+    final body = {
+      "ids": ids,
+      if (isRead != null) "is_read": isRead,
+      if (isDismissed != null) "is_dismissed": isDismissed,
+    };
+    return await apiClient.patchData(AppConstants.getAlerts, body);
+  }
 }

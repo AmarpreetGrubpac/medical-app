@@ -107,6 +107,9 @@ class BoxDetailsController extends GetxController {
     required VoidCallback onRollback,
   }) async {
     try {
+      if (boxId.isEmpty) {
+        return;
+      }
       final res = await boxRepo.updateBoxSettings(boxId, changes);
       if (res.statusCode != 200) {
         throw Failure(
