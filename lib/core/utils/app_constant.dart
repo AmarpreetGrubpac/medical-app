@@ -60,6 +60,9 @@ class AppConstants {
   /// notification
   static const String alertList = '/delivery/support/faq?category_id';
 
+  /// alerts
+  static const String getAlerts = '/delivery-mobile/notification';
+
   static String privacyPolicyR = 'https://www.grubpac.com/privacypolicy';
   // 'https://www.lenskart.com/eyeglasses/gender/all-men-eyeglasses.html';
 

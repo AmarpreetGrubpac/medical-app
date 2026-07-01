@@ -77,8 +77,7 @@ Future<void> init() async {
   Get.lazyPut(() => ExistingUserController(authRepo: Get.find()), fenix: true);
 
   Get.put(BoxManagementController(boxRepo: Get.find()), permanent: true);
-  Get.lazyPut(() => ProfileDetailsController(profileRepo: Get.find()),
-      fenix: true);
+  Get.put(ProfileDetailsController(profileRepo: Get.find()), permanent: true);
   Get.lazyPut(() => SettingController(), fenix: true);
   Get.lazyPut(() => ChangePasswordController(authRepo: Get.find()),
       fenix: true);

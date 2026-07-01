@@ -48,7 +48,9 @@ class AppTheme {
   static Color get contentOnPrimary => isDark
       ? DarkThemeColors.contentOnPrimary
       : LightThemeColors.contentOnPrimary;
-
+  static Color get expandedBoxBG => isDark
+      ? const Color.fromARGB(255, 1, 14, 7)
+      : LightThemeColors.contentOnPrimary;
   static Color get primaryButtonDisabled => isDark
       ? DarkThemeColors.primaryButtonDisabled
       : LightThemeColors.primaryButtonDisabled;

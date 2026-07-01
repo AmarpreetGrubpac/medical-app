@@ -147,3 +147,22 @@ class BoxSettings {
         lightEnabled: lightEnabled ?? this.lightEnabled,
       );
 }
+
+class OtpDetails {
+  bool status;
+  String? type;
+  List<String>? values;
+
+  OtpDetails({
+    this.status = false,
+    this.type,
+    this.values = const [],
+  });
+
+  factory OtpDetails.fromJson(Map<String, dynamic> json, {bool? status}) =>
+      OtpDetails(
+        type: json["type"],
+        values: List<String>.from(json["values"].map((x) => x)),
+        status: status ?? false,
+      );
+}

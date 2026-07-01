@@ -123,7 +123,7 @@ class AppString {
       'It seems the camera is not functioning properly. Try restarting the device once.';
   static const String lockOpened = 'Locked opened.';
   static const String lockOpenedMsg = 'You successfully opened the Grublock';
-  static const String timeToday = '12:15 PM | Today';
+  static const String timeToday = '';
 
   //
   static const String whyIsMyBoxOffline = 'Why is my box offline?';
@@ -131,6 +131,7 @@ class AppString {
   static const String notReceivingAlerts =
       "What should I do if I'm not receiving alerts?";
   static const String testConnection = 'Is there a way to test my connection?';
+  static const String dismiss = "DISMISS";
 
   //
   static const emergency = "Emergency?";
@@ -185,6 +186,7 @@ class AppString {
   static const String boxNumberHash = '#BOX-1245';
   static const String currentPass = 'Current password';
   static const String newPass = 'New password';
+  static const String maycauseHarm = 'May cause harm';
 
   //delete account
   static const String deleteAccount = 'Delete your driver account?';

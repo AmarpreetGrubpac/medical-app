@@ -34,11 +34,14 @@ class CommonBox extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.fromLTRB(8.w, 4.h, 8.w, 4.h),
                 decoration: BoxDecoration(
-                  color:
-                      isConnected ? AppTheme.backgroundBrandSecondaryAlt : AppTheme.backgroundBrandSecondary,
+                  color: isConnected
+                      ? AppTheme.backgroundBrandSecondaryAlt
+                      : AppTheme.backgroundBrandSecondary,
                   borderRadius: BorderRadius.circular(8.r),
                   border: Border.all(
-                    color: isConnected ? AppTheme.strokeBrandPrimary : AppTheme.strokeBrandPrimaryAlt,
+                    color: isConnected
+                        ? AppTheme.strokeBrandPrimary
+                        : AppTheme.strokeBrandPrimaryAlt,
                     width: 1,
                   ),
                 ),
@@ -46,13 +49,19 @@ class CommonBox extends StatelessWidget {
                   spacing: 8.w,
                   children: [
                     SvgPicture.asset(
-                      isConnected ? IconAsset.toastSuccess : IconAsset.toastError,
+                      isConnected
+                          ? IconAsset.toastSuccess
+                          : IconAsset.toastError,
                       height: 24.h,
                       width: 24.h,
                     ),
                     AppText(
-                      text: isConnected ? AppString.connectedBtn : AppString.disconnectedBtn,
-                      color: isConnected ? AppTheme.strokeBrandPrimary : AppTheme.strokeBrandPrimaryAlt,
+                      text: isConnected
+                          ? AppString.connectedBtn
+                          : AppString.disconnectedBtn,
+                      color: isConnected
+                          ? AppTheme.strokeBrandPrimary
+                          : AppTheme.strokeBrandPrimaryAlt,
                       height: 1,
                     ),
                   ],
@@ -65,22 +74,26 @@ class CommonBox extends StatelessWidget {
               top: -12.h,
               left: -12.w,
               child: GestureDetector(
-                onTap: isBoxLocked ? onTap : null,
+                onTap: onTap,
                 behavior: HitTestBehavior.translucent,
                 child: Container(
                   height: 64.h,
                   width: 64.h,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppTheme.strokeInteractiveBrandDefault),
-                    color: isBoxLocked ? AppTheme.bgBrandSecondaryYellow : AppTheme.background,
+                    border: Border.all(
+                        color: AppTheme.strokeInteractiveBrandDefault),
+                    color: isBoxLocked
+                        ? AppTheme.bgBrandSecondaryYellow
+                        : AppTheme.background,
                   ),
                   child: Center(
                     child: SvgPicture.asset(
                       isBoxLocked ? IconAsset.lock : IconAsset.unlock,
                       height: 48.h,
                       width: 48.h,
-                      colorFilter: ColorFilter.mode(AppTheme.contentBrandPrimaryYellow, BlendMode.srcIn),
+                      colorFilter: ColorFilter.mode(
+                          AppTheme.contentBrandPrimaryYellow, BlendMode.srcIn),
                     ),
                   ),
                 ),

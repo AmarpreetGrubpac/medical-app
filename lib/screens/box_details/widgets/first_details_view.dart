@@ -347,10 +347,16 @@ class _BatteryDetailsBox extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppText(
-                        text: "${controller.boxInfo?.batteryLevel ?? 0}%",
-                        fontSize: 28.sp,
-                        fontWeight: FontWeight.w600),
+                    Row(
+                      spacing: 8.sp,
+                      children: [
+                        SvgPicture.asset("assets/icons/charge.svg"),
+                        AppText(
+                            text: "${controller.boxInfo?.batteryLevel ?? 0}%",
+                            fontSize: 28.sp,
+                            fontWeight: FontWeight.w600),
+                      ],
+                    ),
                     CommonCompactTextButton(
                       key: controller.batteryKey,
                       onPressed: () => controller.showBatteryMenu(context),
@@ -403,7 +409,7 @@ class _BatteryDetailsBox extends StatelessWidget {
                               height: 24.h,
                               width: 24.h,
                               colorFilter: ColorFilter.mode(
-                                AppTheme.contentBrandDisabled,
+                                AppTheme.contentBrandPrimaryOrange,
                                 BlendMode.srcIn,
                               ),
                             ),
@@ -476,15 +482,15 @@ class _AdvertBox extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 8.h,
           children: [
-            SvgPicture.asset(
-              IconAsset.bluetooth,
-              height: 24.h,
-              width: 24.h,
-              colorFilter: ColorFilter.mode(
-                  AppTheme.contentNeutralLight, BlendMode.srcIn),
-            ),
+            // SvgPicture.asset(
+            //   IconAsset.ioniser,
+            //   height: 24.h,
+            //   width: 24.h,
+            //   colorFilter: ColorFilter.mode(
+            //       AppTheme.contentNeutralLight, BlendMode.srcIn),
+            // ),
             AppText(
-              text: AppString.advert,
+              text: AppString.ioniser,
               fontWeight: FontWeight.w600,
               color: AppTheme.contentNeutralPrimary,
             ),
@@ -495,18 +501,31 @@ class _AdvertBox extends StatelessWidget {
                 children: [
                   CommonSwitch(
                     onToggle: controller.boxConnectionStatus
-                        ? controller.toggleAdvert
+                        ? controller.toggleIoniserSwitch
                         : () {},
-                    isOn: controller.advertSwitch,
+                    isOn: controller.ioniserSwitch,
                   ),
                   AppText(
                     text:
-                        controller.advertSwitch ? AppString.on : AppString.off,
+                        controller.ioniserSwitch ? AppString.on : AppString.off,
                     fontWeight: FontWeight.w400,
                     height: 1,
                   ),
                 ],
               ),
+            ),
+            Row(
+              spacing: 8.w,
+              children: [
+                SvgPicture.asset(IconAsset.warning),
+                AppText(
+                  text: AppString.maycauseHarm,
+                  fontWeight: FontWeight.w300,
+                  fontSize: 13.sp,
+                  height: 1,
+                  color: AppTheme.strokeInteractiveBrandDefault,
+                ),
+              ],
             ),
           ],
         ),

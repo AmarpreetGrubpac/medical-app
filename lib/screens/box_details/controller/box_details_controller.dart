@@ -229,36 +229,43 @@ class BoxDetailsController extends GetxController {
     otpController.clear();
     currentAction = (boxInfo?.isLocked ?? true) ? "unlock" : "lock";
 
-    // Call the sendBoxOtp function in parallel (not awaited)
-    Get.find<BoxManagementController>()
-        .sendBoxOtp(boxId, action: currentAction);
+    isLoading = true;
+    update();
 
-    isTimerCompleted = false;
-    countdownController.restart();
+    try {
+      var res = await Get.find<BoxManagementController>()
+          .sendBoxOtp(boxId, action: currentAction);
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent, // Important for blur
-      builder: (context) {
-        return Stack(
-          children: [
-            // Blurred Background
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-              child: Container(
-                color: Colors.black.withValues(alpha: 0.05), // Optional tint
+      isTimerCompleted = false;
+      countdownController.restart();
+
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent, // Important for blur
+        builder: (context) {
+          return Stack(
+            children: [
+              // Blurred Background
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.05), // Optional tint
+                ),
               ),
-            ),
-            // Bottom Sheet Content
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: detailsGrublockBottomSheet(context),
-            ),
-          ],
-        );
-      },
-    );
+              // Bottom Sheet Content
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: detailsGrublockBottomSheet(context, res),
+              ),
+            ],
+          );
+        },
+      );
+    } finally {
+      isLoading = false;
+      update();
+    }
   }
 
   /// LOGS
@@ -554,9 +561,9 @@ class BoxDetailsController extends GetxController {
     update();
 
     try {
-      final success = await Get.find<BoxManagementController>()
+      final OtpDetails success = await Get.find<BoxManagementController>()
           .sendBoxOtp(boxId, action: currentAction);
-      if (success) {
+      if (success.status) {
         countdownController.restart();
         isTimerCompleted = false;
       }

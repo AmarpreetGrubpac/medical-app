@@ -10,9 +10,10 @@ import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/app_utils.dart';
 import 'package:grubpac_driver/screens/home_section/home/controller/home_controller.dart';
+import 'package:grubpac_driver/screens/settings_section/box_management/model/box_info.dart';
 import 'package:timer_count_down/timer_count_down.dart';
 
-Widget homeGrublockBottomSheet(BuildContext context) {
+Widget homeGrublockBottomSheet(BuildContext context, OtpDetails otpDetails) {
   return GetBuilder<HomeController>(
     builder: (controller) => Padding(
       padding:
@@ -61,7 +62,7 @@ Widget homeGrublockBottomSheet(BuildContext context) {
                 ),
                 AppText(
                   text:
-                      "${controller.countryCode}${AppUtils.maskPhoneNumber(controller.phone)}.",
+                      "${otpDetails.type != "email" ? "${controller.countryCode} : " : ""}${otpDetails.values!.isNotEmpty ? otpDetails.values!.first : ""}",
                   textAlign: TextAlign.center,
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w400,

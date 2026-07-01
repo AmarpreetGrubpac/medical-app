@@ -35,60 +35,67 @@ class AlertsScreen extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: alertsController.filteredAlerts.isEmpty
+                child: alertsController.isloading == true
                     ? Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 24.w),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              AppText(
-                                text: "No alerts found",
-                                fontSize: 24.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.contentNeutralPrimary,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(top: 8.h, bottom: 24.h),
-                                child: AppText(
-                                  text: "Try adjusting or resetting your filter criteria.",
-                                  fontWeight: FontWeight.w400,
-                                  textAlign: TextAlign.center,
-                                  color: AppTheme.contentNeutralSecondary,
-                                ),
-                              ),
-                              IntrinsicWidth(
-                                child: CommonButton(
-                                  onPressed: alertsController.resetFilters,
-                                  fontSize: 16.sp,
-                                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                                  title: "RESET FILTERS",
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        child: CircularProgressIndicator(),
                       )
-                    : ListView.builder(
-                        itemCount: alertsController.filteredAlerts.length,
-                        padding: EdgeInsets.only(bottom: 80.h),
-                        itemBuilder: (context, index) {
-                          return AlertBox(
-                              onTap: () {
-                                Navigation.pushNamed(
-                                  RouteHelper.boxDetails,
-                                  arg: {"page": 1},
-                                );
-                              },
-                              data: alertsController.filteredAlerts[index]);
-                        },
-                      ),
+                    : alertsController.filteredAlerts.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 24.w),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  AppText(
+                                    text: "No alerts found",
+                                    fontSize: 24.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.contentNeutralPrimary,
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(top: 8.h, bottom: 24.h),
+                                    child: AppText(
+                                      text:
+                                          "Try adjusting or resetting your filter criteria.",
+                                      fontWeight: FontWeight.w400,
+                                      textAlign: TextAlign.center,
+                                      color: AppTheme.contentNeutralSecondary,
+                                    ),
+                                  ),
+                                  IntrinsicWidth(
+                                    child: CommonButton(
+                                      onPressed: alertsController.resetFilters,
+                                      fontSize: 16.sp,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 20.w, vertical: 10.h),
+                                      title: "RESET FILTERS",
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: alertsController.filteredAlerts.length,
+                            padding: EdgeInsets.only(bottom: 80.h),
+                            itemBuilder: (context, index) {
+                              return AlertBox(
+                                  onTap: () {
+                                    Navigation.pushNamed(
+                                      RouteHelper.boxDetails,
+                                      arg: {"page": 1},
+                                    );
+                                  },
+                                  data: alertsController.filteredAlerts[index]);
+                            },
+                          ),
               ),
             ],
           ),
         ),
         floatingActionButton: Padding(
-          padding: EdgeInsets.only(right: 24.w, bottom: 48.h),
+          padding: EdgeInsets.only(right: 10.w, bottom: 20.h),
           child: IntrinsicWidth(
             child: IntrinsicHeight(
               child: CommonButton(
@@ -107,4 +114,3 @@ class AlertsScreen extends StatelessWidget {
     });
   }
 }
-

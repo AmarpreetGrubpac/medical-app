@@ -15,11 +15,12 @@ class CommonMenuBox extends StatefulWidget {
     this.image,
     required this.onTap,
     this.isProfile = false,
+    this.iconSize,
   });
 
   final String title, icon;
   final String? image; // ✅ make nullable
-
+  final double? iconSize;
   final VoidCallback onTap;
   final bool isProfile;
 
@@ -133,11 +134,9 @@ class _CommonMenuBoxState extends State<CommonMenuBox> {
                                 // ),
                                 CustomImage(
                               image: widget.image!,
-                              color:
-                              widget.isProfile
+                              color: widget.isProfile
                                   ? null
-                                  :
-                              state == ButtonState.defaultState
+                                  : state == ButtonState.defaultState
                                       ? AppTheme.contentBrandSecondaryOrange
                                       : AppTheme.primary,
                               fit: BoxFit.cover,
@@ -149,8 +148,8 @@ class _CommonMenuBoxState extends State<CommonMenuBox> {
                       : (widget.icon != null && widget.icon!.isNotEmpty)
                           ? SvgPicture.asset(
                               widget.icon,
-                              height: 32.h,
-                              width: 32.h,
+                              height: widget.iconSize ?? 32.h,
+                              width: widget.iconSize ?? 32.h,
                               colorFilter: ColorFilter.mode(
                                 state == ButtonState.defaultState
                                     ? AppTheme.contentBrandSecondaryOrange

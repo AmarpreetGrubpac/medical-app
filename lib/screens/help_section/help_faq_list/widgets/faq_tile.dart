@@ -11,7 +11,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../controller/help_support_model.dart';
 
 class FaqTile extends StatefulWidget {
-  const FaqTile({super.key, required this.faq,});
+  const FaqTile({
+    super.key,
+    required this.faq,
+  });
 
   final Faq faq;
   // final String id;
@@ -21,7 +24,8 @@ class FaqTile extends StatefulWidget {
 }
 
 class _FaqTileState extends State<FaqTile> {
-  final ValueNotifier<ButtonState> _stateNotifier = ValueNotifier(ButtonState.defaultState);
+  final ValueNotifier<ButtonState> _stateNotifier =
+      ValueNotifier(ButtonState.defaultState);
   final ValueNotifier<bool> _isProcessing = ValueNotifier(false);
 
   Future<void> _handleTap() async {
@@ -74,49 +78,50 @@ class _FaqTileState extends State<FaqTile> {
       },
       child: ValueListenableBuilder(
         valueListenable: _stateNotifier,
-        builder:
-            (context, state, _) => Container(
-              padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 24.h),
-              decoration: BoxDecoration(
-                color:
-                    state == ButtonState.pressed
-                        ? AppTheme.strokeInteractiveBrandDisabled
-                        : AppTheme.background,
-                border: Border(top: BorderSide(color: AppTheme.strokeInteractiveBrandDisabled)),
+        builder: (context, state, _) => Container(
+          padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 24.h),
+          decoration: BoxDecoration(
+            color: state == ButtonState.pressed
+                ? AppTheme.strokeInteractiveBrandDisabled
+                : AppTheme.background,
+            border: Border(
+                top:
+                    BorderSide(color: AppTheme.strokeInteractiveBrandDisabled)),
+          ),
+          child: Row(
+            spacing: 16.w,
+            children: [
+              SvgPicture.asset(
+                IconAsset.questionBox,
+                height: 32.h,
+                width: 32.h,
+                colorFilter: ColorFilter.mode(
+                  state == ButtonState.defaultState
+                      ? AppTheme.contentBrandSecondaryOrange
+                      : AppTheme.primary,
+                  BlendMode.srcIn,
+                ),
               ),
-              child: Row(
-                spacing: 16.w,
-                children: [
-                  SvgPicture.asset(
-                    IconAsset.questionBox,
-                    height: 32.h,
-                    width: 32.h,
-                    colorFilter: ColorFilter.mode(
-                      state == ButtonState.defaultState
-                          ? AppTheme.contentBrandSecondaryOrange
-                          : AppTheme.primary,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                  Expanded(
-                    child: AppText(
-                      // text: widget.faq,
-                      text: widget.faq.question ?? "",
+              Expanded(
+                child: AppText(
+                  // text: widget.faq,
+                  text: widget.faq.question ?? "",
 
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.contentNeutralPrimary,
-                    ),
-                  ),
-                  SvgPicture.asset(
-                    IconAsset.arrowRight,
-                    height: 28.h,
-                    width: 28.h,
-                    colorFilter: ColorFilter.mode(AppTheme.contentBrandDefault, BlendMode.srcIn),
-                  ),
-                ],
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.contentNeutralPrimary,
+                ),
               ),
-            ),
+              SvgPicture.asset(
+                IconAsset.arrowRight,
+                height: 28.h,
+                width: 28.h,
+                colorFilter: ColorFilter.mode(
+                    AppTheme.contentBrandDefault, BlendMode.srcIn),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

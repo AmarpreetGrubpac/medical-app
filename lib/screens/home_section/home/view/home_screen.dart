@@ -135,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   final box =
                                                       boxCtrl.boxes[index];
                                                   return box.isConnected
-                                                      ? _ConnectedView(
+                                                      ? ConnectedView(
                                                           box: box,
                                                           isBoxLocked:
                                                               box.isLocked,
@@ -155,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             box.id,
                                                           ),
                                                         )
-                                                      : _DisconnectedView(
+                                                      : DisconnectedView(
                                                           box: box,
                                                           onConnectTap: () =>
                                                               controller
@@ -207,6 +207,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
+                  if (controller.isLoading)
+                    const Center(
+                      child: CircularProgressIndicator(),
+                    ),
                 ],
               ),
             );
@@ -268,14 +272,14 @@ class _EmptyView extends StatelessWidget {
 
 // ─── Connected View ─────────────────────────────────────────────────────────
 
-class _ConnectedView extends StatelessWidget {
+class ConnectedView extends StatelessWidget {
   final BoxInfo box;
   final bool isBoxLocked;
   final VoidCallback onViewTap;
   final Future<void> Function() onDisTap;
   final VoidCallback onLockTap;
 
-  const _ConnectedView({
+  const ConnectedView({
     required this.box,
     required this.isBoxLocked,
     required this.onViewTap,
@@ -332,11 +336,11 @@ class _ConnectedView extends StatelessWidget {
 
 // ─── Disconnected View ───────────────────────────────────────────────────────
 
-class _DisconnectedView extends StatelessWidget {
+class DisconnectedView extends StatelessWidget {
   final BoxInfo box;
   final VoidCallback onConnectTap;
 
-  const _DisconnectedView({
+  const DisconnectedView({
     required this.box,
     required this.onConnectTap,
   });

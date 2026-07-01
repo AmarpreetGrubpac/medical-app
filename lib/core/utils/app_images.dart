@@ -86,8 +86,7 @@ class IconAsset {
   static const String advertScreen = '${_path}advert-screen.svg';
   static const String arrowsRightLeft = '${_path}arrows-right-left.svg';
   static const String webcam = '${_path}webcam.svg';
-
-
-
-
+  static const String warning = '${_path}warning.svg';
+  static const String support = '${_path}support.svg';
+  
 }

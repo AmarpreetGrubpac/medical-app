@@ -126,6 +126,7 @@ class _HelpScreenState extends State<HelpScreen> {
                                     return Padding(
                                       padding: const EdgeInsets.only(top: 16),
                                       child: CommonMenuBox(
+                                        iconSize: 28.h,
                                         onTap: () {
                                           Get.to(
                                             () => const HelpFaqListScreen(),
@@ -136,10 +137,11 @@ class _HelpScreenState extends State<HelpScreen> {
                                           );
                                         },
                                         title: item.name.toString(),
-                                        icon: IconAsset.setup,
+                                        icon: getSupportIcon(
+                                            item.name!.toLowerCase()),
                                         // isProfile: true,
-                                        image:
-                                            '${AppConstants.helpImageUrls}${item.icon!.bucketKey}',
+                                        // image:
+                                        //     '${AppConstants.helpImageUrls}${item.icon!.bucketKey}',
                                       ),
                                     );
                                   },
@@ -154,4 +156,15 @@ class _HelpScreenState extends State<HelpScreen> {
       });
     });
   }
+}
+
+String getSupportIcon(String title) {
+  if (title.toLowerCase().contains("support")) return IconAsset.userShield;
+  if (title.toLowerCase().contains("common issues")) return IconAsset.acDelete;
+  if (title.toLowerCase().contains("setup")) return IconAsset.setup;
+  if (title.contains("troubleshooting")) return IconAsset.support;
+  if (title.contains("bluetooth") || title.contains("device"))
+    return IconAsset.bluetooth;
+  if (title.contains("alert")) return IconAsset.alert;
+  return IconAsset.support;
 }

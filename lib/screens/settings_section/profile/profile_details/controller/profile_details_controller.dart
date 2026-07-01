@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:grubpac_driver/core/utils/app_constant.dart';
-import 'package:grubpac_driver/core/utils/app_toast.dart';
 import 'package:grubpac_driver/helper/navigation.dart';
 import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:grubpac_driver/screens/settings_section/profile/profile_details/controller/model/profile_model.dart';
 import 'package:grubpac_driver/screens/settings_section/profile/profile_details/controller/profile_repo.dart';
-
-import '../../../../../core/utils/app_string.dart';
 
 class ProfileDetailsController extends GetxController {
   final ProfileRepo profileRepo;
@@ -47,7 +44,9 @@ class ProfileDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    getProfileData();
+    if (profileRepo.sharedPreferences.containsKey(AppConstants.token)) {
+      getProfileData();
+    }
   }
 
   Future<void> getProfileData() async {

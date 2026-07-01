@@ -10,6 +10,7 @@ import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:grubpac_driver/screens/home_section/home/widgets/home_grublock_bottom_sheet.dart';
 import 'package:grubpac_driver/screens/settings_section/profile/profile_details/controller/profile_details_controller.dart';
 import 'package:grubpac_driver/screens/settings_section/box_management/controller/box_management_controller.dart';
+import 'package:grubpac_driver/screens/settings_section/box_management/model/box_info.dart';
 import 'package:timer_count_down/timer_controller.dart';
 
 class HomeController extends GetxController {
@@ -22,7 +23,7 @@ class HomeController extends GetxController {
   void onInitMethod() {
     phone = AppPreference.getString(PrefKey.phone);
     countryCode = AppPreference.getString(PrefKey.countryCode);
-    // Get.find<ProfileDetailsController>().getProfileData();
+    Get.find<ProfileDetailsController>().getProfileData();
     update();
   }
 
@@ -87,34 +88,41 @@ class HomeController extends GetxController {
     final box = boxCtrl.boxes.firstWhere((b) => b.id == boxId);
     currentAction = box.isLocked ? "unlock" : "lock";
 
-    // Call the sendBoxOtp function in parallel (not awaited)
-    Get.find<BoxManagementController>()
-        .sendBoxOtp(boxId, action: currentAction);
+    isLoading = true;
+    update();
 
-    isTimerCompleted = false;
-    countdownController.restart();
+    try {
+      var res = await Get.find<BoxManagementController>()
+          .sendBoxOtp(boxId, action: currentAction);
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Stack(
-          children: [
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-              child: Container(
-                color: Colors.black.withValues(alpha: 0.05),
+      isTimerCompleted = false;
+      countdownController.restart();
+
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return Stack(
+            children: [
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.05),
+                ),
               ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: homeGrublockBottomSheet(context),
-            ),
-          ],
-        );
-      },
-    );
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: homeGrublockBottomSheet(context, res),
+              ),
+            ],
+          );
+        },
+      );
+    } finally {
+      isLoading = false;
+      update();
+    }
   }
 
   /// ON COUNTDOWN FINISHED
@@ -131,9 +139,9 @@ class HomeController extends GetxController {
     update();
 
     try {
-      final success = await Get.find<BoxManagementController>()
+      final OtpDetails success = await Get.find<BoxManagementController>()
           .sendBoxOtp(currentBoxId, action: currentAction);
-      if (success) {
+      if (success.status) {
         countdownController.restart();
         isTimerCompleted = false;
       }

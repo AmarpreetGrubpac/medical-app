@@ -32,14 +32,18 @@ class ExpandableTile extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                AppText(text: title, fontWeight: FontWeight.w600, color: AppTheme.contentNeutralPrimary),
+                AppText(
+                    text: title,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.contentNeutralPrimary),
                 RotatedBox(
                   quarterTurns: isExpanded ? 4 : 2,
                   child: SvgPicture.asset(
                     IconAsset.arrowDown,
                     height: 28.h,
                     width: 28.w,
-                    colorFilter: ColorFilter.mode(AppTheme.contentBrandDefault, BlendMode.srcIn),
+                    colorFilter: ColorFilter.mode(
+                        AppTheme.contentBrandDefault, BlendMode.srcIn),
                   ),
                 ),
               ],
@@ -84,7 +88,8 @@ class ExpandableBox extends StatelessWidget {
                 top: Radius.circular(8.r),
                 bottom: Radius.circular(isExpanded ? 0 : 8.r),
               ),
-              border: Border.all(color: AppTheme.strokeInteractiveBrandDisabled),
+              border:
+                  Border.all(color: AppTheme.strokeInteractiveBrandDisabled),
             ),
             child: Row(
               spacing: 12.w,
@@ -94,7 +99,9 @@ class ExpandableBox extends StatelessWidget {
                   height: 24.h,
                   width: 24.w,
                   colorFilter: ColorFilter.mode(
-                    isGrublock ? AppTheme.contentBrandPrimaryOrange : AppTheme.contentNeutralLight,
+                    isGrublock
+                        ? AppTheme.contentBrandPrimaryOrange
+                        : AppTheme.contentNeutralLight,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -112,7 +119,8 @@ class ExpandableBox extends StatelessWidget {
                     IconAsset.arrowDown,
                     height: 28.h,
                     width: 28.w,
-                    colorFilter: ColorFilter.mode(AppTheme.contentBrandDefault, BlendMode.srcIn),
+                    colorFilter: ColorFilter.mode(
+                        AppTheme.contentBrandDefault, BlendMode.srcIn),
                   ),
                 ),
               ],
@@ -124,11 +132,14 @@ class ExpandableBox extends StatelessWidget {
             width: double.maxFinite,
             padding: EdgeInsets.fromLTRB(12.w, 16.h, 12.w, 16.h),
             decoration: BoxDecoration(
-              color: AppTheme.contentOnPrimary,
+              color: AppTheme.expandedBoxBG,
               border: Border(
-                left: BorderSide(color: AppTheme.strokeInteractiveBrandDisabled),
-                right: BorderSide(color: AppTheme.strokeInteractiveBrandDisabled),
-                bottom: BorderSide(color: AppTheme.strokeInteractiveBrandDisabled),
+                left:
+                    BorderSide(color: AppTheme.strokeInteractiveBrandDisabled),
+                right:
+                    BorderSide(color: AppTheme.strokeInteractiveBrandDisabled),
+                bottom:
+                    BorderSide(color: AppTheme.strokeInteractiveBrandDisabled),
               ),
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(8.r)),
             ),

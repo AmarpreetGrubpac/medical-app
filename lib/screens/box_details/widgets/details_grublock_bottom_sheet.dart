@@ -12,7 +12,9 @@ import 'package:grubpac_driver/core/utils/app_utils.dart';
 import 'package:grubpac_driver/screens/box_details/controller/box_details_controller.dart';
 import 'package:timer_count_down/timer_count_down.dart';
 
-Widget detailsGrublockBottomSheet(BuildContext context) {
+import '../../settings_section/box_management/model/box_info.dart';
+
+Widget detailsGrublockBottomSheet(BuildContext context, OtpDetails otpDetails) {
   return GetBuilder<BoxDetailsController>(builder: (controller) {
     return Padding(
       padding:
@@ -61,7 +63,7 @@ Widget detailsGrublockBottomSheet(BuildContext context) {
                 ),
                 AppText(
                   text:
-                      "${controller.countryCode}${AppUtils.maskPhoneNumber(controller.phone)}.",
+                      "${otpDetails.type != "email" ? "${controller.countryCode} : " : ""}${otpDetails.values!.isNotEmpty ? otpDetails.values!.first : ""}",
                   textAlign: TextAlign.center,
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w400,

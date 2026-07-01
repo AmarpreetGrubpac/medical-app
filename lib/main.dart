@@ -33,6 +33,7 @@ Future<void> main() async {
   runZonedGuarded<Future<void>>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      await AppPreference.initMySharedPreferences();
       HttpOverrides.global = MyHttpOverrides();
       CachedNetworkImage.logLevel = CacheManagerLogLevel.none;
 
@@ -40,7 +41,6 @@ Future<void> main() async {
           [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
       await init();
       await ScreenUtil.ensureScreenSize();
-      await AppPreference.initMySharedPreferences();
 
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
