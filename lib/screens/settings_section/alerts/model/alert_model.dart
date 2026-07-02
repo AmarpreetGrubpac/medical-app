@@ -45,7 +45,7 @@ class AlertModel {
         id: json["id"] ?? "N.A",
         clientId: json["client_id"] ?? "N.A",
         verticalId: json["vertical_id"] ?? "N.A",
-        boxId: json["box_id"] ?? "N.A",
+        boxId: json["box_id"],
         boxDisplayId: json["box_display_id"] ?? "N.A",
         boxName: json["box_name"] ?? "N.A",
         restaurantName: json["restaurant_name"] ?? "N.A",

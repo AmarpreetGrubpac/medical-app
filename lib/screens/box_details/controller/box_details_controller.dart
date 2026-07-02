@@ -31,6 +31,13 @@ class BoxDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    final args = Get.arguments;
+    int initialPage = 0;
+    if (args != null && args['page'] != null) {
+      initialPage = args['page'] as int;
+      currentPage = initialPage;
+    }
+    pageController = PageController(initialPage: initialPage);
     WidgetsBinding.instance.addPostFrameCallback((_) => onInitMethod());
   }
 
@@ -50,16 +57,16 @@ class BoxDetailsController extends GetxController {
     final args = Get.arguments;
     if (args != null) {
       boxId = args['box_id'] ?? "";
+
+      if (boxId.isNotEmpty) {
+        fetchBoxDetails();
+      }
       if (args['page'] != null) {
         int initialPage = args['page'] as int;
         if (pageController.hasClients) {
           pageController.jumpToPage(initialPage);
         }
       }
-    }
-
-    if (boxId.isNotEmpty) {
-      fetchBoxDetails();
     }
 
     update();
@@ -187,7 +194,7 @@ class BoxDetailsController extends GetxController {
     });
   }
 
-  final PageController pageController = PageController();
+  late final PageController pageController;
   final InteractiveSliderController sliderController =
       InteractiveSliderController(0);
 
@@ -599,3 +606,32 @@ class BoxDetailsController extends GetxController {
     }
   }
 }
+
+
+
+// {
+//   "connection_status": "weak",
+//   "battery_1_level": 14,
+//   "battery_2_level"
+//   "zone_1_temp": 12,
+//   "zone_1_target_temp" :13
+//   "zone_2_temp": 38,
+//   "zone_2_target_temp" :40
+//   "ambient_temp": 35,
+//   "is_power_on": false,
+//   "bluetooth_available": false,
+//   "wifi_connected": false,
+//   "cellular_active": false,
+//   "zone_1_status": false,
+//   "zone_2_status": false,
+//   "is_dual_zone": false,
+//   "gps_available" :false,
+//   "solar_panel" : true,
+// "220V/110V_port":true,
+// "Memorycard_used": 0.8 (will multiply with 100 for percentage)
+// "saveToCard": true,
+// "Adas" : true,
+// "BoxCam" : true,
+
+
+// }

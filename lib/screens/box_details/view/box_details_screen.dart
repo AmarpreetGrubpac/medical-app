@@ -8,51 +8,55 @@ import 'package:grubpac_driver/screens/box_details/widgets/first_details_view.da
 import 'package:grubpac_driver/screens/box_details/widgets/second_details_view.dart';
 
 class BoxDetailsScreen extends StatelessWidget {
-  
   BoxDetailsScreen({super.key});
 
-  final BoxDetailsController boxDetailsController = Get.put(BoxDetailsController());
+  final BoxDetailsController boxDetailsController =
+      Get.put(BoxDetailsController());
 
   @override
   Widget build(BuildContext context) {
+    // final page = Get.arguments["page"];
     return GetBuilder<BoxDetailsController>(
-      builder:
-          (controller) => Scaffold(
-            body: SafeArea(
-              child: Column(
-                children: [
-                  CommonAppNameBar(),
-                  Expanded(
-                    child: controller.isLoading && controller.boxInfo == null
-                        ? const Center(
-                            child: CircularProgressIndicator(),
-                          )
-                        : Stack(
-                            children: [
-                              Positioned.fill(
-                                bottom: 170.h,
-                                child: CustomPaint(painter: GlowSemiCirclePainters(isVertical: true, top: 70.h)),
-                              ),
-                              PageView.builder(
-                                scrollDirection: Axis.vertical,
-                                controller: controller.pageController,
-                                onPageChanged: controller.onChangePage,
-                                itemCount: 2,
-                                itemBuilder: (context, index) {
-                                  return index == 0 ? FirstDetailsView() : SecondDetailsView();
-                                },
-                              ),
-                              if (controller.isLoading)
-                                const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                            ],
+      builder: (controller) => Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              CommonAppNameBar(),
+              Expanded(
+                child: controller.isLoading && controller.boxInfo == null
+                    ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : Stack(
+                        children: [
+                          Positioned.fill(
+                            bottom: 170.h,
+                            child: CustomPaint(
+                                painter: GlowSemiCirclePainters(
+                                    isVertical: true, top: 70.h)),
                           ),
-                  ),
-                ],
+                          PageView.builder(
+                            scrollDirection: Axis.vertical,
+                            controller: controller.pageController,
+                            onPageChanged: controller.onChangePage,
+                            itemCount: 2,
+                            itemBuilder: (context, index) {
+                              return index == 0
+                                  ? FirstDetailsView()
+                                  : SecondDetailsView();
+                            },
+                          ),
+                          if (controller.isLoading)
+                            const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                        ],
+                      ),
               ),
-            ),
+            ],
           ),
+        ),
+      ),
     );
   }
 }

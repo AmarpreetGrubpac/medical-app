@@ -80,13 +80,14 @@ class AlertsScreen extends StatelessWidget {
                             itemCount: alertsController.filteredAlerts.length,
                             padding: EdgeInsets.only(bottom: 80.h),
                             itemBuilder: (context, index) {
-                              final alert = alertsController.filteredAlerts[index];
+                              final alert =
+                                  alertsController.filteredAlerts[index];
                               return AlertBox(
                                   onTap: () {
                                     alertsController.onView(alert.id);
                                     Navigation.pushNamed(
                                       RouteHelper.boxDetails,
-                                      arg: {"page": 1},
+                                      arg: {"page": 1, "box_id": alert.boxId},
                                     );
                                   },
                                   onDismiss: () {

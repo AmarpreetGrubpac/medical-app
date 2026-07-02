@@ -45,6 +45,13 @@ class BoxManagementRepo {
     return await apiClient.getData(url);
   }
 
+  Future<Response> getSimulatorState(String boxId) async {
+    return await apiClient.patchData(
+      "/simulator/boxes/$boxId/state",
+      {},
+    );
+  }
+
   Future<Response> updateBoxSettings(
       String boxId, Map<String, dynamic> settings) async {
     final String url = AppConstants.updatebox.replaceAll(":box_id", boxId);
