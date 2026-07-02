@@ -133,12 +133,12 @@ class _ZoneBoxes extends StatelessWidget {
             Expanded(
               child: ZoneCard(
                 zoneName: "Zone 1",
-                targetTemp: "${controller.firstBattery}",
-                achievedTemp: "${controller.firstBattery}",
+                targetTemp: "${controller.boxInfo?.settings?.zone1Temp ?? controller.firstBattery}",
+                achievedTemp: "${controller.boxInfo?.zone1Temp ?? controller.firstBattery}",
                 isOn: controller.zoneBox1Switch,
                 onToggle: isConnected ? controller.toggleZoneBox1 : () {},
                 type: controller.zoneBox1Switch
-                    ? ZoneBoxType.getType(controller.firstBattery)
+                    ? ZoneBoxType.getType(controller.boxInfo?.settings?.zone1Temp ?? controller.firstBattery)
                     : ZoneBoxType.disabled,
               ),
             ),
@@ -146,12 +146,12 @@ class _ZoneBoxes extends StatelessWidget {
               Expanded(
                 child: ZoneCard(
                   zoneName: "Zone 2",
-                  targetTemp: "${controller.secondBattery}",
-                  achievedTemp: "${controller.secondBattery}",
+                  targetTemp: "${controller.boxInfo?.settings?.zone2Temp ?? controller.secondBattery}",
+                  achievedTemp: "${controller.boxInfo?.zone2Temp ?? controller.secondBattery}",
                   isOn: controller.zoneBox2Switch,
                   onToggle: isConnected ? controller.toggleZoneBox2 : () {},
                   type: controller.zoneBox2Switch
-                      ? ZoneBoxType.getType(controller.secondBattery)
+                      ? ZoneBoxType.getType(controller.boxInfo?.settings?.zone2Temp ?? controller.secondBattery)
                       : ZoneBoxType.disabled,
                 ),
               ),
@@ -254,8 +254,12 @@ class _BoxWidget extends StatelessWidget {
                           title: AppString.grublock,
                           isGrublock: true,
                           trailing: CommonStatusPill(
-                              title: AppString.locked,
-                              type: StatusType.disconnected),
+                              title: (controller.boxInfo?.isLocked ?? true)
+                                  ? AppString.locked
+                                  : "UNLOCKED",
+                              type: (controller.boxInfo?.isLocked ?? true)
+                                  ? StatusType.disconnected
+                                  : StatusType.connected),
                         ),
                         ExpandableBox(
                           icon: IconAsset.ioniser,
@@ -285,7 +289,8 @@ class _BoxWidget extends StatelessWidget {
                           icon: IconAsset.sun,
                           title: AppString.thermostat,
                           trailing: AppText(
-                              text: "23°C", fontWeight: FontWeight.w600),
+                              text: "${controller.boxInfo?.extTemp ?? 23}°C",
+                              fontWeight: FontWeight.w600),
                           child: Column(
                             spacing: 12.h,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,7 +321,7 @@ class _BoxWidget extends StatelessWidget {
                                       fontWeight: FontWeight.w400,
                                     ),
                                     AppText(
-                                      text: "23°C",
+                                      text: "${controller.boxInfo?.extTemp ?? 23}°C",
                                       fontSize: 18.sp,
                                       fontWeight: FontWeight.w600,
                                       color: AppTheme.contentNeutralPrimary,
@@ -331,8 +336,10 @@ class _BoxWidget extends StatelessWidget {
                           icon: IconAsset.gyrosensor,
                           title: AppString.gyrosensor,
                           trailing: CommonStatusPill(
-                              title: AppString.detected,
-                              type: StatusType.connected),
+                              title: controller.boxInfo?.gyroSensor?.toUpperCase() ?? AppString.detected,
+                              type: (controller.boxInfo?.gyroSensor == 'detected')
+                                  ? StatusType.connected
+                                  : StatusType.disconnected),
                         ),
                       ],
                     ),
@@ -367,19 +374,34 @@ class _ConnectionsWidget extends StatelessWidget {
               icon: IconAsset.bluetooth,
               title: AppString.bluetoothLabel,
               trailing: CommonStatusPill(
-                  title: AppString.strong, type: StatusType.connected),
+                  title: (controller.boxInfo?.connectionStatus == 'connected')
+                      ? AppString.strong
+                      : "DISCONNECTED",
+                  type: (controller.boxInfo?.connectionStatus == 'connected')
+                      ? StatusType.connected
+                      : StatusType.disconnected),
             ),
             ExpandableBox(
               icon: IconAsset.signal,
               title: AppString.fourGLabel,
               trailing: CommonStatusPill(
-                  title: AppString.weak, type: StatusType.weak),
+                  title: (controller.boxInfo?.connectionStatus == 'connected')
+                      ? AppString.strong
+                      : "NO SIGNAL",
+                  type: (controller.boxInfo?.connectionStatus == 'connected')
+                      ? StatusType.connected
+                      : StatusType.disconnected),
             ),
             ExpandableBox(
               icon: IconAsset.locationArrow,
               title: AppString.gpsLabel,
               trailing: CommonStatusPill(
-                  title: AppString.on, type: StatusType.connected),
+                  title: (controller.boxInfo?.gpsAvailable ?? false)
+                      ? AppString.on
+                      : AppString.off,
+                  type: (controller.boxInfo?.gpsAvailable ?? false)
+                      ? StatusType.connected
+                      : StatusType.disconnected),
             ),
           ],
         ),
@@ -449,8 +471,10 @@ class _PowerWidget extends StatelessWidget {
                                       fontWeight: FontWeight.w600,
                                     ),
                                     CommonStatusPill(
-                                        title: "100%",
-                                        type: StatusType.connected),
+                                        title: "${controller.boxInfo?.battery1Level ?? 100}%",
+                                        type: (controller.boxInfo?.battery1Level ?? 100) > 20
+                                            ? StatusType.connected
+                                            : StatusType.disconnected),
                                   ],
                                 ),
                               ),
@@ -485,8 +509,10 @@ class _PowerWidget extends StatelessWidget {
                                       fontWeight: FontWeight.w600,
                                     ),
                                     CommonStatusPill(
-                                        title: "0%",
-                                        type: StatusType.disconnected),
+                                        title: "${controller.boxInfo?.battery2Level ?? 0}%",
+                                        type: (controller.boxInfo?.battery2Level ?? 0) > 20
+                                            ? StatusType.connected
+                                            : StatusType.disconnected),
                                   ],
                                 ),
                               ),
@@ -496,33 +522,34 @@ class _PowerWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Center(
-                    child: IntrinsicWidth(
-                      child: OutlinedBox(
-                        boxColor: AppTheme.bgBrandSecondaryRed,
-                        borderColor: AppTheme.strokeBrandPrimaryAlt,
-                        padding: EdgeInsets.fromLTRB(8.w, 4.h, 8.w, 4.h),
-                        child: Row(
-                          spacing: 8.w,
-                          children: [
-                            SvgPicture.asset(
-                              IconAsset.toastError,
-                              height: 24.h,
-                              width: 24.h,
-                              colorFilter: ColorFilter.mode(
-                                AppTheme.contentBrandPrimary,
-                                BlendMode.srcIn,
+                  if ((controller.boxInfo?.batteryLevel ?? 0) <= 20)
+                    Center(
+                      child: IntrinsicWidth(
+                        child: OutlinedBox(
+                          boxColor: AppTheme.bgBrandSecondaryRed,
+                          borderColor: AppTheme.strokeBrandPrimaryAlt,
+                          padding: EdgeInsets.fromLTRB(8.w, 4.h, 8.w, 4.h),
+                          child: Row(
+                            spacing: 8.w,
+                            children: [
+                              SvgPicture.asset(
+                                IconAsset.toastError,
+                                height: 24.h,
+                                width: 24.h,
+                                colorFilter: ColorFilter.mode(
+                                  AppTheme.contentBrandPrimary,
+                                  BlendMode.srcIn,
+                                ),
                               ),
-                            ),
-                            AppText(
-                              text: AppString.plsChargeBattery,
-                              color: AppTheme.contentBrandPrimary,
-                            ),
-                          ],
+                              AppText(
+                                text: AppString.plsChargeBattery,
+                                color: AppTheme.contentBrandPrimary,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -530,13 +557,23 @@ class _PowerWidget extends StatelessWidget {
               icon: IconAsset.sun,
               title: AppString.solarPanelsLabel,
               trailing: CommonStatusPill(
-                  title: AppString.detected, type: StatusType.connected),
+                  title: (controller.boxInfo?.solarPanel ?? false)
+                      ? AppString.detected
+                      : "NOT DETECTED",
+                  type: (controller.boxInfo?.solarPanel ?? false)
+                      ? StatusType.connected
+                      : StatusType.disconnected),
             ),
             ExpandableBox(
               icon: IconAsset.plug,
               title: AppString.port220VLabel,
               trailing: CommonStatusPill(
-                  title: AppString.detected, type: StatusType.connected),
+                  title: (controller.boxInfo?.port220V110V ?? false)
+                      ? AppString.detected
+                      : "NOT DETECTED",
+                  type: (controller.boxInfo?.port220V110V ?? false)
+                      ? StatusType.connected
+                      : StatusType.disconnected),
             ),
             ExpandableBox(
               icon: IconAsset.plug,
@@ -566,13 +603,20 @@ class _StorageWidget extends StatelessWidget {
             ExpandableBox(
               icon: IconAsset.memoryCard,
               title: AppString.memoryCardLabel,
-              trailing: AppText(text: "80%", fontWeight: FontWeight.w600),
+              trailing: AppText(
+                  text: "${((controller.boxInfo?.memoryCardUsed ?? 0.0) * 100).round()}%",
+                  fontWeight: FontWeight.w600),
             ),
             ExpandableBox(
               icon: IconAsset.floppyDisk,
               title: AppString.saveToCardLabel,
               trailing: CommonStatusPill(
-                  title: AppString.on, type: StatusType.connected),
+                  title: (controller.boxInfo?.settings?.saveToCard ?? false)
+                      ? AppString.on
+                      : AppString.off,
+                  type: (controller.boxInfo?.settings?.saveToCard ?? false)
+                      ? StatusType.connected
+                      : StatusType.disconnected),
             ),
           ],
         ),
@@ -597,13 +641,23 @@ class _CameraWidget extends StatelessWidget {
               icon: IconAsset.camera,
               title: AppString.boxcam360,
               trailing: CommonStatusPill(
-                  title: AppString.on, type: StatusType.connected),
+                  title: (controller.boxInfo?.settings?.boxCam ?? false)
+                      ? AppString.on
+                      : AppString.off,
+                  type: (controller.boxInfo?.settings?.boxCam ?? false)
+                      ? StatusType.connected
+                      : StatusType.disconnected),
             ),
             ExpandableBox(
               icon: IconAsset.webcam,
               title: AppString.adas,
               trailing: CommonStatusPill(
-                  title: AppString.on, type: StatusType.connected),
+                  title: (controller.boxInfo?.settings?.adas ?? false)
+                      ? AppString.on
+                      : AppString.off,
+                  type: (controller.boxInfo?.settings?.adas ?? false)
+                      ? StatusType.connected
+                      : StatusType.disconnected),
             ),
           ],
         ),
@@ -625,7 +679,10 @@ class _LightWidget extends StatelessWidget {
           icon: IconAsset.arrowsRightLeft,
           title: AppString.turnSignals,
           trailing: CommonStatusPill(
-              title: AppString.detected, type: StatusType.connected),
+              title: controller.boxInfo?.turnSignals?.toUpperCase() ?? AppString.detected,
+              type: (controller.boxInfo?.turnSignals == 'detected')
+                  ? StatusType.connected
+                  : StatusType.disconnected),
         ),
       ),
     );

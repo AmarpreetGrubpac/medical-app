@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:get/get_connect/http/src/response/response.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:get/get.dart';
 import 'package:grubpac_driver/core/exceptions/failure.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/enums.dart';
@@ -18,6 +18,7 @@ import 'package:timer_count_down/timer_controller.dart';
 
 import '../../../../core/utils/app_toast.dart';
 import '../../../../core/utils/app_utils.dart';
+import '../../../box_details/controller/box_details_controller.dart';
 
 class BoxManagementController extends GetxController {
   final BoxManagementRepo boxRepo;
@@ -36,11 +37,27 @@ class BoxManagementController extends GetxController {
 
   int currentPage = 0;
   bool loadingBoxes = false;
+  int extTemp = 23;
+
+  // ── Simulator Heartbeat (Isolated Integration) ──────────────────────────────────
+  static const bool _enableSimulatorHeartbeat =
+      true; // Toggle to false to disable/remove
+  Timer? _simulatorHeartbeatTimer;
+
   @override
   void onInit() {
     phone = AppPreference.getString(PrefKey.phone);
     countryCode = AppPreference.getString(PrefKey.countryCode);
     super.onInit();
+    if (_enableSimulatorHeartbeat) {
+      _startGlobalSimulatorHeartbeat();
+    }
+  }
+
+  @override
+  void onClose() {
+    _simulatorHeartbeatTimer?.cancel();
+    super.onClose();
   }
 
   List<BoxInfo> boxes = <BoxInfo>[];
@@ -385,5 +402,94 @@ class BoxManagementController extends GetxController {
       isLoading = false;
       update();
     }
+  }
+
+  // ── Simulator Global Heartbeat Polling Loop ──────────────────────────────────────────
+  void _startGlobalSimulatorHeartbeat() async {
+    _simulatorHeartbeatTimer?.cancel();
+    _simulatorHeartbeatTimer =
+        Timer.periodic(const Duration(seconds: 4), (timer) async {
+      if (boxes.isEmpty || isLoading) return;
+
+      final activeBoxes = List<BoxInfo>.from(boxes);
+      for (var box in activeBoxes) {
+        try {
+          final res = await boxRepo.getSimulatorHealth(box.id);
+          if (res.statusCode == 200) {
+            final data = res.body['data'];
+            if (data != null) {
+              final updatedBox = BoxInfo.fromJson(data);
+
+              // Update box in BoxManagementController list
+              final index = boxes.indexWhere((element) => element.id == box.id);
+              BoxInfo? mergedBox;
+              if (index != -1) {
+                mergedBox = boxes[index].copyWith(
+                  isConnected: updatedBox.isConnected,
+                  batteryLevel: updatedBox.batteryLevel,
+                  isLocked: updatedBox.isLocked,
+                  zone1Temp: updatedBox.zone1Temp,
+                  zone2Temp: updatedBox.zone2Temp,
+                  extTemp: updatedBox.extTemp,
+                  connectionStatus: updatedBox.connectionStatus,
+                  powerStatus: updatedBox.powerStatus,
+                  healthStatus: updatedBox.healthStatus,
+                  battery1Level: updatedBox.battery1Level,
+                  battery2Level: updatedBox.battery2Level,
+                  gpsAvailable: updatedBox.gpsAvailable,
+                  latitude: updatedBox.latitude,
+                  longitude: updatedBox.longitude,
+                  solarPanel: updatedBox.solarPanel,
+                  port220V110V: updatedBox.port220V110V,
+                  memoryCardUsed: updatedBox.memoryCardUsed,
+                  gyroSensor: updatedBox.gyroSensor,
+                  turnSignals: updatedBox.turnSignals,
+                  isDualZone: updatedBox.isDualZone,
+                  settings: updatedBox.settings,
+                );
+                boxes[index] = mergedBox;
+              }
+
+              final targetBox = mergedBox ?? updatedBox;
+
+              // If BoxDetailsController is registered and viewing this box, sync detailed view UI
+              if (Get.isRegistered<BoxDetailsController>()) {
+                final detailsController = Get.find<BoxDetailsController>();
+                if (detailsController.boxId == box.id) {
+                  detailsController.boxInfo = targetBox;
+                  detailsController.advertSwitch =
+                      targetBox.settings?.advertDisplayEnabled ?? false;
+                  detailsController.dualZoneSwitch =
+                      targetBox.settings?.isDualZone ?? false;
+                  detailsController.ioniserSwitch =
+                      targetBox.settings?.ioniserEnabled ?? false;
+                  detailsController.firstBattery =
+                      targetBox.settings?.zone1Temp ?? 21;
+                  detailsController.secondBattery =
+                      targetBox.settings?.zone2Temp ?? 21;
+                  detailsController.boxConnectionStatus = targetBox.isConnected;
+                  detailsController.zoneBox1Switch =
+                      targetBox.settings?.zone1Status ?? true;
+                  detailsController.zoneBox2Switch =
+                      targetBox.settings?.zone2Status ?? false;
+
+                  detailsController.sliderController.value =
+                      AppUtils.normalizeSliderValue(
+                    detailsController.selectedBattery == 1
+                        ? detailsController.firstBattery.toDouble()
+                        : detailsController.secondBattery.toDouble(),
+                  );
+                  detailsController.update();
+                }
+              }
+            }
+          }
+        } catch (e) {
+          debugPrint(
+              "Simulator global health sync error for box ${box.id}: $e");
+        }
+      }
+      update(); // Refresh list view UI
+    });
   }
 }

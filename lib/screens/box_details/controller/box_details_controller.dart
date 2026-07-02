@@ -85,6 +85,8 @@ class BoxDetailsController extends GetxController {
         firstBattery = boxInfo?.settings?.zone1Temp ?? 21;
         secondBattery = boxInfo?.settings?.zone2Temp ?? 21;
         boxConnectionStatus = boxInfo?.isConnected ?? false;
+        zoneBox1Switch = boxInfo?.settings?.zone1Status ?? true;
+        zoneBox2Switch = boxInfo?.settings?.zone2Status ?? false;
 
         sliderController.value = AppUtils.normalizeSliderValue(
           selectedBattery == 1
@@ -605,6 +607,7 @@ class BoxDetailsController extends GetxController {
       update();
     }
   }
+
 }
 
 

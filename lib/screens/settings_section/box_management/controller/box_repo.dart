@@ -45,10 +45,9 @@ class BoxManagementRepo {
     return await apiClient.getData(url);
   }
 
-  Future<Response> getSimulatorState(String boxId) async {
-    return await apiClient.patchData(
-      "/simulator/boxes/$boxId/state",
-      {},
+  Future<Response> getSimulatorHealth(String boxId) async {
+    return await apiClient.getData(
+      "/simulator/boxes/$boxId/health",
     );
   }
 

@@ -100,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: InfoCard(
                                       icon: IconAsset.thermometer,
                                       label: AppString.temperature,
-                                      value: AppString.temperatureValue,
+                                      value: "${currentBox?.extTemp ?? 23}°C",
                                     ),
                                   ),
                                 ],

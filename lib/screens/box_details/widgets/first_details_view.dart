@@ -112,7 +112,10 @@ class _SignalBox extends StatelessWidget {
                 height: 24.h,
                 width: 24.w,
                 colorFilter: ColorFilter.mode(
-                    AppTheme.contentBrandDefault, BlendMode.srcIn),
+                    controller.boxConnectionStatus
+                        ? AppTheme.contentBrandDefault
+                        : AppTheme.contentNeutralLight,
+                    BlendMode.srcIn),
               ),
               SvgPicture.asset(
                 IconAsset.wifiSlash,
@@ -126,14 +129,20 @@ class _SignalBox extends StatelessWidget {
                 height: 24.h,
                 width: 24.w,
                 colorFilter: ColorFilter.mode(
-                    AppTheme.contentBrandDefault, BlendMode.srcIn),
+                    controller.boxConnectionStatus
+                        ? AppTheme.contentBrandDefault
+                        : AppTheme.contentNeutralLight,
+                    BlendMode.srcIn),
               ),
               SvgPicture.asset(
                 IconAsset.locationArrow,
                 height: 24.h,
                 width: 24.w,
                 colorFilter: ColorFilter.mode(
-                    AppTheme.contentBrandDefault, BlendMode.srcIn),
+                    (controller.boxInfo?.gpsAvailable ?? false)
+                        ? AppTheme.contentBrandDefault
+                        : AppTheme.contentNeutralLight,
+                    BlendMode.srcIn),
               ),
             ],
           ),
@@ -388,12 +397,14 @@ class _BatteryDetailsBox extends StatelessWidget {
                               height: 24.h,
                               width: 24.h,
                               colorFilter: ColorFilter.mode(
-                                AppTheme.contentBrandPrimaryOrange,
+                                (controller.boxInfo?.battery1Level ?? 100) > 20
+                                    ? AppTheme.contentBrandPrimaryOrange
+                                    : AppTheme.contentBrandDisabled,
                                 BlendMode.srcIn,
                               ),
                             ),
                             AppText(
-                              text: "100%",
+                              text: "${controller.boxInfo?.battery1Level ?? 100}%",
                               color: AppTheme.contentBrandDefault,
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
@@ -409,12 +420,14 @@ class _BatteryDetailsBox extends StatelessWidget {
                               height: 24.h,
                               width: 24.h,
                               colorFilter: ColorFilter.mode(
-                                AppTheme.contentBrandPrimaryOrange,
+                                (controller.boxInfo?.battery2Level ?? 0) > 20
+                                    ? AppTheme.contentBrandPrimaryOrange
+                                    : AppTheme.contentBrandDisabled,
                                 BlendMode.srcIn,
                               ),
                             ),
                             AppText(
-                              text: "0%",
+                              text: "${controller.boxInfo?.battery2Level ?? 0}%",
                               color: AppTheme.contentBrandDefault,
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w600,

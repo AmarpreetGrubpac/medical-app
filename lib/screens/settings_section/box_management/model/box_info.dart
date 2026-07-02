@@ -11,6 +11,17 @@ class BoxInfo {
   final String? connectionStatus;
   final String? powerStatus;
   final String? healthStatus;
+  final int? battery1Level;
+  final int? battery2Level;
+  final bool? gpsAvailable;
+  final double? latitude;
+  final double? longitude;
+  final bool? solarPanel;
+  final bool? port220V110V;
+  final double? memoryCardUsed;
+  final String? gyroSensor;
+  final String? turnSignals;
+  final bool? isDualZone;
   final BoxSettings? settings;
 
   BoxInfo({
@@ -26,22 +37,48 @@ class BoxInfo {
     this.connectionStatus,
     this.powerStatus,
     this.healthStatus,
+    this.battery1Level,
+    this.battery2Level,
+    this.gpsAvailable,
+    this.latitude,
+    this.longitude,
+    this.solarPanel,
+    this.port220V110V,
+    this.memoryCardUsed,
+    this.gyroSensor,
+    this.turnSignals,
+    this.isDualZone,
     this.settings,
   });
 
   factory BoxInfo.fromJson(Map<String, dynamic> json) => BoxInfo(
-        id: json['id'] as String,
-        boxDisplayId: json['box_display_id'] as String? ?? '',
+        id: (json['id'] ?? json['box_id']) as String,
+        boxDisplayId:
+            (json['box_display_id'] ?? json['display_id']) as String? ?? '',
         name: json['name'] as String? ?? '',
-        isConnected: json['is_connected'] as bool? ?? false,
-        batteryLevel: json['battery_level'] as int? ?? 0,
+        isConnected: (json['is_connected'] ??
+                (json['connection_status'] == 'connected')) as bool? ??
+            false,
+        batteryLevel:
+            (json['battery_level'] ?? json['battery_1_level'] ?? 0) as int,
         isLocked: json['is_locked'] as bool? ?? false,
         zone1Temp: json['zone_1_temp'] as int?,
         zone2Temp: json['zone_2_temp'] as int?,
-        extTemp: json['ext_temp'] as int?,
+        extTemp: (json['ext_temp'] ?? json['ambient_temp']) as int?,
         connectionStatus: json['connection_status'] as String?,
         powerStatus: json['power_status'] as String?,
         healthStatus: json['health_status'] as String?,
+        battery1Level: json['battery_1_level'] as int?,
+        battery2Level: json['battery_2_level'] as int?,
+        gpsAvailable: json['gps_available'] as bool?,
+        latitude: (json['latitude'] as num?)?.toDouble(),
+        longitude: (json['longitude'] as num?)?.toDouble(),
+        solarPanel: json['solar_panel'] as bool?,
+        port220V110V: json['220V_110V_port'] as bool?,
+        memoryCardUsed: (json['Memorycard_used'] as num?)?.toDouble(),
+        gyroSensor: json['gyrosensor'] as String?,
+        turnSignals: json['turn_signals'] as String?,
+        isDualZone: json['is_dual_zone'] as bool?,
         settings: json['settings'] != null
             ? BoxSettings.fromJson(json['settings'] as Map<String, dynamic>)
             : null,
@@ -60,6 +97,17 @@ class BoxInfo {
         'connection_status': connectionStatus,
         'power_status': powerStatus,
         'health_status': healthStatus,
+        'battery_1_level': battery1Level,
+        'battery_2_level': battery2Level,
+        'gps_available': gpsAvailable,
+        'latitude': latitude,
+        'longitude': longitude,
+        'solar_panel': solarPanel,
+        '220V_110V_port': port220V110V,
+        'Memorycard_used': memoryCardUsed,
+        'gyrosensor': gyroSensor,
+        'turn_signals': turnSignals,
+        'is_dual_zone': isDualZone,
         'settings': settings?.toJson(),
       };
 
@@ -76,6 +124,17 @@ class BoxInfo {
     String? connectionStatus,
     String? powerStatus,
     String? healthStatus,
+    int? battery1Level,
+    int? battery2Level,
+    bool? gpsAvailable,
+    double? latitude,
+    double? longitude,
+    bool? solarPanel,
+    bool? port220V110V,
+    double? memoryCardUsed,
+    String? gyroSensor,
+    String? turnSignals,
+    bool? isDualZone,
     BoxSettings? settings,
   }) =>
       BoxInfo(
@@ -91,6 +150,17 @@ class BoxInfo {
         connectionStatus: connectionStatus ?? this.connectionStatus,
         powerStatus: powerStatus ?? this.powerStatus,
         healthStatus: healthStatus ?? this.healthStatus,
+        battery1Level: battery1Level ?? this.battery1Level,
+        battery2Level: battery2Level ?? this.battery2Level,
+        gpsAvailable: gpsAvailable ?? this.gpsAvailable,
+        latitude: latitude ?? this.latitude,
+        longitude: longitude ?? this.longitude,
+        solarPanel: solarPanel ?? this.solarPanel,
+        port220V110V: port220V110V ?? this.port220V110V,
+        memoryCardUsed: memoryCardUsed ?? this.memoryCardUsed,
+        gyroSensor: gyroSensor ?? this.gyroSensor,
+        turnSignals: turnSignals ?? this.turnSignals,
+        isDualZone: isDualZone ?? this.isDualZone,
         settings: settings ?? this.settings,
       );
 }
@@ -102,6 +172,12 @@ class BoxSettings {
   final bool advertDisplayEnabled;
   final bool ioniserEnabled;
   final bool lightEnabled;
+  final bool zone1Status;
+  final bool zone2Status;
+  final bool saveToCard;
+  final bool adas;
+  final bool boxCam;
+  final bool isPowerOn;
 
   BoxSettings({
     required this.isDualZone,
@@ -110,15 +186,31 @@ class BoxSettings {
     required this.advertDisplayEnabled,
     required this.ioniserEnabled,
     required this.lightEnabled,
+    this.zone1Status = true,
+    this.zone2Status = false,
+    this.saveToCard = false,
+    this.adas = false,
+    this.boxCam = false,
+    this.isPowerOn = true,
   });
 
   factory BoxSettings.fromJson(Map<String, dynamic> json) => BoxSettings(
         isDualZone: json['is_dual_zone'] as bool? ?? false,
-        zone1Temp: json['zone_1_temp'] as int?,
-        zone2Temp: json['zone_2_temp'] as int?,
-        advertDisplayEnabled: json['advert_display_enabled'] as bool? ?? false,
-        ioniserEnabled: json['ioniser_enabled'] as bool? ?? false,
-        lightEnabled: json['light_enabled'] as bool? ?? false,
+        zone1Temp: (json['zone_1_temp'] ?? json['zone_1_target_temp']) as int?,
+        zone2Temp: (json['zone_2_temp'] ?? json['zone_2_target_temp']) as int?,
+        advertDisplayEnabled: (json['advert_screen'] ??
+                json['advert_display_enabled']) as bool? ??
+            false,
+        ioniserEnabled:
+            (json['ioniser'] ?? json['ioniser_enabled']) as bool? ?? false,
+        lightEnabled:
+            (json['light_status'] ?? json['light_enabled']) as bool? ?? false,
+        zone1Status: json['zone_1_status'] as bool? ?? true,
+        zone2Status: json['zone_2_status'] as bool? ?? false,
+        saveToCard: json['saveToCard'] as bool? ?? false,
+        adas: json['Adas'] as bool? ?? false,
+        boxCam: json['BoxCam'] as bool? ?? false,
+        isPowerOn: json['is_power_on'] as bool? ?? true,
       );
 
   Map<String, dynamic> toJson() => {
@@ -128,6 +220,12 @@ class BoxSettings {
         'advert_display_enabled': advertDisplayEnabled,
         'ioniser_enabled': ioniserEnabled,
         'light_enabled': lightEnabled,
+        'zone_1_status': zone1Status,
+        'zone_2_status': zone2Status,
+        'saveToCard': saveToCard,
+        'Adas': adas,
+        'BoxCam': boxCam,
+        'is_power_on': isPowerOn,
       };
 
   BoxSettings copyWith({
@@ -137,6 +235,12 @@ class BoxSettings {
     bool? advertDisplayEnabled,
     bool? ioniserEnabled,
     bool? lightEnabled,
+    bool? zone1Status,
+    bool? zone2Status,
+    bool? saveToCard,
+    bool? adas,
+    bool? boxCam,
+    bool? isPowerOn,
   }) =>
       BoxSettings(
         isDualZone: isDualZone ?? this.isDualZone,
@@ -145,6 +249,12 @@ class BoxSettings {
         advertDisplayEnabled: advertDisplayEnabled ?? this.advertDisplayEnabled,
         ioniserEnabled: ioniserEnabled ?? this.ioniserEnabled,
         lightEnabled: lightEnabled ?? this.lightEnabled,
+        zone1Status: zone1Status ?? this.zone1Status,
+        zone2Status: zone2Status ?? this.zone2Status,
+        saveToCard: saveToCard ?? this.saveToCard,
+        adas: adas ?? this.adas,
+        boxCam: boxCam ?? this.boxCam,
+        isPowerOn: isPowerOn ?? this.isPowerOn,
       );
 }
 

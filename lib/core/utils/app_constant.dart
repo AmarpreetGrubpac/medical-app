@@ -46,6 +46,7 @@ class AppConstants {
   static const String reqLockOtp = '/delivery-mobile/boxes/:box_id/lock/otp';
   static const String verifyLockOtp =
       '/delivery-mobile/boxes/:box_id/lock/verify';
+  
 
   // auth apis
 
