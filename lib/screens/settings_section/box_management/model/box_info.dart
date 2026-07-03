@@ -23,6 +23,9 @@ class BoxInfo {
   final String? turnSignals;
   final bool? isDualZone;
   final BoxSettings? settings;
+  final bool? isDriverConnected;
+  final bool? bluetoothAvailable;
+  final bool? wifiConnected;
 
   BoxInfo({
     required this.id,
@@ -49,6 +52,9 @@ class BoxInfo {
     this.turnSignals,
     this.isDualZone,
     this.settings,
+    this.isDriverConnected,
+    this.bluetoothAvailable,
+    this.wifiConnected,
   });
 
   factory BoxInfo.fromJson(Map<String, dynamic> json) => BoxInfo(
@@ -56,8 +62,9 @@ class BoxInfo {
         boxDisplayId:
             (json['box_display_id'] ?? json['display_id']) as String? ?? '',
         name: json['name'] as String? ?? '',
-        isConnected: (json['is_connected'] ??
-                (json['connection_status'] == 'connected')) as bool? ??
+        isConnected: (json['is_driver_connected'] ??
+                json['is_connected'] ??
+                (json['connection_status'] != 'offline')) as bool? ??
             false,
         batteryLevel:
             (json['battery_level'] ?? json['battery_1_level'] ?? 0) as int,
@@ -82,6 +89,9 @@ class BoxInfo {
         settings: json['settings'] != null
             ? BoxSettings.fromJson(json['settings'] as Map<String, dynamic>)
             : null,
+        isDriverConnected: json['is_driver_connected'] as bool?,
+        bluetoothAvailable: json['bluetooth_available'] as bool?,
+        wifiConnected: json['wifi_connected'] as bool?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -109,6 +119,9 @@ class BoxInfo {
         'turn_signals': turnSignals,
         'is_dual_zone': isDualZone,
         'settings': settings?.toJson(),
+        'is_driver_connected': isDriverConnected,
+        'bluetooth_available': bluetoothAvailable,
+        'wifi_connected': wifiConnected,
       };
 
   BoxInfo copyWith({
@@ -136,6 +149,9 @@ class BoxInfo {
     String? turnSignals,
     bool? isDualZone,
     BoxSettings? settings,
+    bool? isDriverConnected,
+    bool? bluetoothAvailable,
+    bool? wifiConnected,
   }) =>
       BoxInfo(
         id: id ?? this.id,
@@ -162,6 +178,9 @@ class BoxInfo {
         turnSignals: turnSignals ?? this.turnSignals,
         isDualZone: isDualZone ?? this.isDualZone,
         settings: settings ?? this.settings,
+        isDriverConnected: isDriverConnected ?? this.isDriverConnected,
+        bluetoothAvailable: bluetoothAvailable ?? this.bluetoothAvailable,
+        wifiConnected: wifiConnected ?? this.wifiConnected,
       );
 }
 

@@ -446,6 +446,9 @@ class BoxManagementController extends GetxController {
                   turnSignals: updatedBox.turnSignals,
                   isDualZone: updatedBox.isDualZone,
                   settings: updatedBox.settings,
+                  isDriverConnected: updatedBox.isDriverConnected,
+                  bluetoothAvailable: updatedBox.bluetoothAvailable,
+                  wifiConnected: updatedBox.wifiConnected,
                 );
                 boxes[index] = mergedBox;
               }

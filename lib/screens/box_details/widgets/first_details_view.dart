@@ -112,24 +112,31 @@ class _SignalBox extends StatelessWidget {
                 height: 24.h,
                 width: 24.w,
                 colorFilter: ColorFilter.mode(
-                    controller.boxConnectionStatus
+                    (controller.boxInfo?.connectionStatus == 'strong' ||
+                     controller.boxInfo?.connectionStatus == 'weak')
                         ? AppTheme.contentBrandDefault
                         : AppTheme.contentNeutralLight,
                     BlendMode.srcIn),
               ),
               SvgPicture.asset(
-                IconAsset.wifiSlash,
+                controller.boxInfo?.wifiConnected == true
+                    ? IconAsset.wifi
+                    : IconAsset.wifiSlash,
                 height: 24.h,
                 width: 24.w,
                 colorFilter: ColorFilter.mode(
-                    AppTheme.contentNeutralLight, BlendMode.srcIn),
+                    controller.boxInfo?.wifiConnected == true
+                        ? AppTheme.contentBrandDefault
+                        : AppTheme.contentNeutralLight,
+                    BlendMode.srcIn),
               ),
               SvgPicture.asset(
                 IconAsset.signal,
                 height: 24.h,
                 width: 24.w,
                 colorFilter: ColorFilter.mode(
-                    controller.boxConnectionStatus
+                    (controller.boxInfo?.connectionStatus == 'strong' ||
+                     controller.boxInfo?.connectionStatus == 'weak')
                         ? AppTheme.contentBrandDefault
                         : AppTheme.contentNeutralLight,
                     BlendMode.srcIn),
