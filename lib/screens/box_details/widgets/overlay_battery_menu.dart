@@ -9,6 +9,7 @@ import 'package:grubpac_driver/common_components/common_status_pill.dart';
 import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_images.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
+import 'package:grubpac_driver/core/utils/app_utils.dart';
 import 'package:grubpac_driver/core/utils/enums.dart';
 import 'package:grubpac_driver/screens/box_details/widgets/outlined_box.dart';
 import 'package:grubpac_driver/screens/box_details/controller/box_details_controller.dart';
@@ -113,11 +114,11 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
                                 spacing: 8.w,
                                 children: [
                                   SvgPicture.asset(
-                                    IconAsset.batteryFull,
+                                    AppUtils.getBatteryIcon(battery1Level),
                                     height: 32.h,
                                     width: 32.h,
                                     colorFilter: ColorFilter.mode(
-                                      AppTheme.contentNeutralLight,
+                                      AppUtils.getBatteryColor(battery1Level),
                                       BlendMode.srcIn,
                                     ),
                                   ),
@@ -151,11 +152,11 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
                                 spacing: 8.w,
                                 children: [
                                   SvgPicture.asset(
-                                    IconAsset.battery,
+                                    AppUtils.getBatteryIcon(battery2Level),
                                     height: 32.h,
                                     width: 32.h,
                                     colorFilter: ColorFilter.mode(
-                                      AppTheme.contentBrandDisabled,
+                                      AppUtils.getBatteryColor(battery2Level),
                                       BlendMode.srcIn,
                                     ),
                                   ),
@@ -249,13 +250,11 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     SvgPicture.asset(
-                                      IconAsset.batteryFull,
+                                      AppUtils.getBatteryIcon(battery1Level),
                                       height: 24.h,
                                       width: 24.h,
                                       colorFilter: ColorFilter.mode(
-                                        battery1Level > 20
-                                            ? AppTheme.contentBrandPrimaryOrange
-                                            : AppTheme.contentBrandDisabled,
+                                        AppUtils.getBatteryColor(battery1Level),
                                         BlendMode.srcIn,
                                       ),
                                     ),
@@ -272,13 +271,11 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     SvgPicture.asset(
-                                      IconAsset.battery,
+                                      AppUtils.getBatteryIcon(battery2Level),
                                       height: 24.h,
                                       width: 24.h,
                                       colorFilter: ColorFilter.mode(
-                                        battery2Level > 20
-                                            ? AppTheme.contentBrandPrimaryOrange
-                                            : AppTheme.contentBrandDisabled,
+                                        AppUtils.getBatteryColor(battery2Level),
                                         BlendMode.srcIn,
                                       ),
                                     ),

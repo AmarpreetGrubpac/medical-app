@@ -73,7 +73,8 @@ class BoxInfo {
         zone2Temp: json['zone_2_temp'] as int?,
         extTemp: (json['ext_temp'] ?? json['ambient_temp']) as int?,
         connectionStatus: json['connection_status'] as String?,
-        powerStatus: json['power_status'] as String?,
+        powerStatus: json['power_status'] as String? ??
+            (json['is_power_on'] == true ? "on" : "off"),
         healthStatus: json['health_status'] as String?,
         battery1Level: json['battery_1_level'] as int?,
         battery2Level: json['battery_2_level'] as int?,
@@ -87,7 +88,11 @@ class BoxInfo {
         turnSignals: json['turn_signals'] as String?,
         isDualZone: json['is_dual_zone'] as bool?,
         settings: json['settings'] != null
-            ? BoxSettings.fromJson(json['settings'] as Map<String, dynamic>)
+            ? BoxSettings.fromJson(
+                json['settings'] as Map<String, dynamic>,
+                temp1: json['zone_1_temp'] as int?,
+                temp2: json['zone_2_temp'] as int?,
+              )
             : null,
         isDriverConnected: json['is_driver_connected'] as bool?,
         bluetoothAvailable: json['bluetooth_available'] as bool?,
@@ -197,6 +202,7 @@ class BoxSettings {
   final bool adas;
   final bool boxCam;
   final bool isPowerOn;
+  final bool isCharging;
 
   BoxSettings({
     required this.isDualZone,
@@ -211,12 +217,17 @@ class BoxSettings {
     this.adas = false,
     this.boxCam = false,
     this.isPowerOn = true,
+    this.isCharging = false,
   });
 
-  factory BoxSettings.fromJson(Map<String, dynamic> json) => BoxSettings(
+  factory BoxSettings.fromJson(Map<String, dynamic> json,
+          {int? temp1, int? temp2}) =>
+      BoxSettings(
         isDualZone: json['is_dual_zone'] as bool? ?? false,
-        zone1Temp: (json['zone_1_temp'] ?? json['zone_1_target_temp']) as int?,
-        zone2Temp: (json['zone_2_temp'] ?? json['zone_2_target_temp']) as int?,
+        zone1Temp: (json['zone_1_temp'] ?? temp1)
+            as int?, //?? json['zone_1_target_temp']) as int?,
+        zone2Temp: (json['zone_2_temp'] ?? temp2)
+            as int?, //?? json['zone_2_target_temp']) as int?,
         advertDisplayEnabled: (json['advert_screen'] ??
                 json['advert_display_enabled']) as bool? ??
             false,
@@ -230,6 +241,7 @@ class BoxSettings {
         adas: json['Adas'] as bool? ?? false,
         boxCam: json['BoxCam'] as bool? ?? false,
         isPowerOn: json['is_power_on'] as bool? ?? true,
+        isCharging: json['is_charging'] as bool? ?? false,
       );
 
   Map<String, dynamic> toJson() => {
@@ -245,6 +257,7 @@ class BoxSettings {
         'Adas': adas,
         'BoxCam': boxCam,
         'is_power_on': isPowerOn,
+        'is_charging': isCharging,
       };
 
   BoxSettings copyWith({
@@ -260,6 +273,7 @@ class BoxSettings {
     bool? adas,
     bool? boxCam,
     bool? isPowerOn,
+    bool? isCharging,
   }) =>
       BoxSettings(
         isDualZone: isDualZone ?? this.isDualZone,
@@ -274,6 +288,7 @@ class BoxSettings {
         adas: adas ?? this.adas,
         boxCam: boxCam ?? this.boxCam,
         isPowerOn: isPowerOn ?? this.isPowerOn,
+        isCharging: isCharging ?? this.isCharging,
       );
 }
 

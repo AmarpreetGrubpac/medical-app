@@ -1,10 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:grubpac_driver/core/exceptions/failure.dart';
+import 'package:grubpac_driver/core/theme/app_theme.dart';
+import 'package:grubpac_driver/core/utils/app_images.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/app_toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 abstract class AppUtils {
+  /// GET BATTERY ICON
+  static String getBatteryIcon(int level) {
+    return level > 20 ? IconAsset.batteryFull : IconAsset.battery;
+  }
+
+  /// GET BATTERY COLOR
+  static Color getBatteryColor(int level) {
+    if (level <= 0) {
+      return AppTheme.contentBrandDisabled;
+    } else if (level < 30) {
+      return AppTheme.contentBrandPrimaryOrange;
+    } else if (level < 70) {
+      return AppTheme.contentBrandPrimaryYellow;
+    } else {
+      return AppTheme.contentBrandPrimaryGreen;
+    }
+  }
+
   /// HIDE KEYBOARD
   static void hideKeyboardInApp(BuildContext context) {
     var currentFocus = FocusScope.of(context);

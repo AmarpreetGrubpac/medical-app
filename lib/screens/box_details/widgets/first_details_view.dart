@@ -113,7 +113,7 @@ class _SignalBox extends StatelessWidget {
                 width: 24.w,
                 colorFilter: ColorFilter.mode(
                     (controller.boxInfo?.connectionStatus == 'strong' ||
-                     controller.boxInfo?.connectionStatus == 'weak')
+                            controller.boxInfo?.connectionStatus == 'weak')
                         ? AppTheme.contentBrandDefault
                         : AppTheme.contentNeutralLight,
                     BlendMode.srcIn),
@@ -136,7 +136,7 @@ class _SignalBox extends StatelessWidget {
                 width: 24.w,
                 colorFilter: ColorFilter.mode(
                     (controller.boxInfo?.connectionStatus == 'strong' ||
-                     controller.boxInfo?.connectionStatus == 'weak')
+                            controller.boxInfo?.connectionStatus == 'weak')
                         ? AppTheme.contentBrandDefault
                         : AppTheme.contentNeutralLight,
                     BlendMode.srcIn),
@@ -366,7 +366,9 @@ class _BatteryDetailsBox extends StatelessWidget {
                     Row(
                       spacing: 8.sp,
                       children: [
-                        SvgPicture.asset("assets/icons/charge.svg"),
+                        controller.boxInfo?.settings?.isCharging == true
+                            ? SvgPicture.asset("assets/icons/charge.svg")
+                            : SizedBox.shrink(),
                         AppText(
                             text: "${controller.boxInfo?.batteryLevel ?? 0}%",
                             fontSize: 28.sp,
@@ -400,18 +402,19 @@ class _BatteryDetailsBox extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             SvgPicture.asset(
-                              IconAsset.batteryFull,
+                              AppUtils.getBatteryIcon(
+                                  controller.boxInfo?.battery1Level ?? 100),
                               height: 24.h,
                               width: 24.h,
                               colorFilter: ColorFilter.mode(
-                                (controller.boxInfo?.battery1Level ?? 100) > 20
-                                    ? AppTheme.contentBrandPrimaryOrange
-                                    : AppTheme.contentBrandDisabled,
+                                AppUtils.getBatteryColor(
+                                    controller.boxInfo?.battery1Level ?? 100),
                                 BlendMode.srcIn,
                               ),
                             ),
                             AppText(
-                              text: "${controller.boxInfo?.battery1Level ?? 100}%",
+                              text:
+                                  "${controller.boxInfo?.battery1Level ?? 100}%",
                               color: AppTheme.contentBrandDefault,
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
@@ -423,18 +426,19 @@ class _BatteryDetailsBox extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             SvgPicture.asset(
-                              IconAsset.battery,
+                              AppUtils.getBatteryIcon(
+                                  controller.boxInfo?.battery2Level ?? 0),
                               height: 24.h,
                               width: 24.h,
                               colorFilter: ColorFilter.mode(
-                                (controller.boxInfo?.battery2Level ?? 0) > 20
-                                    ? AppTheme.contentBrandPrimaryOrange
-                                    : AppTheme.contentBrandDisabled,
+                                AppUtils.getBatteryColor(
+                                    controller.boxInfo?.battery2Level ?? 0),
                                 BlendMode.srcIn,
                               ),
                             ),
                             AppText(
-                              text: "${controller.boxInfo?.battery2Level ?? 0}%",
+                              text:
+                                  "${controller.boxInfo?.battery2Level ?? 0}%",
                               color: AppTheme.contentBrandDefault,
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
