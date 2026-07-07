@@ -47,8 +47,19 @@ class HomeController extends GetxController {
 
   /// CONNECT
   void onConnectTap(String boxId) {
-    Navigation.pushNamed(RouteHelper.connectBoxInstructions,
-        arg: {"is_from": ConnectBoxFrom.fromHome, "box_id": boxId});
+    final boxCtrl = Get.find<BoxManagementController>();
+    final box = boxCtrl.boxes.firstWhere(
+      (b) => b.id == boxId,
+      orElse: () => BoxInfo(id: '', boxDisplayId: ''),
+    );
+    Navigation.pushNamed(
+      RouteHelper.connectBoxInstructions,
+      arg: {
+        "is_from": ConnectBoxFrom.fromHome,
+        "box_id": boxId,
+        "box_display_id": box.boxDisplayId,
+      },
+    );
   }
 
   /// VIEW DETAILS

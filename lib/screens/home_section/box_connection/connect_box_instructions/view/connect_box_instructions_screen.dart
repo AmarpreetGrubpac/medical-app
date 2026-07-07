@@ -17,6 +17,8 @@ class ConnectBoxInstructionsScreen extends StatelessWidget {
   ConnectBoxInstructionsScreen({super.key});
 
   final String isFrom = Get.arguments?["is_from"] ?? "";
+  final String boxId = Get.arguments?["box_id"] ?? "";
+  final String boxDisplayId = Get.arguments?["box_display_id"] ?? "";
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +44,7 @@ class ConnectBoxInstructionsScreen extends StatelessWidget {
                     child: CommonBox(isConnected: false),
                   ),
                   AppText(
-                    text: AppString.boxNumber,
+                    text: boxDisplayId.isNotEmpty ? boxDisplayId : AppString.boxNumber,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.contentBrandDefault,
                   ),
@@ -113,7 +115,8 @@ class ConnectBoxInstructionsScreen extends StatelessWidget {
                     onPressed: () {
                       Navigation.pushNamed(RouteHelper.boxConnecting, arg: {
                         "is_from": isFrom,
-                        "box_id": Get.arguments?["box_id"],
+                        "box_id": boxId,
+                        "box_display_id": boxDisplayId,
                       });
                     },
                     title: AppString.tryToConnect,

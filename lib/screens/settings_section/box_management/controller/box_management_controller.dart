@@ -153,11 +153,16 @@ class BoxManagementController extends GetxController {
 
   /// CONNECT BOX
   void onConnectBoxTap(String boxId) {
+    final box = boxes.firstWhere(
+      (b) => b.id == boxId,
+      orElse: () => BoxInfo(id: '', boxDisplayId: ''),
+    );
     Navigation.pushNamed(
       RouteHelper.connectBoxInstructions,
       arg: {
         "is_from": ConnectBoxFrom.fromBoxManagement,
         "box_id": boxId,
+        "box_display_id": box.boxDisplayId,
       },
     );
   }
@@ -189,8 +194,15 @@ class BoxManagementController extends GetxController {
 
   /// REMOVE BOX
   void onRemoveBoxTap(String boxId) {
-    Navigation.pushNamed(RouteHelper.removeBox,
-        arg: {"is_from": ConnectBoxFrom.fromBoxManagement, "box_id": boxId});
+    final box = boxes.firstWhere(
+      (b) => b.id == boxId,
+      orElse: () => BoxInfo(id: '', boxDisplayId: ''),
+    );
+    Navigation.pushNamed(RouteHelper.removeBox, arg: {
+      "is_from": ConnectBoxFrom.fromBoxManagement,
+      "box_id": boxId,
+      "box_display_id": box.boxDisplayId,
+    });
   }
 
   /// DISCONNECT BOX

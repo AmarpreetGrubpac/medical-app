@@ -15,6 +15,7 @@ class RemoveBoxScreen extends StatelessWidget {
 
   final String isFrom = Get.arguments?["is_from"] ?? "";
   final String boxId = Get.arguments?["box_id"] ?? "";
+  final String boxDisplayId = Get.arguments?["box_display_id"] ?? "";
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +52,7 @@ class RemoveBoxScreen extends StatelessWidget {
                         child: CommonBox(isConnected: false),
                       ),
                       AppText(
-                        text: AppString.boxNumber,
+                        text: boxDisplayId.isNotEmpty ? boxDisplayId : AppString.boxNumber,
                         fontWeight: FontWeight.w600,
                         color: AppTheme.contentBrandDefault,
                       ),

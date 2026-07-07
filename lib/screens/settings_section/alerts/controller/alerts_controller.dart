@@ -13,8 +13,15 @@ class AlertsController extends GetxController {
   AlertsController({required this.alertRepo});
 
   RxList<AlertModel> alerts = RxList<AlertModel>();
+  @override
   void onInit() {
     super.onInit();
+    final args = Get.arguments;
+    if (args != null &&
+        args["box_name"] != null &&
+        args["box_name"].toString().isNotEmpty) {
+      selectedBox = args["box_name"];
+    }
     getAlerts();
   }
 
@@ -23,17 +30,18 @@ class AlertsController extends GetxController {
   String selectedAlertSeverity = "All"; // All, Warning, Error, Success
   String selectedCategory = "All"; // All, Camera, Battery, Lock, Display, Other
   bool isloading = false;
-  getAlerts() async {
+
+  Future<void> getAlerts() async {
     try {
       isloading = true;
       update();
       var res = await alertRepo.getAlerts();
       if (res.statusCode == 200) {
+        alerts.clear();
         var alertList = res.body["data"]["data"];
         for (var alert in alertList) {
           try {
             alerts.add(AlertModel.fromJson(alert));
-            update();
           } catch (e) {
             debugPrint("Alert parse error: $e");
           }
@@ -47,8 +55,8 @@ class AlertsController extends GetxController {
     }
   }
 
-  void onRefresh() {
-    getAlerts();
+  Future<void> onRefresh() async {
+    await getAlerts();
   }
 
   List<String> get availableBoxes =>

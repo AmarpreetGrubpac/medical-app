@@ -25,7 +25,9 @@ class AlertsScreen extends StatelessWidget {
             children: [
               CommonAppNameBar(isAlert: true),
               CommonBackAppBar(
-                title: "BOX-1245",
+                title: alertsController.selectedBox == "All"
+                    ? "All Boxes"
+                    : alertsController.selectedBox,
                 trailing: CommonCompactTextButton(
                   onPressed: () =>
                       Navigation.pushNamed(RouteHelper.boxManagement),
@@ -35,67 +37,93 @@ class AlertsScreen extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: alertsController.isloading == true
-                    ? Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : alertsController.filteredAlerts.isEmpty
-                        ? Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 24.w),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  AppText(
-                                    text: "No alerts found",
-                                    fontSize: 24.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppTheme.contentNeutralPrimary,
-                                  ),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.only(top: 8.h, bottom: 24.h),
-                                    child: AppText(
-                                      text:
-                                          "Try adjusting or resetting your filter criteria.",
-                                      fontWeight: FontWeight.w400,
-                                      textAlign: TextAlign.center,
-                                      color: AppTheme.contentNeutralSecondary,
-                                    ),
-                                  ),
-                                  IntrinsicWidth(
-                                    child: CommonButton(
-                                      onPressed: alertsController.resetFilters,
-                                      fontSize: 16.sp,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 20.w, vertical: 10.h),
-                                      title: "RESET FILTERS",
-                                    ),
-                                  ),
-                                ],
+                child: RefreshIndicator(
+                  onRefresh: () => alertsController.onRefresh(),
+                  child: alertsController.isloading == true
+                      ? ListView(
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.7,
+                              child: const Center(
+                                child: CircularProgressIndicator(),
                               ),
                             ),
-                          )
-                        : ListView.builder(
-                            itemCount: alertsController.filteredAlerts.length,
-                            padding: EdgeInsets.only(bottom: 80.h),
-                            itemBuilder: (context, index) {
-                              final alert =
-                                  alertsController.filteredAlerts[index];
-                              return AlertBox(
-                                  onTap: () {
-                                    alertsController.onView(alert.id);
-                                    Navigation.pushNamed(
-                                      RouteHelper.boxDetails,
-                                      arg: {"page": 1, "box_id": alert.boxId},
-                                    );
-                                  },
-                                  onDismiss: () {
-                                    alertsController.onClickDismiss(alert.id);
-                                  },
-                                  data: alert);
-                            },
-                          ),
+                          ],
+                        )
+                      : alertsController.filteredAlerts.isEmpty
+                          ? ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: [
+                                SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.7,
+                                  child: Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 24.w),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          AppText(
+                                            text: "No alerts found",
+                                            fontSize: 24.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color:
+                                                AppTheme.contentNeutralPrimary,
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                top: 8.h, bottom: 24.h),
+                                            child: AppText(
+                                              text:
+                                                  "Try adjusting or resetting your filter criteria.",
+                                              fontWeight: FontWeight.w400,
+                                              textAlign: TextAlign.center,
+                                              color: AppTheme
+                                                  .contentNeutralSecondary,
+                                            ),
+                                          ),
+                                          IntrinsicWidth(
+                                            child: CommonButton(
+                                              onPressed:
+                                                  alertsController.resetFilters,
+                                              fontSize: 16.sp,
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 20.w,
+                                                  vertical: 10.h),
+                                              title: "RESET FILTERS",
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : ListView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: alertsController.filteredAlerts.length,
+                              padding: EdgeInsets.only(bottom: 80.h),
+                              itemBuilder: (context, index) {
+                                final alert =
+                                    alertsController.filteredAlerts[index];
+                                return AlertBox(
+                                    onTap: () {
+                                      alertsController.onView(alert.id);
+                                      Navigation.pushNamed(
+                                        RouteHelper.boxDetails,
+                                        arg: {"page": 1, "box_id": alert.boxId},
+                                      );
+                                    },
+                                    onDismiss: () {
+                                      alertsController.onClickDismiss(alert.id);
+                                    },
+                                    data: alert);
+                              },
+                            ),
+                ),
               ),
             ],
           ),

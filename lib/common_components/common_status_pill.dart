@@ -17,7 +17,11 @@ class CommonStatusPill extends StatelessWidget {
         color: StatusType.boxColor(type),
         border: Border.all(color: StatusType.color(type)),
       ),
-      child: AppText(text: title, fontSize: 14.sp, color: StatusType.color(type), height: 1),
+      child: AppText(
+          text: title,
+          fontSize: 12.sp,
+          color: StatusType.color(type),
+          height: 1),
     );
   }
 }

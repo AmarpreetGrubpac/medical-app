@@ -281,7 +281,14 @@ class BoxDetailsController extends GetxController {
   }
 
   /// LOGS
-  void onLogsTap() => Navigation.pushNamed(RouteHelper.alerts);
+  void onLogsTap() => Navigation.pushNamed(
+        RouteHelper.alerts,
+        arg: {
+          "box_name": (boxInfo?.name.isNotEmpty == true)
+              ? boxInfo!.name
+              : (boxInfo?.boxDisplayId ?? ""),
+        },
+      );
 
   /// SLIDER CHANGE
   void onSliderChange(double value) {

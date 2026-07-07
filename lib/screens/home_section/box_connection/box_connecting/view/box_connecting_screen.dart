@@ -58,10 +58,11 @@ class _BoxConnectingScreenState extends State<BoxConnectingScreen>
   }
 
   final String isFrom = Get.arguments?["is_from"] ?? "";
+  final String boxId = Get.arguments?["box_id"] ?? "";
+  final String boxDisplayId = Get.arguments?["box_display_id"] ?? "";
 
   /// REDIRECT TO NEXT
   Future<void> redirectToNext() async {
-    final String boxId = Get.arguments?["box_id"] ?? "";
     final controller = Get.find<BoxManagementController>();
 
     final success = await controller.connectBox(boxId);
@@ -74,7 +75,11 @@ class _BoxConnectingScreenState extends State<BoxConnectingScreen>
       Navigation.doublePop();
       Navigation.pushNamed(
         RouteHelper.boxConnectionError,
-        arg: {"is_from": isFrom},
+        arg: {
+          "is_from": isFrom,
+          "box_id": boxId,
+          "box_display_id": boxDisplayId,
+        },
       );
     }
   }
