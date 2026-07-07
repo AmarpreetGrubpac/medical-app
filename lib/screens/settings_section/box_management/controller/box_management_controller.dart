@@ -449,6 +449,8 @@ class BoxManagementController extends GetxController {
                   isDriverConnected: updatedBox.isDriverConnected,
                   bluetoothAvailable: updatedBox.bluetoothAvailable,
                   wifiConnected: updatedBox.wifiConnected,
+                  driverId: updatedBox.driverId,
+                  connectedUser: updatedBox.connectedUser,
                 );
                 boxes[index] = mergedBox;
               }

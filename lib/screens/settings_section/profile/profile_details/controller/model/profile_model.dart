@@ -5,10 +5,10 @@ class ProfileModel {
 
   ProfileModel({this.success, this.code, this.data});
 
-  ProfileModel.fromJson(Map<String, dynamic> json) {
+  ProfileModel.fromJson(Map<String, dynamic> json, [String? id]) {
     success = json['success'];
     code = json['code'];
-    data = json['data'] != null ? new Profile.fromJson(json['data']) : null;
+    data = json['data'] != null ? new Profile.fromJson(json['data'], id) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -23,6 +23,7 @@ class ProfileModel {
 }
 
 class Profile {
+  String? id;
   String? email;
   String? firstName;
   String? lastName;
@@ -34,7 +35,8 @@ class Profile {
   String? profilePic;
 
   Profile(
-      {this.email,
+      {this.id,
+      this.email,
       this.firstName,
       this.lastName,
       this.countryCode,
@@ -44,7 +46,8 @@ class Profile {
       this.profilePic,
       this.joiningDate});
 
-  Profile.fromJson(Map<String, dynamic> json) {
+  Profile.fromJson(Map<String, dynamic> json, [String? id]) {
+    id = id;
     email = json['email'];
     firstName = json['first_name'];
     lastName = json['last_name'];
@@ -54,6 +57,7 @@ class Profile {
     role = json['role'];
     joiningDate = json['joining_date'];
     profilePic = json['profile_pic'];
+    // id = json['id'];
   }
 
   Map<String, dynamic> toJson() {

@@ -16,7 +16,7 @@ class ProfileDetailsController extends GetxController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   int selectedForEdit = 0;
-
+  String user_id = "";
   String name = "";
   String firstname = "";
   String email = "";
@@ -64,11 +64,13 @@ class ProfileDetailsController extends GetxController {
     Response response = await profileRepo.getProfileData();
 
     if (response.statusCode == 200) {
-      _profiledata = ProfileModel.fromJson(response.body).data;
+      _profiledata =
+          ProfileModel.fromJson(response.body, response.body['user_id']).data;
 
       name = '${_profiledata?.firstName ?? ""} ${_profiledata?.lastName ?? ""}';
       firstname = _profiledata?.firstName ?? "";
       email = _profiledata?.email ?? "";
+      user_id = _profiledata?.id ?? "";
       // email = "shoyabkhan13012001@gmail.com";
 
       phone = _profiledata?.mobileNumber ?? "";

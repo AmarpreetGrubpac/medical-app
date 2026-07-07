@@ -1,3 +1,47 @@
+import 'package:get/get.dart';
+import 'package:grubpac_driver/screens/settings_section/profile/profile_details/controller/profile_details_controller.dart';
+
+class ConnectedUser {
+  final String? driverId;
+  final String? driverUserId;
+  final String? employeeDisplayId;
+  final String? name;
+
+  ConnectedUser({
+    this.driverId,
+    this.driverUserId,
+    this.employeeDisplayId,
+    this.name,
+  });
+
+  factory ConnectedUser.fromJson(Map<String, dynamic> json) => ConnectedUser(
+        driverId: json['driver_id'] as String?,
+        driverUserId: json['driver_user_id'] as String?,
+        employeeDisplayId: json['employee_display_id'] as String?,
+        name: json['name'] as String?,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'driver_id': driverId,
+        'driver_user_id': driverUserId,
+        'employee_display_id': employeeDisplayId,
+        'name': name,
+      };
+
+  ConnectedUser copyWith({
+    String? driverId,
+    String? driverUserId,
+    String? employeeDisplayId,
+    String? name,
+  }) =>
+      ConnectedUser(
+        driverId: driverId ?? this.driverId,
+        driverUserId: driverUserId ?? this.driverUserId,
+        employeeDisplayId: employeeDisplayId ?? this.employeeDisplayId,
+        name: name ?? this.name,
+      );
+}
+
 class BoxInfo {
   final String id;
   final String boxDisplayId;
@@ -26,6 +70,8 @@ class BoxInfo {
   final bool? isDriverConnected;
   final bool? bluetoothAvailable;
   final bool? wifiConnected;
+  final String? driverId;
+  final ConnectedUser? connectedUser;
 
   BoxInfo({
     required this.id,
@@ -55,49 +101,76 @@ class BoxInfo {
     this.isDriverConnected,
     this.bluetoothAvailable,
     this.wifiConnected,
+    this.driverId,
+    this.connectedUser,
   });
 
-  factory BoxInfo.fromJson(Map<String, dynamic> json) => BoxInfo(
-        id: (json['id'] ?? json['box_id']) as String,
-        boxDisplayId:
-            (json['box_display_id'] ?? json['display_id']) as String? ?? '',
-        name: json['name'] as String? ?? '',
-        isConnected: (json['is_driver_connected'] ??
-                json['is_connected'] ??
-                (json['connection_status'] != 'offline')) as bool? ??
-            false,
-        batteryLevel:
-            (json['battery_level'] ?? json['battery_1_level'] ?? 0) as int,
-        isLocked: json['is_locked'] as bool? ?? false,
-        zone1Temp: json['zone_1_temp'] as int?,
-        zone2Temp: json['zone_2_temp'] as int?,
-        extTemp: (json['ext_temp'] ?? json['ambient_temp']) as int?,
-        connectionStatus: json['connection_status'] as String?,
-        powerStatus: json['power_status'] as String? ??
-            (json['is_power_on'] == true ? "on" : "off"),
-        healthStatus: json['health_status'] as String?,
-        battery1Level: json['battery_1_level'] as int?,
-        battery2Level: json['battery_2_level'] as int?,
-        gpsAvailable: json['gps_available'] as bool?,
-        latitude: (json['latitude'] as num?)?.toDouble(),
-        longitude: (json['longitude'] as num?)?.toDouble(),
-        solarPanel: json['solar_panel'] as bool?,
-        port220V110V: json['220V_110V_port'] as bool?,
-        memoryCardUsed: (json['Memorycard_used'] as num?)?.toDouble(),
-        gyroSensor: json['gyrosensor'] as String?,
-        turnSignals: json['turn_signals'] as String?,
-        isDualZone: json['is_dual_zone'] as bool?,
-        settings: json['settings'] != null
-            ? BoxSettings.fromJson(
-                json['settings'] as Map<String, dynamic>,
-                temp1: json['zone_1_temp'] as int?,
-                temp2: json['zone_2_temp'] as int?,
-              )
-            : null,
-        isDriverConnected: json['is_driver_connected'] as bool?,
-        bluetoothAvailable: json['bluetooth_available'] as bool?,
-        wifiConnected: json['wifi_connected'] as bool?,
-      );
+  factory BoxInfo.fromJson(Map<String, dynamic> json) {
+    final rawIsConnected = (json['is_driver_connected'] ??
+            json['is_connected'] ??
+            (json['connection_status'] != 'offline')) as bool? ??
+        false;
+
+    String? driverId = json['driver_id'] as String?;
+    if (driverId == null && json['connected_user'] != null) {
+      driverId = json['connected_user']['driver_id'] as String?;
+    }
+
+    bool finalIsConnected = rawIsConnected;
+    if (Get.isRegistered<ProfileDetailsController>()) {
+      final profileController = Get.find<ProfileDetailsController>();
+      final currentUserId = profileController.user_id;
+      if (currentUserId.isNotEmpty) {
+        if (driverId != currentUserId) {
+          finalIsConnected = false;
+        }
+      }
+    }
+
+    return BoxInfo(
+      id: (json['id'] ?? json['box_id']) as String,
+      boxDisplayId:
+          (json['box_display_id'] ?? json['display_id']) as String? ?? '',
+      name: json['name'] as String? ?? '',
+      isConnected: finalIsConnected,
+      batteryLevel:
+          (json['battery_level'] ?? json['battery_1_level'] ?? 0) as int,
+      isLocked: json['is_locked'] as bool? ?? false,
+      zone1Temp: json['zone_1_temp'] as int?,
+      zone2Temp: json['zone_2_temp'] as int?,
+      extTemp: (json['ext_temp'] ?? json['ambient_temp']) as int?,
+      connectionStatus: json['connection_status'] as String?,
+      powerStatus: json['power_status'] as String? ??
+          (json['is_power_on'] == true ? "on" : "off"),
+      healthStatus: json['health_status'] as String?,
+      battery1Level: json['battery_1_level'] as int?,
+      battery2Level: json['battery_2_level'] as int?,
+      gpsAvailable: json['gps_available'] as bool?,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      solarPanel: json['solar_panel'] as bool?,
+      port220V110V: json['220V_110V_port'] as bool?,
+      memoryCardUsed: (json['Memorycard_used'] as num?)?.toDouble(),
+      gyroSensor: json['gyrosensor'] as String?,
+      turnSignals: json['turn_signals'] as String?,
+      isDualZone: json['is_dual_zone'] as bool?,
+      settings: json['settings'] != null
+          ? BoxSettings.fromJson(
+              json['settings'] as Map<String, dynamic>,
+              temp1: json['zone_1_temp'] as int?,
+              temp2: json['zone_2_temp'] as int?,
+            )
+          : null,
+      isDriverConnected: json['is_driver_connected'] as bool?,
+      bluetoothAvailable: json['bluetooth_available'] as bool?,
+      wifiConnected: json['wifi_connected'] as bool?,
+      driverId: json['driver_id'] as String?,
+      connectedUser: json['connected_user'] != null
+          ? ConnectedUser.fromJson(
+              json['connected_user'] as Map<String, dynamic>)
+          : null,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -127,6 +200,8 @@ class BoxInfo {
         'is_driver_connected': isDriverConnected,
         'bluetooth_available': bluetoothAvailable,
         'wifi_connected': wifiConnected,
+        'driver_id': driverId,
+        'connected_user': connectedUser?.toJson(),
       };
 
   BoxInfo copyWith({
@@ -157,6 +232,8 @@ class BoxInfo {
     bool? isDriverConnected,
     bool? bluetoothAvailable,
     bool? wifiConnected,
+    String? driverId,
+    ConnectedUser? connectedUser,
   }) =>
       BoxInfo(
         id: id ?? this.id,
@@ -186,6 +263,8 @@ class BoxInfo {
         isDriverConnected: isDriverConnected ?? this.isDriverConnected,
         bluetoothAvailable: bluetoothAvailable ?? this.bluetoothAvailable,
         wifiConnected: wifiConnected ?? this.wifiConnected,
+        driverId: driverId ?? this.driverId,
+        connectedUser: connectedUser ?? this.connectedUser,
       );
 }
 
