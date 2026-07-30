@@ -95,17 +95,16 @@ class _CommonTextFieldState extends State<CommonTextField> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(widget.isSearch ? 0 : 10.r),
-        boxShadow:
-            !widget.hasError && _isFocused
-                ? [
-                  BoxShadow(
-                    offset: Offset(0, 0),
-                    color: AppTheme.primary.withValues(alpha: 0.4),
-                    blurRadius: 0,
-                    spreadRadius: 4,
-                  ),
-                ]
-                : [],
+        boxShadow: !widget.hasError && _isFocused
+            ? [
+                BoxShadow(
+                  offset: Offset(0, 0),
+                  color: AppTheme.primary.withValues(alpha: 0.4),
+                  blurRadius: 0,
+                  spreadRadius: 4,
+                ),
+              ]
+            : [],
       ),
       clipBehavior: Clip.none,
       child: ValueListenableBuilder(
@@ -138,21 +137,22 @@ class _CommonTextFieldState extends State<CommonTextField> {
               fillColor: AppTheme.background,
               filled: true,
               prefixIcon: widget.prefix,
-              suffixIcon:
-                  widget.isPassword
-                      ? IntrinsicWidth(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 18.w),
-                          child: Center(
-                            child: CommonCompactIconButton(
-                              onTap: () => _isObscure.value = !isObscure,
-                              icon: isObscure ? IconAsset.eyeClose : IconAsset.eyeOpen,
-                              size: 24.h,
-                            ),
+              suffixIcon: widget.isPassword
+                  ? IntrinsicWidth(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 18.w),
+                        child: Center(
+                          child: CommonCompactIconButton(
+                            onTap: () => _isObscure.value = !isObscure,
+                            icon: isObscure
+                                ? IconAsset.eyeClose
+                                : IconAsset.eyeOpen,
+                            size: 24.h,
                           ),
                         ),
-                      )
-                      : widget.suffix,
+                      ),
+                    )
+                  : widget.suffix,
               hintText: widget.hintText,
               hintStyle: TextStyle(
                 fontWeight: FontWeight.w400,
@@ -166,23 +166,30 @@ class _CommonTextFieldState extends State<CommonTextField> {
                 fontSize: 14.sp,
                 color: AppTheme.contentBrandPrimary,
               ),
-              border:
-                  widget.isSearch
-                      ? UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryButtonDisabled))
-                      : OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(widget.isSearch ? 0 : 8.r),
-                        borderSide: BorderSide(color: AppTheme.primaryButtonDisabled),
-                      ),
-              enabledBorder:
-                  widget.isSearch
-                      ? UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryButtonDisabled))
-                      : OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(widget.isSearch ? 0 : 8.r),
-                        borderSide: BorderSide(color: AppTheme.primaryButtonDisabled),
-                      ),
+              border: widget.isSearch
+                  ? UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(color: AppTheme.primaryButtonDisabled))
+                  : OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(widget.isSearch ? 0 : 8.r),
+                      borderSide:
+                          BorderSide(color: AppTheme.primaryButtonDisabled),
+                    ),
+              enabledBorder: widget.isSearch
+                  ? UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(color: AppTheme.primaryButtonDisabled))
+                  : OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(widget.isSearch ? 0 : 8.r),
+                      borderSide:
+                          BorderSide(color: AppTheme.primaryButtonDisabled),
+                    ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(widget.isSearch ? 0 : 8.r),
-                borderSide: BorderSide(color: AppTheme.contentBrandPrimaryOrange),
+                borderSide:
+                    BorderSide(color: AppTheme.contentBrandPrimaryOrange),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(widget.isSearch ? 0 : 8.r),
@@ -192,13 +199,16 @@ class _CommonTextFieldState extends State<CommonTextField> {
                 borderRadius: BorderRadius.circular(widget.isSearch ? 0 : 8.r),
                 borderSide: BorderSide(color: AppTheme.contentBrandPrimary),
               ),
-              disabledBorder:
-                  widget.isSearch
-                      ? UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primaryButtonDisabled))
-                      : OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(widget.isSearch ? 0 : 8.r),
-                        borderSide: BorderSide(color: AppTheme.primaryButtonDisabled),
-                      ),
+              disabledBorder: widget.isSearch
+                  ? UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(color: AppTheme.primaryButtonDisabled))
+                  : OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(widget.isSearch ? 0 : 8.r),
+                      borderSide:
+                          BorderSide(color: AppTheme.primaryButtonDisabled),
+                    ),
               contentPadding: EdgeInsets.symmetric(
                 vertical: widget.cpv ?? 16.h,
                 horizontal: widget.cph ?? 16.w,
@@ -210,6 +220,7 @@ class _CommonTextFieldState extends State<CommonTextField> {
     );
   }
 }
+
 class SearchField extends StatelessWidget {
   const SearchField({
     super.key,
@@ -247,7 +258,6 @@ class SearchField extends StatelessWidget {
     );
   }
 }
-
 
 // class SearchField extends StatelessWidget {
 //   const SearchField({super.key, required this.controller});

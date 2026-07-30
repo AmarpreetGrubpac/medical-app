@@ -56,9 +56,11 @@ class AlertModel {
         isRead: json["is_read"] ?? false,
         isDismissed: json["is_dismissed"] ?? false,
         createdAt:
-            DateTime.parse(json["created_at"] ?? DateTime.now().toString()),
+            DateTime.parse(json["created_at"] ?? DateTime.now().toString())
+                .toLocal(),
         updatedAt:
-            DateTime.parse(json["updated_at"] ?? DateTime.now().toString()),
+            DateTime.parse(json["updated_at"] ?? DateTime.now().toString())
+                .toLocal(),
       );
 
   static AlertCategory _parseCategory(String? val) {

@@ -20,9 +20,6 @@ import 'package:grubpac_driver/screens/settings_section/box_management/controlle
 import 'package:grubpac_driver/screens/settings_section/box_management/model/box_info.dart';
 import 'package:grubpac_driver/screens/settings_section/profile/profile_details/controller/profile_details_controller.dart';
 
-import '../../../../helper/navigation.dart';
-import '../../../../helper/route_helper.dart';
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -214,6 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             );
+          
           },
         );
       },
