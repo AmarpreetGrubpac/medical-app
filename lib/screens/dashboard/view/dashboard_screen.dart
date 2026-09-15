@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:grubpac_driver/common_components/sos_button.dart';
 import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_images.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
@@ -23,6 +24,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return GetBuilder<DashboardController>(
       builder: (controller) {
         return Scaffold(
+          floatingActionButton: SosButton(),
           backgroundColor: AppTheme.background,
           body: controller.screens[controller.selectedIndex],
           bottomNavigationBar: SafeArea(
@@ -63,7 +65,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ),
-    
         );
       },
     );

@@ -7,6 +7,8 @@ import 'package:grubpac_driver/screens/box_details/controller/box_details_contro
 import 'package:grubpac_driver/screens/box_details/widgets/first_details_view.dart';
 import 'package:grubpac_driver/screens/box_details/widgets/second_details_view.dart';
 
+import '../../../common_components/sos_button.dart';
+
 class BoxDetailsScreen extends StatelessWidget {
   BoxDetailsScreen({super.key});
 
@@ -18,6 +20,7 @@ class BoxDetailsScreen extends StatelessWidget {
     // final page = Get.arguments["page"];
     return GetBuilder<BoxDetailsController>(
       builder: (controller) => Scaffold(
+        floatingActionButton: SosButton(),
         body: SafeArea(
           child: Column(
             children: [

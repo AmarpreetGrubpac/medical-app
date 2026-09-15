@@ -326,7 +326,7 @@ class AppString {
   static const String storage = "Storage";
   static const String camera = "Camera";
   static const String light = "Light";
-
+  static const String warningLight = 'Warning Lights';
   static const String storageDetail = "Storage details here...";
   static const String cameraDetail = "Camera details here...";
 

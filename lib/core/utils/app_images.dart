@@ -88,5 +88,6 @@ class IconAsset {
   static const String webcam = '${_path}webcam.svg';
   static const String warning = '${_path}warning.svg';
   static const String support = '${_path}support.svg';
-  
+  static const String sos = '${_path}sos.svg';
 }
+

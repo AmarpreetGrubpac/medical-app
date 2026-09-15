@@ -14,7 +14,6 @@ class CommonOutlinedButton extends StatefulWidget {
   final EdgeInsets? padding;
   final bool allowTapWhenDisabled;
 
-
   const CommonOutlinedButton({
     super.key,
     required this.onPressed,
@@ -33,7 +32,8 @@ class CommonOutlinedButton extends StatefulWidget {
 }
 
 class _CommonOutlinedButtonState extends State<CommonOutlinedButton> {
-  final ValueNotifier<ButtonState> _stateNotifier = ValueNotifier(ButtonState.defaultState);
+  final ValueNotifier<ButtonState> _stateNotifier =
+      ValueNotifier(ButtonState.defaultState);
   final ValueNotifier<bool> _isProcessing = ValueNotifier(false);
 
   // Future<void> _handleTap() async {
@@ -70,7 +70,8 @@ class _CommonOutlinedButtonState extends State<CommonOutlinedButton> {
   @override
   void initState() {
     super.initState();
-    _stateNotifier.value = widget.isDisabled ? ButtonState.disabled : ButtonState.defaultState;
+    _stateNotifier.value =
+        widget.isDisabled ? ButtonState.disabled : ButtonState.defaultState;
   }
 
   @override
@@ -102,7 +103,7 @@ class _CommonOutlinedButtonState extends State<CommonOutlinedButton> {
           _handleTap();
         }
       },
-        onLongPressStart: (_) {
+      onLongPressStart: (_) {
         if (!widget.isDisabled && !widget.isLoading) {
           _stateNotifier.value = ButtonState.pressed;
         }
@@ -122,15 +123,15 @@ class _CommonOutlinedButtonState extends State<CommonOutlinedButton> {
         builder: (context, state, _) {
           switch (state) {
             case ButtonState.defaultState:
-              return _button(borderColor: LightThemeColors.contentBrandPrimaryOrange);
+              return _button(borderColor: LightThemeColors.contentBrandPrimary);
 
             case ButtonState.active:
-              return _button(borderColor: LightThemeColors.contentBrandPrimaryOrange);
+              return _button(borderColor: LightThemeColors.contentBrandPrimary);
 
             case ButtonState.pressed:
               return _button(
-                buttonColor: AppTheme.contentBrandSecondaryOrange,
-                borderColor: LightThemeColors.contentBrandPrimaryOrange,
+                buttonColor: AppTheme.contentBrandSecondary,
+                borderColor: LightThemeColors.contentBrandPrimary,
                 shadowColor: AppTheme.primary.withValues(alpha: 0.4),
                 needUnderline: true,
               );
@@ -158,7 +159,13 @@ class _CommonOutlinedButtonState extends State<CommonOutlinedButton> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.r),
         boxShadow: shadowColor != null
-            ? [BoxShadow(offset: Offset(0, 0), color: shadowColor, blurRadius: 0, spreadRadius: 4)]
+            ? [
+                BoxShadow(
+                    offset: Offset(0, 0),
+                    color: shadowColor,
+                    blurRadius: 0,
+                    spreadRadius: 4)
+              ]
             : [],
         color: shadowColor != null ? AppTheme.background : null,
       ),
@@ -180,7 +187,7 @@ class _CommonOutlinedButtonState extends State<CommonOutlinedButton> {
                     child: Center(
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5.w,
-                        color: textColor ?? AppTheme.contentBrandPrimaryOrange,
+                        color: textColor ?? AppTheme.contentBrandPrimary,
                       ),
                     ),
                   )
@@ -188,8 +195,10 @@ class _CommonOutlinedButtonState extends State<CommonOutlinedButton> {
                     text: widget.title,
                     fontSize: widget.fontSize ?? 20.sp,
                     fontWeight: FontWeight.w500,
-                    color: textColor ?? AppTheme.contentBrandPrimaryOrange,
-                    textDecoration: needUnderline ? TextDecoration.underline : TextDecoration.none,
+                    color: textColor ?? AppTheme.contentBrandPrimary,
+                    textDecoration: needUnderline
+                        ? TextDecoration.underline
+                      : TextDecoration.none,
                   ),
           ),
         ),

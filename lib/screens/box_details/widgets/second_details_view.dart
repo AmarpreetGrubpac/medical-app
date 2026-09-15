@@ -271,28 +271,6 @@ class _BoxWidget extends StatelessWidget {
                                   : StatusType.connected),
                         ),
                         ExpandableBox(
-                          icon: IconAsset.ioniser,
-                          title: AppString.ioniserLabel,
-                          trailing: Row(
-                            spacing: 8.w,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              CommonSwitch(
-                                  onToggle: isConnected
-                                      ? controller.toggleIoniserSwitch
-                                      : () {},
-                                  isOn: controller.ioniserSwitch),
-                              AppText(
-                                text: controller.ioniserSwitch
-                                    ? AppString.on
-                                    : AppString.off,
-                                fontWeight: FontWeight.w400,
-                                height: 1,
-                              ),
-                            ],
-                          ),
-                        ),
-                        ExpandableBox(
                           onTap: controller.toggleThermoBox,
                           isExpanded: controller.isThermoBoxExpanded,
                           icon: IconAsset.sun,
@@ -472,11 +450,13 @@ class _PowerWidget extends StatelessWidget {
                             spacing: 8.w,
                             children: [
                               SvgPicture.asset(
-                                AppUtils.getBatteryIcon(controller.boxInfo?.battery1Level ?? 100),
+                                AppUtils.getBatteryIcon(
+                                    controller.boxInfo?.battery1Level ?? 100),
                                 height: 32.h,
                                 width: 32.h,
                                 colorFilter: ColorFilter.mode(
-                                  AppUtils.getBatteryColor(controller.boxInfo?.battery1Level ?? 100),
+                                  AppUtils.getBatteryColor(
+                                      controller.boxInfo?.battery1Level ?? 100),
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -514,11 +494,13 @@ class _PowerWidget extends StatelessWidget {
                             spacing: 8.w,
                             children: [
                               SvgPicture.asset(
-                                AppUtils.getBatteryIcon(controller.boxInfo?.battery2Level ?? 0),
+                                AppUtils.getBatteryIcon(
+                                    controller.boxInfo?.battery2Level ?? 0),
                                 height: 32.h,
                                 width: 32.h,
                                 colorFilter: ColorFilter.mode(
-                                  AppUtils.getBatteryColor(controller.boxInfo?.battery2Level ?? 0),
+                                  AppUtils.getBatteryColor(
+                                      controller.boxInfo?.battery2Level ?? 0),
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -678,17 +660,6 @@ class _CameraWidget extends StatelessWidget {
                       ? StatusType.connected
                       : StatusType.disconnected),
             ),
-            ExpandableBox(
-              icon: IconAsset.webcam,
-              title: AppString.adas,
-              trailing: CommonStatusPill(
-                  title: (controller.boxInfo?.settings?.adas ?? false)
-                      ? AppString.on
-                      : AppString.off,
-                  type: (controller.boxInfo?.settings?.adas ?? false)
-                      ? StatusType.connected
-                      : StatusType.disconnected),
-            ),
           ],
         ),
       ),
@@ -705,15 +676,31 @@ class _LightWidget extends StatelessWidget {
         onTap: controller.toggleLight,
         isExpanded: controller.isLightExpanded,
         title: AppString.light,
-        child: ExpandableBox(
-          icon: IconAsset.arrowsRightLeft,
-          title: AppString.turnSignals,
-          trailing: CommonStatusPill(
-              title: controller.boxInfo?.turnSignals?.toUpperCase() ??
-                  AppString.detected,
-              type: (controller.boxInfo?.turnSignals == 'detected')
-                  ? StatusType.connected
-                  : StatusType.disconnected),
+        child: Column(
+          spacing: 12.h,
+          children: [
+            ExpandableBox(
+              icon: IconAsset.arrowsRightLeft,
+              title: AppString.turnSignals,
+              trailing: CommonStatusPill(
+                  title: controller.boxInfo?.turnSignals?.toUpperCase() ??
+                      AppString.detected,
+                  type: (controller.boxInfo?.turnSignals == 'detected')
+                      ? StatusType.connected
+                      : StatusType.disconnected),
+            ),
+            ExpandableBox(
+              icon: IconAsset.warning,
+              title: AppString.warningLight,
+              trailing: CommonStatusPill(
+                  title: (controller.boxInfo?.settings?.adas ?? false)
+                      ? AppString.on
+                      : AppString.off,
+                  type: (controller.boxInfo?.settings?.adas ?? false)
+                      ? StatusType.connected
+                      : StatusType.disconnected),
+            ),
+          ],
         ),
       ),
     );

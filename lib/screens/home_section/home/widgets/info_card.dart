@@ -7,7 +7,11 @@ import 'package:grubpac_driver/core/theme/app_theme.dart';
 class InfoCard extends StatelessWidget {
   final String icon, label, value;
 
-  const InfoCard({super.key, required this.icon, required this.label, required this.value});
+  const InfoCard(
+      {super.key,
+      required this.icon,
+      required this.label,
+      required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +29,15 @@ class InfoCard extends StatelessWidget {
             icon,
             height: 32.h,
             width: 32.h,
-            colorFilter: ColorFilter.mode(AppTheme.contentBrandPrimaryOrange, BlendMode.srcIn),
+            colorFilter:
+                ColorFilter.mode(AppTheme.contentBrandPrimary, BlendMode.srcIn),
           ),
           Column(
             spacing: 8.h,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppText(text: label, fontSize: 14.sp, fontWeight: FontWeight.w400),
+              AppText(
+                  text: label, fontSize: 14.sp, fontWeight: FontWeight.w400),
               AppText(
                 text: value,
                 fontSize: 18.sp,

@@ -100,7 +100,7 @@ class ExpandableBox extends StatelessWidget {
                   width: 24.w,
                   colorFilter: ColorFilter.mode(
                     isGrublock
-                        ? AppTheme.contentBrandPrimaryOrange
+                        ? AppTheme.contentBrandPrimary
                         : AppTheme.contentNeutralLight,
                     BlendMode.srcIn,
                   ),

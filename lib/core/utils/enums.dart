@@ -90,7 +90,7 @@ abstract class StatusType {
       case weak:
         return AppTheme.contentBrandPrimaryYellow;
       case disconnected:
-        return AppTheme.contentBrandPrimary;
+        return AppTheme.contentBrandPrimaryOrange;
       default:
         return AppTheme.contentBrandPrimaryGreen;
     }

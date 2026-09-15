@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:grubpac_driver/core/utils/constants.dart';
 
 class DarkThemeColors {
-  static const Color primary = Color(0xFFFE5720);
-  static const Color background = Colors.black;
+  static const Color primary = Color(0xFF3D4AFF);
+  static const Color background = Color(0xFF000000);
 
   //
   static const Color contentNeutralSecondary = Color(0xFFC1C7C4);
@@ -15,12 +15,12 @@ class DarkThemeColors {
   static const Color contentBrandActive = Color(0xFFAD260B);
   static const Color contentOnPrimary = Color(0xFFFFFFFF);
   static const Color primaryButtonDisabled = Color(0xFF6B7971);
-  static const Color contentBrandDisabled = Color(0xFF37493F);
+  static const Color contentBrandDisabled = Color(0xFF747F79);
   static const Color contentBrandActiveAlt = Color(0xFF95C680);
   static const Color backgroundBrandSecondaryAlt = Color(0xFF233E18);
-  static const Color commonColor = Colors.white;
+  static const Color commonColor = Color(0xFFFFFFFF);
   static const Color strokeBrandPrimaryAlt = Color(0xFFE44421);
-  static const Color contentBrandPrimary = Color(0xFFEB603B);
+  static const Color contentBrandPrimary = Color(0xFF3341FF);
   static const Color contentBrandPrimaryGreen = Color(0xFF70B256);
   static const Color colorTransparentBlue = Color(0xFF1A9CD6);
   static const Color colorTransparentWarm = Color(0xFFF99D20);
@@ -29,7 +29,7 @@ class DarkThemeColors {
   static const Color bgBrandSecondaryYellow = Color(0xFF8A5F24);
   static const Color contentBrandPrimaryYellow = Color(0xFFF7B65F);
   static const Color contentNeutralPrimary = Color(0xFFFFFFFF);
-  static const Color contentBrandSecondary = Color(0xFF661A00);
+  static const Color contentBrandSecondary = Color(0xFF000A99);
   static const Color strokeBrandPrimaryYellow = Color(0xFFF4AD49);
   static const Color strokeInteractiveNeutralDefault = Color(0xFF6B7971);
   static const Color strokeInteractiveBrandDisabled = Color(0xFF37493F);
@@ -46,13 +46,14 @@ class DarkThemeColors {
   static const Color disabledTextButton = Color(0xFF061E13);
   static const Color disabledTextColor = Color(0xFF37483E);
   static const Color brandPrimaryButtonDisabled = Color(0xFF061E12);
-  static const Color pressedPrimaryButton = Color(0xFF982701);
-  static const Color pressedPrimaryButtonBorder = Color(0xFFFE480B);
+  static const Color pressedPrimaryButton = Color(0xFF4753FF);
+  static const Color pressedPrimaryButtonBorder = Color(0xFF4753FF);
   static const Color outlinedButtonDisabled = Color(0xFF061E12);
   static const Color strokeInteractiveBrandActiveGreen = Color(0xFF506157);
   static const Color boxGreyBorder = Color(0xFF6B7971);
   static const Color contentNeutralLightGrey = Color(0xFFA4ACA7);
   static const Color pressedIconColor = Color(0xFFFE8D67);
+  static const Color expandedBoxBG = Color(0xFF010E07);
 
   static final darkTheme = ThemeData(
     colorScheme:

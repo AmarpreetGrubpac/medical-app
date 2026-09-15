@@ -81,7 +81,10 @@ class CommonAppNameBar extends StatelessWidget {
                         spacing: 4.w,
                         children: [
                           SvgPicture.asset(IconAsset.thermometer,
-                              height: 16.h, width: 16.h),
+                              height: 16.h,
+                              width: 16.h,
+                              colorFilter: ColorFilter.mode(
+                                  AppTheme.primary, BlendMode.srcIn)),
                           AppText(
                             text: tempStr,
                             fontWeight: FontWeight.w400,

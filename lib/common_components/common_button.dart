@@ -102,12 +102,12 @@ class _CommonButtonState extends State<CommonButton> {
             case ButtonState.defaultState:
               return _button(
                   buttonColor: AppTheme.primary,
-                  borderColor: AppTheme.contentBrandPrimaryOrange);
+                  borderColor: AppTheme.contentBrandPrimary);
 
             case ButtonState.active:
               return _button(
                   buttonColor: AppTheme.primary,
-                  borderColor: AppTheme.contentBrandPrimaryOrange);
+                  borderColor: AppTheme.contentBrandPrimary);
 
             case ButtonState.pressed:
               return _button(

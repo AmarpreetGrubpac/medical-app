@@ -32,7 +32,9 @@ class BottomBarItem extends StatelessWidget {
             height: 24.h,
             width: 24.h,
             colorFilter: ColorFilter.mode(
-              isSelected ? AppTheme.contentBrandPrimaryOrange : AppTheme.contentNeutralLight,
+              isSelected
+                  ? AppTheme.contentBrandPrimary
+                  : AppTheme.contentNeutralLight,
               BlendMode.srcIn,
             ),
           ),
@@ -40,7 +42,9 @@ class BottomBarItem extends StatelessWidget {
             text: label,
             fontSize: 12.sp,
             fontWeight: FontWeight.w400,
-            color: isSelected ? AppTheme.commonColor : AppTheme.contentNeutralLight,
+            color: isSelected
+                ? AppTheme.commonColor
+                : AppTheme.contentNeutralLight,
           ),
         ],
       ),
