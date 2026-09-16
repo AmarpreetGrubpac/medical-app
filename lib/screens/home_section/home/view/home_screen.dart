@@ -103,102 +103,140 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                               ),
                             ),
-                            isBoxAdded
-                                ? Expanded(
-                                    child: Column(
-                                      children: [
-                                        CommonBackAppBar(
-                                          title: AppString.addedBoxes,
-                                          fontSize: 18.sp,
-                                          fontColor:
-                                              AppTheme.contentNeutralSecondary,
-                                          backArrow: false,
-                                          trailing: CommonCompactTextButton(
-                                            onPressed: controller.onManageTap,
-                                            title: AppString.manage,
-                                            fontSize: 18.sp,
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Stack(
-                                            children: [
-                                              PageView.builder(
-                                                controller:
-                                                    boxCtrl.pageController,
-                                                itemCount: boxCtrl.boxes.length,
-                                                onPageChanged:
-                                                    boxCtrl.onPageChanged,
-                                                itemBuilder: (context, index) {
-                                                  final box =
-                                                      boxCtrl.boxes[index];
-                                                  return box.isConnected
-                                                      ? ConnectedView(
-                                                          box: box,
-                                                          isBoxLocked:
-                                                              box.isLocked,
-                                                          onDisTap: () =>
-                                                              controller
-                                                                  .onDisconnectTap(
-                                                                      box.id,
-                                                                      box.name),
-                                                          onViewTap: () =>
-                                                              controller
-                                                                  .onViewDetailTap(
-                                                                      box.id),
-                                                          onLockTap: () =>
-                                                              controller
-                                                                  .onLockTap(
-                                                            context,
-                                                            box.id,
-                                                          ),
-                                                        )
-                                                      : DisconnectedView(
-                                                          box: box,
-                                                          onConnectTap: () =>
-                                                              controller
-                                                                  .onConnectTap(
-                                                                      box.id),
-                                                        );
-                                                },
-                                              ),
-                                              Positioned(
-                                                top: 114.h,
-                                                left: 24.w,
-                                                child: CommonCompactIconButton(
-                                                  onTap:
-                                                      boxCtrl.goToPreviousBox,
-                                                  icon: IconAsset.arrowLeft,
-                                                  size: 20.h,
-                                                  iconColor: AppTheme
-                                                      .contentBrandDefault,
-                                                  pressedIconColor: AppTheme
-                                                      .contentBrandDefault,
-                                                  pressedBgColor: AppTheme
-                                                      .pressedTextBtnColor,
-                                                ),
-                                              ),
-                                              Positioned(
-                                                top: 114.h,
-                                                right: 24.w,
-                                                child: CommonCompactIconButton(
-                                                  onTap: boxCtrl.goToNextBox,
-                                                  icon: IconAsset.arrowRight,
-                                                  size: 20.h,
-                                                  iconColor: AppTheme
-                                                      .contentBrandDefault,
-                                                  pressedIconColor: AppTheme
-                                                      .contentBrandDefault,
-                                                  pressedBgColor: AppTheme
-                                                      .pressedTextBtnColor,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
+                            boxCtrl.loadingBoxes && !isBoxAdded
+                                ? const Expanded(
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
                                     ),
                                   )
-                                : _EmptyView(onTap: controller.onAddBoxTap),
+                                : boxCtrl.boxLoadError != null && !isBoxAdded
+                                    ? Expanded(
+                                        child: Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.all(24.w),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                AppText(
+                                                  text: boxCtrl.boxLoadError!,
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                                16.h.verticalSpace,
+                                                CommonButton(
+                                                  onPressed: () =>
+                                                      boxCtrl.fetchBoxes(),
+                                                  title: AppString.tryAgain,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : isBoxAdded
+                                        ? Expanded(
+                                            child: Column(
+                                              children: [
+                                                CommonBackAppBar(
+                                                  title: AppString.addedBoxes,
+                                                  fontSize: 18.sp,
+                                                  fontColor: AppTheme
+                                                      .contentNeutralSecondary,
+                                                  backArrow: false,
+                                                  trailing:
+                                                      CommonCompactTextButton(
+                                                    onPressed:
+                                                        controller.onManageTap,
+                                                    title: AppString.manage,
+                                                    fontSize: 18.sp,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: Stack(
+                                                    children: [
+                                                      PageView.builder(
+                                                        controller: boxCtrl
+                                                            .pageController,
+                                                        itemCount: boxCtrl
+                                                            .boxes.length,
+                                                        onPageChanged: boxCtrl
+                                                            .onPageChanged,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          final box = boxCtrl
+                                                              .boxes[index];
+                                                          return box.isConnected
+                                                              ? ConnectedView(
+                                                                  box: box,
+                                                                  isBoxLocked: box
+                                                                      .isLocked,
+                                                                  onDisTap: () =>
+                                                                      controller.onDisconnectTap(
+                                                                          box.id,
+                                                                          box.name),
+                                                                  onViewTap: () =>
+                                                                      controller
+                                                                          .onViewDetailTap(
+                                                                              box.id),
+                                                                  onLockTap: () =>
+                                                                      controller
+                                                                          .onLockTap(
+                                                                    context,
+                                                                    box.id,
+                                                                  ),
+                                                                )
+                                                              : DisconnectedView(
+                                                                  box: box,
+                                                                  onConnectTap: () =>
+                                                                      controller
+                                                                          .onConnectTap(
+                                                                              box.id),
+                                                                );
+                                                        },
+                                                      ),
+                                                      Positioned(
+                                                        top: 114.h,
+                                                        left: 24.w,
+                                                        child:
+                                                            CommonCompactIconButton(
+                                                          onTap: boxCtrl
+                                                              .goToPreviousBox,
+                                                          icon: IconAsset
+                                                              .arrowLeft,
+                                                          size: 20.h,
+                                                          iconColor: AppTheme
+                                                              .contentBrandDefault,
+                                                          pressedIconColor: AppTheme
+                                                              .contentBrandDefault,
+                                                          pressedBgColor: AppTheme
+                                                              .pressedTextBtnColor,
+                                                        ),
+                                                      ),
+                                                      Positioned(
+                                                        top: 114.h,
+                                                        right: 24.w,
+                                                        child:
+                                                            CommonCompactIconButton(
+                                                          onTap: boxCtrl
+                                                              .goToNextBox,
+                                                          icon: IconAsset
+                                                              .arrowRight,
+                                                          size: 20.h,
+                                                          iconColor: AppTheme
+                                                              .contentBrandDefault,
+                                                          pressedIconColor: AppTheme
+                                                              .contentBrandDefault,
+                                                          pressedBgColor: AppTheme
+                                                              .pressedTextBtnColor,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        : _EmptyView(
+                                            onTap: controller.onAddBoxTap),
                           ],
                         ),
                       ),

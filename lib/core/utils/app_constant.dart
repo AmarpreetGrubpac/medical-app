@@ -1,68 +1,67 @@
-import 'package:get/get.dart';
-import 'package:grubpac_driver/screens/splash/controller/splash_controller.dart';
+import 'package:flutter/foundation.dart';
 
 class AppConstants {
-  static const String appName = 'Grubpac driver';
-  static const String appUrl = 'Grubpac driver';
+  static const String appName = 'GrubPac Medical';
+  static const String appUrl = 'GrubPac Medical';
   static const String appversion = '1.0.4';
 
-  // config
-  // static const String baseUrl = 'https://grubpac-api-dev.sqaby.org/api/v1';
-  static const String baseUrl = 'https://43.204.34.10/api/v1';
-  // static const String baseUrl =
-  //     'https://nktbq7k7-8000.inc1.devtunnels.ms/api/v1';
+  static const String baseUrl = "https://preprod.43.204.34.10.nip.io/api/v1";
+  //     String.fromEnvironment('API_BASE_URL');
+  // static String get baseUrl {
+  //   if (_configuredBaseUrl.isNotEmpty) return _configuredBaseUrl;
+  //   if (kDebugMode) return 'https://43.204.34.10/api/v1';
+  //   throw StateError('API_BASE_URL is required for release builds.');
+  // }
 
-  static const String configApi = '/delivery-mobile/config';
-  static const String checkAccountApi = '/delivery-mobile/auth/check-account';
-  static const String ExistingUserApi = '/delivery-mobile/auth/login';
-  static const String loginApi = '/delivery-mobile/auth/send-otp';
-  static const String resendOtpApi = '/delivery-mobile/auth/send-otp';
-  static const String verifyOtpApi = '/delivery-mobile/auth/verify-otp';
-  static const String setPassword = '/delivery-mobile/auth/set-password';
-  static const String refreshTokenApi = '/delivery-mobile/auth/refresh';
+  static const String medicalOwnerPath = '/medical-mobile/owner';
+  static const String configApi = '$medicalOwnerPath/config';
+  static const String checkAccountApi = '$medicalOwnerPath/auth/check-account';
+  static const String ExistingUserApi = '$medicalOwnerPath/auth/login';
+  static const String loginApi = '$medicalOwnerPath/auth/send-otp';
+  static const String resendOtpApi = '$medicalOwnerPath/auth/resend-otp';
+  static const String verifyOtpApi = '$medicalOwnerPath/auth/verify-otp';
+  static const String setPassword = '$medicalOwnerPath/auth/set-password';
+  static const String refreshTokenApi = '$medicalOwnerPath/auth/refresh';
 
-  /// forgt password urls
+  /// forgt password urlsp
   static const String forgotPasswordUrl =
-      '/delivery-mobile/auth/forget-password/otp/send';
+      '$medicalOwnerPath/auth/forget-password/otp/send';
   static const String resendForgotPasswordUrl =
-      '/delivery-mobile/auth/forget-password/otp/send';
+      '$medicalOwnerPath/auth/forget-password/otp/resend';
   static const String verifyforgotPasswordotp =
-      '/delivery-mobile/auth/forget-password/otp/verify';
+      '$medicalOwnerPath/auth/forget-password/otp/verify';
   static const String setNewPasswordApi =
-      '/delivery-mobile/auth/forget-password/set-password';
+      '$medicalOwnerPath/auth/forget-password/set-password';
 
   // profile apis
-  static const String getProfile = '/delivery-mobile/profile';
-  static const String updateProfile = '/delivery-mobile/account';
+  static const String getProfile = '$medicalOwnerPath/profile';
+  static const String updateProfile = '$medicalOwnerPath/account';
 
   //Box apis
-  static const String getAllBoxes = '/delivery-mobile/boxes';
-  static const String registerBox = '/delivery-mobile/boxes';
-  static const String removebox = '/delivery-mobile/boxes/:box_id';
-  static const String updatebox = '/delivery-mobile/boxes/:box_id/settings';
-  static const String connectBox = '/delivery-mobile/boxes/:box_id/connection';
+  static const String getAllBoxes = '$medicalOwnerPath/boxes';
+  static const String claimBox = '$medicalOwnerPath/boxes/claim';
+  static const String removebox = '$medicalOwnerPath/boxes/:box_id';
+  static const String updatebox = '$medicalOwnerPath/boxes/:box_id/settings';
+  static const String connectBox = '$medicalOwnerPath/boxes/:box_id/connection';
   static const String disconnectBox =
-      '/delivery-mobile/boxes/:box_id/connection';
-  static const String reqLockOtp = '/delivery-mobile/boxes/:box_id/lock/otp';
-  static const String verifyLockOtp =
-      '/delivery-mobile/boxes/:box_id/lock/verify';
-  
+      '$medicalOwnerPath/boxes/:box_id/connection';
+  static const String lockBox = '$medicalOwnerPath/boxes/:box_id/lock';
 
   // auth apis
 
-  static const String logoutApi = '/delivery-mobile/auth/logout';
-  static const String deleteAccount = '/delivery-mobile/account';
-  static const String changePasswordApi = '/delivery-mobile/account';
+  static const String logoutApi = '$medicalOwnerPath/auth/logout';
+  static const String deleteAccount = '$medicalOwnerPath/account';
+  static const String changePasswordApi = '$medicalOwnerPath/account';
 
 // categories
-  static const String categoryApi = '/delivery/support/category';
-  static const String subCategoryApi = '/delivery/support/faq?category_id';
+  static const String categoryApi = '$medicalOwnerPath/support/category';
+  static const String subCategoryApi = '$medicalOwnerPath/support/faq';
 
   /// notification
-  static const String alertList = '/delivery/support/faq?category_id';
+  static const String alertList = '$medicalOwnerPath/support/faq';
 
   /// alerts
-  static const String getAlerts = '/delivery-mobile/notification';
+  static const String getAlerts = '$medicalOwnerPath/notification';
 
   static String privacyPolicyR = 'https://www.grubpac.com/privacypolicy';
   // 'https://www.lenskart.com/eyeglasses/gender/all-men-eyeglasses.html';

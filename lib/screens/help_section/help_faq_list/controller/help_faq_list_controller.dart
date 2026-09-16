@@ -6,6 +6,7 @@ import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/data/api/api_checker.dart';
 import 'package:grubpac_driver/screens/help_section/help_faq_list/controller/help_repo.dart';
 import 'package:grubpac_driver/screens/help_section/help_faq_list/controller/help_support_model.dart';
+
 class HelpFaqListController extends GetxController {
   final HelpRepo helpRepo;
 
@@ -28,6 +29,8 @@ class HelpFaqListController extends GetxController {
   bool get faqInitialLoading => _faqInitialLoading;
 
   bool get isInitialLoading => _isInitialLoading;
+  String? categoryError;
+  String? faqError;
 
   final TextEditingController searchController = TextEditingController();
   final ScrollController scrollController = ScrollController();
@@ -49,7 +52,7 @@ class HelpFaqListController extends GetxController {
 
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
-          scrollController.position.maxScrollExtent &&
+              scrollController.position.maxScrollExtent &&
           !_isLoading &&
           _hasMoreData) {
         getCategoryList();
@@ -57,20 +60,18 @@ class HelpFaqListController extends GetxController {
     });
     faqScrollController.addListener(() {
       if (faqScrollController.position.pixels ==
-          faqScrollController.position.maxScrollExtent &&
+              faqScrollController.position.maxScrollExtent &&
           !_faqIsLoading &&
           _faqHasMoreData) {
         getCategoryById(_currentCategoryId);
       }
     });
-
   }
-
 
   void scrollListener() {
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
-          scrollController.position.maxScrollExtent &&
+              scrollController.position.maxScrollExtent &&
           !_isLoading &&
           _hasMoreData) {
         getCategoryList();
@@ -88,6 +89,7 @@ class HelpFaqListController extends GetxController {
       _faqCategories = null;
       _currentSearch = search ?? '';
       _isInitialLoading = true;
+      categoryError = null;
       update();
     }
 
@@ -104,10 +106,7 @@ class HelpFaqListController extends GetxController {
 
     if (response.statusCode == 200) {
       List<FaqCategory> newData =
-          HelpSupportResponse.fromJson(response.body)
-              .data
-              ?.faqCategories ??
-              [];
+          HelpSupportResponse.fromJson(response.body).data?.faqCategories ?? [];
 
       if (_page == 1) {
         // 🔥 First page
@@ -124,17 +123,20 @@ class HelpFaqListController extends GetxController {
         _page++;
       }
     } else {
+      categoryError = response.statusText ?? AppString.somethingWentWrong;
       ApiChecker.checkApi(response);
     }
 
+    _isInitialLoading = false;
     _isLoading = false;
     update();
   }
+
   Future<void> getCategoryById(
-      String id, {
-        bool isFirstLoad = false,
-        String? search,
-      }) async {
+    String id, {
+    bool isFirstLoad = false,
+    String? search,
+  }) async {
     if (isFirstLoad) {
       _currentCategoryId = id;
       _faqPage = 1;
@@ -142,6 +144,7 @@ class HelpFaqListController extends GetxController {
       _faqList = null;
       _faqSearch = search ?? '';
       _faqInitialLoading = true;
+      faqError = null;
       update();
     }
 
@@ -159,10 +162,7 @@ class HelpFaqListController extends GetxController {
 
     if (response.statusCode == 200) {
       List<Faq> newData =
-          HelpSupportResponse.fromJson(response.body)
-              .data
-              ?.faqs ??
-              [];
+          HelpSupportResponse.fromJson(response.body).data?.faqs ?? [];
 
       if (_faqPage == 1) {
         _faqList = newData;
@@ -177,9 +177,11 @@ class HelpFaqListController extends GetxController {
         _faqPage++;
       }
     } else {
+      faqError = response.statusText ?? AppString.somethingWentWrong;
       ApiChecker.checkApi(response);
     }
 
+    _faqInitialLoading = false;
     _faqIsLoading = false;
     update();
   }
@@ -198,4 +200,9 @@ class HelpFaqListController extends GetxController {
     });
   }
 
+  Future<void> retryFaq() => getCategoryById(
+        _currentCategoryId,
+        isFirstLoad: true,
+        search: _faqSearch,
+      );
 }

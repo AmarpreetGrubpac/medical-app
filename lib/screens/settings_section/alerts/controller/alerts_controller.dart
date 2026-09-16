@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/app_toast.dart';
 import 'package:grubpac_driver/core/utils/enums.dart';
 import 'package:grubpac_driver/screens/settings_section/alerts/controller/alert_repo.dart';
@@ -30,33 +29,60 @@ class AlertsController extends GetxController {
   String selectedAlertSeverity = "All"; // All, Warning, Error, Success
   String selectedCategory = "All"; // All, Camera, Battery, Lock, Display, Other
   bool isloading = false;
+  bool isLoadingMore = false;
+  int _page = 1;
+  int _totalPages = 1;
+  static const int _limit = 20;
 
-  Future<void> getAlerts() async {
+  bool get hasMorePages => _page < _totalPages;
+
+  Future<void> getAlerts({bool reset = true}) async {
+    if (reset && isloading) return;
+    if (!reset && (isLoadingMore || !hasMorePages)) return;
     try {
-      isloading = true;
+      if (reset) {
+        isloading = true;
+        _page = 1;
+      } else {
+        isLoadingMore = true;
+      }
       update();
-      var res = await alertRepo.getAlerts();
+      final requestedPage = reset ? 1 : _page + 1;
+      var res = await alertRepo.getAlerts(page: requestedPage, limit: _limit);
       if (res.statusCode == 200) {
-        alerts.clear();
-        var alertList = res.body["data"]["data"];
+        if (reset) alerts.clear();
+        final data = res.body["data"] as Map<String, dynamic>? ?? {};
+        _totalPages = (data['total_pages'] as num?)?.toInt() ?? 1;
+        var alertList = data["data"] as List? ?? const [];
         for (var alert in alertList) {
           try {
-            alerts.add(AlertModel.fromJson(alert));
+            final parsed = AlertModel.fromJson(alert);
+            if (!alerts.any((existing) => existing.id == parsed.id)) {
+              alerts.add(parsed);
+            }
           } catch (e) {
             debugPrint("Alert parse error: $e");
           }
         }
+        _page = requestedPage;
+      } else {
+        AppToast.showError(
+          message: res.statusText ?? 'Failed to load alerts',
+        );
       }
     } catch (e) {
       AppToast.showError(message: "Failed to load alerts");
     } finally {
       isloading = false;
+      isLoadingMore = false;
       update();
     }
   }
 
+  Future<void> loadMore() => getAlerts(reset: false);
+
   Future<void> onRefresh() async {
-    await getAlerts();
+    await getAlerts(reset: true);
   }
 
   List<String> get availableBoxes =>

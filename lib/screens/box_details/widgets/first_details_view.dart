@@ -165,6 +165,7 @@ class _GrublockBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<BoxDetailsController>(
       builder: (controller) => GrubLockBox(
+        isLocked: controller.boxInfo?.isLocked ?? true,
         onTap: controller.boxConnectionStatus
             ? () => controller.onLockTap(context)
             : null,

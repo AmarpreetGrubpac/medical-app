@@ -8,6 +8,9 @@ class SplashRepo {
   SplashRepo({required this.apiClient});
 
   Future<Response> getConfigData() async {
-    return await apiClient.getData(AppConstants.configApi);
+    return await apiClient.getData(
+      AppConstants.configApi,
+      authenticated: false,
+    );
   }
 }

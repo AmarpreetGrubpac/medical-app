@@ -1,6 +1,3 @@
-import 'package:get/get.dart';
-import 'package:grubpac_driver/screens/settings_section/profile/profile_details/controller/profile_details_controller.dart';
-
 class ConnectedUser {
   final String? driverId;
   final String? driverUserId;
@@ -116,23 +113,12 @@ class BoxInfo {
       driverId = json['connected_user']['driver_id'] as String?;
     }
 
-    bool finalIsConnected = rawIsConnected;
-    if (Get.isRegistered<ProfileDetailsController>()) {
-      final profileController = Get.find<ProfileDetailsController>();
-      final currentUserId = profileController.user_id;
-      if (currentUserId.isNotEmpty) {
-        if (driverId != currentUserId) {
-          finalIsConnected = false;
-        }
-      }
-    }
-
     return BoxInfo(
       id: (json['id'] ?? json['box_id']) as String,
       boxDisplayId:
           (json['box_display_id'] ?? json['display_id']) as String? ?? '',
       name: json['name'] as String? ?? '',
-      isConnected: finalIsConnected,
+      isConnected: rawIsConnected,
       batteryLevel:
           (json['battery_level'] ?? json['battery_1_level'] ?? 0) as int,
       isLocked: json['is_locked'] as bool? ?? false,

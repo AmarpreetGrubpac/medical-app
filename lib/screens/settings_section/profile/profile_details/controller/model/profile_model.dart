@@ -47,7 +47,7 @@ class Profile {
       this.joiningDate});
 
   Profile.fromJson(Map<String, dynamic> json, [String? id]) {
-    id = id;
+    this.id = id ?? json['id'] ?? json['user_id'];
     email = json['email'];
     firstName = json['first_name'];
     lastName = json['last_name'];

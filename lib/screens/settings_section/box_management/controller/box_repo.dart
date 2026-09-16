@@ -16,8 +16,10 @@ class BoxManagementRepo {
   }
 
   Future<Response> registerbox(String boxId) async {
-    return await apiClient
-        .postData(AppConstants.registerBox, {"scanned_code": boxId});
+    return await apiClient.postData(
+      AppConstants.claimBox,
+      {"box_display_id": boxId},
+    );
   }
 
   Future<Response> connectBox(String boxId) async {
@@ -57,13 +59,8 @@ class BoxManagementRepo {
     return await apiClient.patchData(url, settings);
   }
 
-  Future<Response> getBoxOtp(String boxId, {String action = "unlock"}) async {
-    final String url = AppConstants.reqLockOtp.replaceAll(":box_id", boxId);
-    return await apiClient.postData(url, {"action": action});
-  }
-
-  Future<Response> verifyBoxOtp(String boxId, String otp, String action) async {
-    final String url = AppConstants.verifyLockOtp.replaceAll(":box_id", boxId);
-    return await apiClient.postData(url, {"action": action, "code": otp});
+  Future<Response> setBoxLock(String boxId, String action) async {
+    final String url = AppConstants.lockBox.replaceAll(":box_id", boxId);
+    return await apiClient.patchData(url, {"action": action});
   }
 }

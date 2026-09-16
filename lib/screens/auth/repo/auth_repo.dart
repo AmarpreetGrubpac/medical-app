@@ -1,15 +1,14 @@
 import 'package:get/get.dart';
 import 'package:grubpac_driver/core/exceptions/failure.dart';
 import 'package:grubpac_driver/core/utils/app_constant.dart';
-import 'package:grubpac_driver/core/utils/app_toast.dart';
 import 'package:grubpac_driver/data/api/api_client.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:grubpac_driver/data/auth/token_store.dart';
 
 class AuthRepo {
-  final SharedPreferences sharedPreferences;
+  final TokenStore tokenStore;
   final ApiClient apiClient;
 
-  AuthRepo({required this.apiClient, required this.sharedPreferences});
+  AuthRepo({required this.apiClient, required this.tokenStore});
 
   Future<Response> onLogin(String type, String emailOrPhone) async {
     final body = {"type": type, "body": emailOrPhone};
@@ -20,6 +19,7 @@ class AuthRepo {
       headers: {
         "Content-Type": "application/json; charset=UTF-8",
       },
+      authenticated: false,
     );
   }
 
@@ -36,6 +36,7 @@ class AuthRepo {
       headers: {
         "Content-Type": "application/json; charset=UTF-8",
       },
+      authenticated: false,
     );
   }
 
@@ -51,6 +52,7 @@ class AuthRepo {
       headers: {
         "Content-Type": "application/json; charset=UTF-8",
       },
+      authenticated: false,
     );
   }
 
@@ -59,6 +61,7 @@ class AuthRepo {
     return await apiClient.postData(
       AppConstants.ExistingUserApi,
       {"type": type, "body": body, "password": password},
+      authenticated: false,
     );
   }
 
@@ -74,6 +77,7 @@ class AuthRepo {
       AppConstants.verifyOtpApi,
       body,
       headers: {"Content-Type": "application/json"},
+      authenticated: false,
     );
   }
 
@@ -81,10 +85,11 @@ class AuthRepo {
     String type,
     String phoneOREmail,
   ) async {
-    return await apiClient.postData(AppConstants.forgotPasswordUrl, {
-      "type": type,
-      "body": phoneOREmail,
-    });
+    return await apiClient.postData(
+      AppConstants.forgotPasswordUrl,
+      {"type": type, "body": phoneOREmail},
+      authenticated: false,
+    );
   }
 
   Future<Response> resendForgotPasswordEmail(String email) async {
@@ -98,6 +103,7 @@ class AuthRepo {
       headers: {
         "Content-Type": "application/json; charset=UTF-8",
       },
+      authenticated: false,
     );
   }
 
@@ -113,6 +119,7 @@ class AuthRepo {
       AppConstants.verifyforgotPasswordotp,
       body,
       headers: {"Content-Type": "application/json"},
+      authenticated: false,
     );
   }
 
@@ -130,6 +137,7 @@ class AuthRepo {
       AppConstants.setNewPasswordApi,
       body,
       headers: {"Content-Type": "application/json"},
+      authenticated: false,
     );
   }
 
@@ -147,35 +155,37 @@ class AuthRepo {
       AppConstants.setPassword,
       body,
       headers: {"Content-Type": "application/json"},
+      authenticated: false,
     );
   }
 
   Future<bool> saveUserToken(String token) async {
     apiClient.token = token;
     apiClient.updateHeader(token);
-    return await sharedPreferences.setString(AppConstants.token, token);
+    await tokenStore.writeAccessToken(token);
+    return true;
   }
 
   Future<bool> saveUserRefreshToken(String refreshToken) async {
-    return await sharedPreferences.setString(
-        AppConstants.refreshToken, refreshToken);
+    await tokenStore.writeRefreshToken(refreshToken);
+    return true;
   }
 
   String getUserToken() {
-    return sharedPreferences.getString(AppConstants.token) ?? "";
+    return tokenStore.accessToken ?? "";
   }
 
   Future<void> onUpdateToken(String token) async {
-    sharedPreferences.setString(AppConstants.token, token);
+    await tokenStore.writeAccessToken(token);
     apiClient.updateHeader(token);
   }
 
   bool isLoginIn() {
-    return sharedPreferences.containsKey(AppConstants.token);
+    return tokenStore.hasAccessToken;
   }
 
   Future<bool> clearSharedPrefrences() {
-    return sharedPreferences.clear();
+    return tokenStore.clear().then((_) => true);
   }
 
   Future<Response> logoutAccount() async {

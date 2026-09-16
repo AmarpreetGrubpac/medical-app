@@ -117,7 +117,6 @@ class ExistingUserController extends GetxController implements GetxService {
   }
 
   Future<void> loginExistingUser() async {
-    print('login existing user');
     final authText = authController.text.trim();
     final password = passController.text.trim();
 

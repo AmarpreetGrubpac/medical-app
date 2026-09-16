@@ -1,11 +1,11 @@
 import 'package:grubpac_driver/core/utils/app_constant.dart';
 import 'package:grubpac_driver/data/api/api_client.dart';
+import 'package:grubpac_driver/data/auth/token_store.dart';
 import 'package:grubpac_driver/screens/auth/repo/auth_repo.dart';
 import 'package:grubpac_driver/screens/auth/controller/login_controller.dart';
 import 'package:grubpac_driver/screens/auth/controller/verify_otp_controller.dart';
 import 'package:grubpac_driver/screens/help_section/help/controller/help_controller.dart';
 import 'package:grubpac_driver/screens/help_section/help_faq_list/controller/help_repo.dart';
-import 'package:grubpac_driver/screens/home_section/home/controller/home_controller.dart';
 import 'package:grubpac_driver/screens/settings_section/alerts/controller/alert_repo.dart';
 import 'package:grubpac_driver/screens/settings_section/alerts/controller/alerts_controller.dart';
 import 'package:grubpac_driver/screens/settings_section/box_management/controller/box_management_controller.dart';
@@ -28,17 +28,13 @@ Future<void> init() async {
   // final sharedPreferences = await SharedPreferences.getInstance();
   // Get.lazyPut(() => sharedPreferences);
   final sharedPreferences = await SharedPreferences.getInstance();
+  final tokenStore = TokenStore(legacyPreferences: sharedPreferences);
+  await tokenStore.initialize();
 
-  // // Mock Token Injection for Testing
-  // await sharedPreferences.setString(
-  //   AppConstants.token,
-  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJhZG1pbiIsImlkIjoiMDFLUERCN0ZBNTRaTTBZRUZISk5QNU5GTjMifSwiaWF0IjoxNzgyMjExMDMwfQ.n_DPU5DrI-v-lTWl7EX0XcN6jxrzYTR8y47pnBX7y08",
-  // );
-  // ✅ IMPORTANT: use Get.put, not lazyPut
   Get.put<SharedPreferences>(sharedPreferences, permanent: true);
+  Get.put<TokenStore>(tokenStore, permanent: true);
   Get.lazyPut(
-      () => ApiClient(
-          appBaseUrl: AppConstants.baseUrl, sharedPreferences: Get.find()),
+      () => ApiClient(appBaseUrl: AppConstants.baseUrl, tokenStore: Get.find()),
       fenix: true);
 
   Get.lazyPut(
@@ -47,8 +43,7 @@ Future<void> init() async {
       fenix: true);
 
   //repository
-  Get.lazyPut(
-      () => AuthRepo(apiClient: Get.find(), sharedPreferences: Get.find()),
+  Get.lazyPut(() => AuthRepo(apiClient: Get.find(), tokenStore: Get.find()),
       fenix: true);
   Get.lazyPut(() => SplashRepo(apiClient: Get.find()), fenix: true);
   Get.lazyPut(

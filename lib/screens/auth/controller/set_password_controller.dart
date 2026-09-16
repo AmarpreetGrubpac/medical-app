@@ -54,13 +54,10 @@ class SetPasswordController extends GetxController implements GetxService{
   }
 
   Future<void> setNewPassword() async {
-    print('button pressed1');
-    print('button pressed2');
 
     try {
       isLoading = true;
       update();
-      print('button pressed13');
 
       final String type = argsIsNumber ? "phone" : "email";
       final String bodyValue =
@@ -91,9 +88,7 @@ class SetPasswordController extends GetxController implements GetxService{
 
         AppToast.showError(message: errorMessage);
       }
-    } catch (e, stack) {
-      debugPrint("error==========>>>>>>>>>\n$e");
-      debugPrint("stack==========>>>>>>>>>\n$stack");
+    } catch (_) {
       AppToast.showError(message: AppString.somethingWentWrong);
     } finally {
       isLoading = false;
@@ -101,19 +96,16 @@ class SetPasswordController extends GetxController implements GetxService{
     }
   }
   Future<void> setPassword() async {
-    print('button pressed1');
-    print('button pressed2');
 
     try {
       isLoading = true;
       update();
-      print('button pressed13');
 
       final String type = argsIsNumber ? "phone" : "email";
       final String bodyValue =
       argsIsNumber ? "$argsCountryCode$argsInput" : argsInput;
 
-      Response response = await authRepo.setNewPassword(
+      Response response = await authRepo.setPassword(
         type,
         bodyValue,
         passController.text.trim(),
@@ -121,8 +113,7 @@ class SetPasswordController extends GetxController implements GetxService{
       );
 
       if (response.statusCode == 200) {
-        authRepo.saveUserToken(resetToken);
-        print('saved token');
+        await authRepo.saveUserToken(resetToken);
         AppToast.showSuccess(message: AppString.setPasswordSuccessfully);
         // Navigation.replaceAll(RouteHelper.dashboard);
         Navigation.replaceAll(RouteHelper.welcome);
@@ -137,9 +128,7 @@ class SetPasswordController extends GetxController implements GetxService{
 
         AppToast.showError(message: errorMessage);
       }
-    } catch (e, stack) {
-      debugPrint("error==========>>>>>>>>>\n$e");
-      debugPrint("stack==========>>>>>>>>>\n$stack");
+    } catch (_) {
       AppToast.showError(message: AppString.somethingWentWrong);
     } finally {
       isLoading = false;

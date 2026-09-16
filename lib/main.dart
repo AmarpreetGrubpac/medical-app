@@ -34,7 +34,9 @@ Future<void> main() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
       await AppPreference.initMySharedPreferences();
-      HttpOverrides.global = MyHttpOverrides();
+      if (kDebugMode) {
+        HttpOverrides.global = MyHttpOverrides();
+      }
       CachedNetworkImage.logLevel = CacheManagerLogLevel.none;
 
       SystemChrome.setPreferredOrientations(

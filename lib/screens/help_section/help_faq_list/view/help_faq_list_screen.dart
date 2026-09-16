@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:grubpac_driver/common_components/common_app_name_bar.dart';
+import 'package:grubpac_driver/common_components/common_button.dart';
 import 'package:grubpac_driver/common_components/common_textfield.dart';
 import 'package:grubpac_driver/common_components/custom_loader.dart';
 import 'package:grubpac_driver/screens/help_section/help_faq_list/controller/help_faq_list_controller.dart';
@@ -37,8 +38,7 @@ class _HelpFaqListScreenState extends State<HelpFaqListScreen> {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<HelpFaqListController>(builder: (controller) {
-      return
-        Scaffold(
+      return Scaffold(
         body: SafeArea(
           child: Column(
             children: [
@@ -55,26 +55,43 @@ class _HelpFaqListScreenState extends State<HelpFaqListScreen> {
               Expanded(
                 child: controller.faqInitialLoading
                     ? const CustomLoader(colorcircular: true)
-                    : controller.faqList == null ||
-                    controller.faqList!.isEmpty
-                    ? const Center(child: Text("No question found"))
-                    : ListView.builder(
-                  controller: controller.faqScrollController,
-                  itemCount: controller.faqList!.length +
-                      (controller.faqIsLoading ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == controller.faqList!.length) {
-                      return const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: CustomLoader(colorcircular: true),
-                      );
-                    }
+                    : controller.faqError != null
+                        ? Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  controller.faqError!,
+                                  textAlign: TextAlign.center,
+                                ),
+                                SizedBox(height: 16.h),
+                                CommonButton(
+                                  onPressed: controller.retryFaq,
+                                  title: 'TRY AGAIN',
+                                ),
+                              ],
+                            ),
+                          )
+                        : controller.faqList == null ||
+                                controller.faqList!.isEmpty
+                            ? const Center(child: Text("No question found"))
+                            : ListView.builder(
+                                controller: controller.faqScrollController,
+                                itemCount: controller.faqList!.length +
+                                    (controller.faqIsLoading ? 1 : 0),
+                                itemBuilder: (context, index) {
+                                  if (index == controller.faqList!.length) {
+                                    return const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: CustomLoader(colorcircular: true),
+                                    );
+                                  }
 
-                    return FaqTile(
-                      faq: controller.faqList![index],
-                    );
-                  },
-                ),
+                                  return FaqTile(
+                                    faq: controller.faqList![index],
+                                  );
+                                },
+                              ),
               ),
 
               // Expanded(

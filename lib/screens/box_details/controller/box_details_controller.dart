@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,13 +10,11 @@ import 'package:grubpac_driver/core/utils/app_toast.dart';
 import 'package:grubpac_driver/core/utils/app_utils.dart';
 import 'package:grubpac_driver/helper/navigation.dart';
 import 'package:grubpac_driver/helper/route_helper.dart';
-import 'package:grubpac_driver/screens/box_details/widgets/details_grublock_bottom_sheet.dart';
 import 'package:grubpac_driver/screens/box_details/widgets/overlay_battery_menu.dart';
 import 'package:grubpac_driver/screens/box_details/widgets/overlay_indicator_menu.dart';
 import 'package:grubpac_driver/screens/settings_section/box_management/controller/box_repo.dart';
 import 'package:grubpac_driver/screens/settings_section/box_management/model/box_info.dart';
 import 'package:interactive_slider/interactive_slider.dart';
-import 'package:timer_count_down/timer_controller.dart';
 
 import '../../settings_section/box_management/controller/box_management_controller.dart';
 
@@ -25,7 +22,6 @@ class BoxDetailsController extends GetxController {
   final BoxManagementRepo boxRepo = Get.find<BoxManagementRepo>();
   String boxId = "";
   BoxInfo? boxInfo;
-  String currentAction = "unlock";
   Timer? _debounceTimer;
 
   @override
@@ -238,42 +234,11 @@ class BoxDetailsController extends GetxController {
   /// GRUBLOCK
   Future<void> onLockTap(BuildContext context) async {
     if (isLoading) return;
-    otpController.clear();
-    currentAction = (boxInfo?.isLocked ?? true) ? "unlock" : "lock";
-
     isLoading = true;
     update();
-
     try {
-      var res = await Get.find<BoxManagementController>()
-          .sendBoxOtp(boxId, action: currentAction);
-
-      isTimerCompleted = false;
-      countdownController.restart();
-
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent, // Important for blur
-        builder: (context) {
-          return Stack(
-            children: [
-              // Blurred Background
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.05), // Optional tint
-                ),
-              ),
-              // Bottom Sheet Content
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: detailsGrublockBottomSheet(context, res),
-              ),
-            ],
-          );
-        },
-      );
+      await Get.find<BoxManagementController>().onLockTap(context, boxId);
+      await fetchBoxDetails();
     } finally {
       isLoading = false;
       update();
@@ -558,66 +523,8 @@ class BoxDetailsController extends GetxController {
     update();
   }
 
-  /// OTP VERIFICATION ==================
-  bool isTimerCompleted = false;
   bool isLoading = false;
-
-  TextEditingController otpController = TextEditingController();
-  CountdownController countdownController =
-      CountdownController(autoStart: true);
-
-  /// ON COUNTDOWN FINISHED
-  void onCountdownFinished() {
-    isTimerCompleted = true;
-    update();
-  }
-
-  /// ON RESEND
-  void onResendCode() async {
-    if (isLoading) return;
-
-    isLoading = true;
-    update();
-
-    try {
-      final OtpDetails success = await Get.find<BoxManagementController>()
-          .sendBoxOtp(boxId, action: currentAction);
-      if (success.status) {
-        countdownController.restart();
-        isTimerCompleted = false;
-      }
-    } finally {
-      isLoading = false;
-      update();
-    }
-  }
-
-  /// ON VERIFY OTP
-  Future<void> verifyOtp() async {
-    if (isLoading) return;
-
-    isLoading = true;
-    update();
-
-    try {
-      final success = await Get.find<BoxManagementController>().verifyBoxOtp(
-        boxId,
-        otpController.text,
-        action: currentAction,
-      );
-      if (success) {
-        Navigation.pop();
-        fetchBoxDetails();
-      }
-    } finally {
-      isLoading = false;
-      update();
-    }
-  }
-
 }
-
-
 
 // {
 //   "connection_status": "weak",
@@ -642,6 +549,5 @@ class BoxDetailsController extends GetxController {
 // "saveToCard": true,
 // "Adas" : true,
 // "BoxCam" : true,
-
 
 // }

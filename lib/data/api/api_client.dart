@@ -1,266 +1,321 @@
 import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import 'package:grubpac_driver/core/utils/app_constant.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/app_toast.dart';
+import 'package:grubpac_driver/data/auth/token_store.dart';
 import 'package:grubpac_driver/helper/navigation.dart';
 import 'package:grubpac_driver/helper/route_helper.dart';
+import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
-import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as Http;
-import 'package:flutter/foundation.dart' as Foundation;
 import 'package:path/path.dart';
 
-import '../model/error_response.dart';
+enum _RefreshResult { success, rejected, transientFailure }
 
 class ApiClient extends GetxService {
+  ApiClient({required this.appBaseUrl, required this.tokenStore}) {
+    token = tokenStore.accessToken;
+  }
+
   final String appBaseUrl;
-  final SharedPreferences sharedPreferences;
-  static final String noInternetMessage =
-      'Connection to API server failed due to internet connection';
+  final TokenStore tokenStore;
   final int timeoutInSeconds = 30;
 
+  static const String noInternetMessage =
+      'Connection to API server failed due to internet connection';
+
   String? token;
-  Map<String, String>? _mainHeaders;
-
-  /// Guard flag to prevent multiple simultaneous 401/403 redirects.
   bool _isHandlingUnauthorized = false;
+  Future<_RefreshResult>? _refreshFuture;
 
-  Future<bool>? _refreshFuture;
+  bool get hasToken => token?.isNotEmpty == true;
 
-  ApiClient({required this.appBaseUrl, required this.sharedPreferences}) {
-    token = sharedPreferences.getString(AppConstants.token);
-    debugPrint('Token: $token');
-    updateHeader(
-      token,
+  void updateHeader(String? value) => token = value;
+
+  Uri _buildUri(String path, Map<String, dynamic>? query) {
+    final uri = Uri.parse('$appBaseUrl$path');
+    if (query == null || query.isEmpty) return uri;
+
+    final parameters = <String, String>{...uri.queryParameters};
+    query.forEach((key, value) {
+      if (value != null) parameters[key] = value.toString();
+    });
+    return uri.replace(queryParameters: parameters);
+  }
+
+  Map<String, String> _headers({
+    required bool authenticated,
+    Map<String, String>? headers,
+    bool multipart = false,
+  }) {
+    final result = <String, String>{
+      if (!multipart) 'Content-Type': 'application/json; charset=UTF-8',
+      'Accept': 'application/json',
+      ...?headers,
+    };
+    if (authenticated && hasToken) {
+      result['Authorization'] = 'Bearer $token';
+    } else {
+      result.remove('Authorization');
+    }
+    if (multipart) result.remove('Content-Type');
+    return result;
+  }
+
+  void _log(String method, String path, [int? status]) {
+    if (!kDebugMode) return;
+    debugPrint(
+      status == null ? 'API $method $path' : 'API $method $path -> $status',
     );
   }
 
-  void updateHeader(
-    String? token,
-  ) {
-    _mainHeaders = {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token'
-    };
-  }
-
-  Future<Response> getData(String uri,
-      {Map<String, dynamic>? query, Map<String, String>? headers}) async {
+  Future<Response> getData(
+    String uri, {
+    Map<String, dynamic>? query,
+    Map<String, String>? headers,
+    bool authenticated = true,
+    bool allowRefresh = true,
+  }) async {
     try {
-      debugPrint('====> API Call: $uri\nHeader: $_mainHeaders');
-      Http.Response _response = await Http.get(
-        Uri.parse(appBaseUrl + uri),
-        headers: headers ?? _mainHeaders,
-      ).timeout(Duration(seconds: timeoutInSeconds));
-      return await handleResponse(
-        _response,
+      _log('GET', uri);
+      final response = await http
+          .get(
+            _buildUri(uri, query),
+            headers: _headers(authenticated: authenticated, headers: headers),
+          )
+          .timeout(Duration(seconds: timeoutInSeconds));
+      return handleResponse(
+        response,
         uri,
-        retryCallback: () => getData(uri, query: query, headers: headers),
+        authenticated: authenticated,
+        allowRefresh: allowRefresh,
+        retryCallback: () => getData(
+          uri,
+          query: query,
+          headers: headers,
+          authenticated: authenticated,
+          allowRefresh: false,
+        ),
       );
-    } catch (e) {
-      return Response(statusCode: 1, statusText: noInternetMessage);
+    } catch (_) {
+      return const Response(statusCode: 1, statusText: noInternetMessage);
     }
   }
 
-  Future<Response> postData(String uri, dynamic body,
-      {Map<String, String>? headers}) async {
-    try {
-      debugPrint('====> API Call: $uri\nHeader: $_mainHeaders');
-      debugPrint('====> API Body: $body');
-      Http.Response _response = await Http.post(
-        Uri.parse(appBaseUrl + uri),
-        body: jsonEncode(body),
-        headers: headers ?? _mainHeaders,
-      ).timeout(Duration(seconds: timeoutInSeconds));
-      return await handleResponse(
-        _response,
+  Future<Response> postData(
+    String uri,
+    dynamic body, {
+    Map<String, String>? headers,
+    bool authenticated = true,
+    bool allowRefresh = true,
+  }) =>
+      _sendJson(
+        'POST',
         uri,
-        retryCallback: () => postData(uri, body, headers: headers),
+        body,
+        headers: headers,
+        authenticated: authenticated,
+        allowRefresh: allowRefresh,
       );
-    } catch (e) {
-      return Response(statusCode: 1, statusText: noInternetMessage);
-    }
-  }
 
-  Future<Response> patchData(String uri, dynamic body,
-      {Map<String, String>? headers}) async {
-    try {
-      debugPrint('====> API Call (PATCH): $uri\nHeader: $_mainHeaders');
-      debugPrint('====> API Body: $body');
-
-      Http.Response _response = await Http.patch(
-        Uri.parse(appBaseUrl + uri),
-        body: jsonEncode(body),
-        headers: headers ?? _mainHeaders,
-      ).timeout(Duration(seconds: timeoutInSeconds));
-
-      return await handleResponse(
-        _response,
+  Future<Response> patchData(
+    String uri,
+    dynamic body, {
+    Map<String, String>? headers,
+    bool authenticated = true,
+    bool allowRefresh = true,
+  }) =>
+      _sendJson(
+        'PATCH',
         uri,
-        retryCallback: () => patchData(uri, body, headers: headers),
+        body,
+        headers: headers,
+        authenticated: authenticated,
+        allowRefresh: allowRefresh,
       );
-    } catch (e) {
-      return Response(statusCode: 1, statusText: noInternetMessage);
+
+  Future<Response> putData(
+    String uri,
+    dynamic body, {
+    Map<String, String>? headers,
+    bool authenticated = true,
+    bool allowRefresh = true,
+  }) =>
+      _sendJson(
+        'PUT',
+        uri,
+        body,
+        headers: headers,
+        authenticated: authenticated,
+        allowRefresh: allowRefresh,
+      );
+
+  Future<Response> deleteData(
+    String uri, {
+    Map<String, String>? headers,
+    Map<String, dynamic>? body,
+    bool authenticated = true,
+    bool allowRefresh = true,
+  }) =>
+      _sendJson(
+        'DELETE',
+        uri,
+        body,
+        headers: headers,
+        authenticated: authenticated,
+        allowRefresh: allowRefresh,
+      );
+
+  Future<Response> _sendJson(
+    String method,
+    String uri,
+    dynamic body, {
+    Map<String, String>? headers,
+    required bool authenticated,
+    required bool allowRefresh,
+  }) async {
+    try {
+      _log(method, uri);
+      final request = http.Request(method, _buildUri(uri, null))
+        ..headers.addAll(
+          _headers(authenticated: authenticated, headers: headers),
+        );
+      if (body != null) request.body = jsonEncode(body);
+      final streamed =
+          await request.send().timeout(Duration(seconds: timeoutInSeconds));
+      final response = await http.Response.fromStream(streamed);
+      return handleResponse(
+        response,
+        uri,
+        authenticated: authenticated,
+        allowRefresh: allowRefresh,
+        retryCallback: () => _sendJson(
+          method,
+          uri,
+          body,
+          headers: headers,
+          authenticated: authenticated,
+          allowRefresh: false,
+        ),
+      );
+    } catch (_) {
+      return const Response(statusCode: 1, statusText: noInternetMessage);
     }
   }
 
   Future<Response> postMultipartData(
-      String uri, Map<String, String> body, List<MultipartBody> multipartBody,
-      {Map<String, String>? headers}) async {
-    try {
-      debugPrint('====> API Call: $uri\nHeader: $_mainHeaders');
-      debugPrint('====> API Body: $body');
-      Http.MultipartRequest _request =
-          Http.MultipartRequest('POST', Uri.parse(appBaseUrl + uri));
-      _request.headers.addAll(headers ?? _mainHeaders!);
-      for (MultipartBody multipart in multipartBody) {
-        if (multipart.file != null) {
-          if (Foundation.kIsWeb) {
-            Uint8List? _list = await multipart.file?.readAsBytes();
-            Http.MultipartFile _part = Http.MultipartFile(
-              multipart.key!,
-              multipart.file!.readAsBytes().asStream(),
-              _list!.length,
-              filename: basename(multipart.file!.path),
-              contentType: MediaType('image', 'jpg'),
-            );
-            _request.files.add(_part);
-          } else {
-            File _file = File(multipart.file!.path);
-            _request.files.add(Http.MultipartFile(
-              multipart.key!,
-              _file.readAsBytes().asStream(),
-              _file.lengthSync(),
-              filename: _file.path.split('/').last,
-            ));
-          }
-        }
-      }
-      _request.fields.addAll(body);
-      Http.Response _response =
-          await Http.Response.fromStream(await _request.send());
-      return await handleResponse(
-        _response,
+    String uri,
+    Map<String, String> body,
+    List<MultipartBody> multipartBody, {
+    Map<String, String>? headers,
+    bool authenticated = true,
+    bool allowRefresh = true,
+  }) =>
+      _sendMultipart(
+        'POST',
         uri,
-        retryCallback: () => postMultipartData(uri, body, multipartBody, headers: headers),
+        body,
+        multipartBody,
+        headers: headers,
+        authenticated: authenticated,
+        allowRefresh: allowRefresh,
       );
-    } catch (e) {
-      return Response(statusCode: 1, statusText: noInternetMessage);
-    }
-  }
 
   Future<Response> patchMultipartData(
-      String uri, Map<String, String> body, List<MultipartBody> multipartBody,
-      {Map<String, String>? headers}) async {
+    String uri,
+    Map<String, String> body,
+    List<MultipartBody> multipartBody, {
+    Map<String, String>? headers,
+    bool authenticated = true,
+    bool allowRefresh = true,
+  }) =>
+      _sendMultipart(
+        'PATCH',
+        uri,
+        body,
+        multipartBody,
+        headers: headers,
+        authenticated: authenticated,
+        allowRefresh: allowRefresh,
+      );
+
+  Future<Response> _sendMultipart(
+    String method,
+    String uri,
+    Map<String, String> body,
+    List<MultipartBody> multipartBody, {
+    Map<String, String>? headers,
+    required bool authenticated,
+    required bool allowRefresh,
+  }) async {
     try {
-      debugPrint('====> API Patch Call: $uri\nHeader: $_mainHeaders');
-      debugPrint('====> API Body: $body');
+      _log(method, uri);
+      final request = http.MultipartRequest(method, _buildUri(uri, null));
+      request.headers.addAll(
+        _headers(
+          authenticated: authenticated,
+          headers: headers,
+          multipart: true,
+        ),
+      );
+      request.fields.addAll(body);
 
-      Http.MultipartRequest _request =
-          Http.MultipartRequest('PATCH', Uri.parse(appBaseUrl + uri));
+      for (final multipart in multipartBody) {
+        final file = multipart.file;
+        final key = multipart.key;
+        if (file == null || key == null) continue;
 
-      final cleanHeaders = Map<String, String>.from(headers ?? _mainHeaders!);
-
-// ❗ Remove Content-Type because multipart request sets it automatically
-      cleanHeaders.remove("Content-Type");
-
-      _request.headers.addAll(cleanHeaders);
-
-      debugPrint('====> API Patch Call: $uri\nHeader: ${_request.headers}');
-
-      // Add multipart files
-      for (MultipartBody multipart in multipartBody) {
-        if (multipart.file != null) {
-          if (Foundation.kIsWeb) {
-            Uint8List? _list = await multipart.file?.readAsBytes();
-            Http.MultipartFile _part = Http.MultipartFile(
-              multipart.key!,
-              multipart.file!.readAsBytes().asStream(),
-              _list!.length,
-              filename: basename(multipart.file!.path),
-              contentType: MediaType('image', 'jpg'),
-            );
-            _request.files.add(_part);
-          } else {
-            File _file = File(multipart.file!.path);
-            final mimeParts = multipart.mimeType.split('/');
-
-            _request.files.add(Http.MultipartFile(
-              multipart.key!,
-              _file.readAsBytes().asStream(),
-              _file.lengthSync(),
-              filename: _file.path.split('/').last,
-              contentType:
-                  MediaType(mimeParts[0], mimeParts[1]), // <<< IMPORTANT FIX
-            ));
-          }
+        if (kIsWeb) {
+          final Uint8List bytes = await file.readAsBytes();
+          request.files.add(http.MultipartFile.fromBytes(
+            key,
+            bytes,
+            filename: basename(file.path),
+            contentType: _mediaType(multipart.mimeType),
+          ));
+        } else {
+          request.files.add(await http.MultipartFile.fromPath(
+            key,
+            File(file.path).path,
+            contentType: _mediaType(multipart.mimeType),
+          ));
         }
       }
 
-      // Add form fields
-      _request.fields.addAll(body);
-
-      Http.Response _response =
-          await Http.Response.fromStream(await _request.send());
-
-      return await handleResponse(
-        _response,
+      final streamed =
+          await request.send().timeout(Duration(seconds: timeoutInSeconds));
+      final response = await http.Response.fromStream(streamed);
+      return handleResponse(
+        response,
         uri,
-        retryCallback: () => patchMultipartData(uri, body, multipartBody, headers: headers),
+        authenticated: authenticated,
+        allowRefresh: allowRefresh,
+        retryCallback: () => _sendMultipart(
+          method,
+          uri,
+          body,
+          multipartBody,
+          headers: headers,
+          authenticated: authenticated,
+          allowRefresh: false,
+        ),
       );
-    } catch (e) {
-      return Response(statusCode: 1, statusText: noInternetMessage);
+    } catch (_) {
+      return const Response(statusCode: 1, statusText: noInternetMessage);
     }
   }
 
-  Future<Response> putData(String uri, dynamic body,
-      {Map<String, String>? headers}) async {
-    try {
-      debugPrint('====> API Call: $uri\nHeader: $_mainHeaders');
-      debugPrint('====> API Body: $body');
-      Http.Response _response = await Http.put(
-        Uri.parse(appBaseUrl + uri),
-        body: jsonEncode(body),
-        headers: headers ?? _mainHeaders,
-      ).timeout(Duration(seconds: timeoutInSeconds));
-      return await handleResponse(
-        _response,
-        uri,
-        retryCallback: () => putData(uri, body, headers: headers),
-      );
-    } catch (e) {
-      return Response(statusCode: 1, statusText: noInternetMessage);
-    }
+  MediaType? _mediaType(String mimeType) {
+    final parts = mimeType.split('/');
+    return parts.length == 2 ? MediaType(parts.first, parts.last) : null;
   }
 
-  Future<Response> deleteData(String uri,
-      {Map<String, String>? headers, Map<String, dynamic>? body}) async {
-    try {
-      debugPrint('====> API Call: $uri\nHeader: $_mainHeaders');
-      Http.Response _response = await Http.delete(Uri.parse(appBaseUrl + uri),
-              headers: headers ?? _mainHeaders, body: jsonEncode(body))
-          .timeout(Duration(seconds: timeoutInSeconds));
-      return await handleResponse(
-        _response,
-        uri,
-        retryCallback: () => deleteData(uri, headers: headers, body: body),
-      );
-    } catch (e) {
-      return Response(statusCode: 1, statusText: noInternetMessage);
-    }
-  }
-
-  Future<bool> _attemptTokenRefresh() async {
-    if (_refreshFuture != null) {
-      return await _refreshFuture!;
-    }
-
+  Future<_RefreshResult> _attemptTokenRefresh() async {
+    if (_refreshFuture != null) return _refreshFuture!;
     _refreshFuture = _performTokenRefresh();
     try {
       return await _refreshFuture!;
@@ -269,140 +324,120 @@ class ApiClient extends GetxService {
     }
   }
 
-  Future<bool> _performTokenRefresh() async {
+  Future<_RefreshResult> _performTokenRefresh() async {
+    final refreshToken = tokenStore.refreshToken;
+    if (refreshToken == null || refreshToken.isEmpty) {
+      return _RefreshResult.rejected;
+    }
+
     try {
-      final String refreshToken =
-          sharedPreferences.getString(AppConstants.refreshToken) ?? "";
-      if (refreshToken.isEmpty) {
-        debugPrint('=====> [AUTH] No refresh token stored.');
-        return false;
+      final response = await http
+          .post(
+            _buildUri(AppConstants.refreshTokenApi, null),
+            body: jsonEncode({'refresh_token': refreshToken}),
+            headers: _headers(authenticated: false),
+          )
+          .timeout(Duration(seconds: timeoutInSeconds));
+
+      if (response.statusCode == 401 || response.statusCode == 403) {
+        return _RefreshResult.rejected;
+      }
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        return _RefreshResult.transientFailure;
       }
 
-      final body = {
-        "refresh_token": refreshToken,
-      };
-
-      debugPrint('=====> [AUTH] Calling refresh token API: ${AppConstants.refreshTokenApi}');
-      final response = await Http.post(
-        Uri.parse(appBaseUrl + AppConstants.refreshTokenApi),
-        body: jsonEncode(body),
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-      ).timeout(Duration(seconds: timeoutInSeconds));
-
-      if (response.statusCode == 200) {
-        final bodyData = jsonDecode(response.body);
-        if (bodyData != null && bodyData['success'] == true) {
-          final String newAuthToken = bodyData['data']?['auth_token'] ?? "";
-          final String newRefreshToken =
-              bodyData['data']?['refresh_token'] ?? "";
-
-          if (newAuthToken.isNotEmpty) {
-            token = newAuthToken;
-            updateHeader(newAuthToken);
-            await sharedPreferences.setString(AppConstants.token, newAuthToken);
-            if (newRefreshToken.isNotEmpty) {
-              await sharedPreferences.setString(
-                  AppConstants.refreshToken, newRefreshToken);
-            }
-            debugPrint('=====> [AUTH] New tokens saved successfully.');
-            return true;
-          }
-        }
+      final decoded = jsonDecode(response.body);
+      final data = decoded is Map<String, dynamic> ? decoded['data'] : null;
+      final newAccess =
+          data is Map<String, dynamic> ? data['auth_token'] as String? : null;
+      final newRefresh = data is Map<String, dynamic>
+          ? data['refresh_token'] as String?
+          : null;
+      if (newAccess == null || newAccess.isEmpty) {
+        return _RefreshResult.transientFailure;
       }
-      debugPrint(
-          '=====> [AUTH] Refresh token call failed. Status: ${response.statusCode}');
-      return false;
-    } catch (e) {
-      debugPrint('=====> [AUTH] Exception during token refresh: $e');
-      return false;
+
+      await tokenStore.writeAccessToken(newAccess);
+      if (newRefresh?.isNotEmpty == true) {
+        await tokenStore.writeRefreshToken(newRefresh!);
+      }
+      updateHeader(newAccess);
+      return _RefreshResult.success;
+    } on FormatException {
+      return _RefreshResult.transientFailure;
+    } catch (_) {
+      return _RefreshResult.transientFailure;
     }
   }
 
   Future<Response> handleResponse(
-    Http.Response response,
+    http.Response response,
     String uri, {
+    required bool authenticated,
+    required bool allowRefresh,
     Future<Response> Function()? retryCallback,
   }) async {
-    dynamic _body;
+    dynamic body;
     try {
-      _body = jsonDecode(response.body);
-    } catch (e) {}
-    Response _response = Response(
-      body: _body != null ? _body : response.body,
-      bodyString: response.body.toString(),
+      body = jsonDecode(response.body);
+    } catch (_) {
+      body = response.body;
+    }
+
+    final normalized = Response(
+      body: body,
+      bodyString: response.body,
       headers: response.headers,
       statusCode: response.statusCode,
-      statusText: response.reasonPhrase,
+      statusText: _statusText(body, response.reasonPhrase),
     );
+    _log('RESPONSE', uri, response.statusCode);
 
-    // ─── Global 401 / 403 interceptor ────────────────────────────────────────
-    if (_response.statusCode == 401) {
-      if (uri == AppConstants.refreshTokenApi) {
-        if (!_isHandlingUnauthorized) {
-          _isHandlingUnauthorized = true;
-          debugPrint(
-              '=====> [AUTH] Refresh token failed with 401 — forcing logout.');
-          await _forceLogout();
-        }
-        return _response;
+    if (response.statusCode == 401 && authenticated) {
+      if (!allowRefresh) {
+        await _forceLogout();
+        return normalized;
       }
 
-      debugPrint('=====> [AUTH] ${_response.statusCode} detected — attempting token refresh.');
-      final isRefreshed = await _attemptTokenRefresh();
-      if (isRefreshed && retryCallback != null) {
-        debugPrint('=====> [AUTH] Token refreshed successfully — retrying request.');
-        return await retryCallback();
-      } else {
-        if (!_isHandlingUnauthorized) {
-          _isHandlingUnauthorized = true;
-          debugPrint('=====> [AUTH] Token refresh failed — forcing logout.');
-          await _forceLogout();
-        }
+      final refreshResult = await _attemptTokenRefresh();
+      if (refreshResult == _RefreshResult.success && retryCallback != null) {
+        return retryCallback();
       }
-      return _response;
+      if (refreshResult == _RefreshResult.rejected) {
+        await _forceLogout();
+      }
     }
-    // ─────────────────────────────────────────────────────────────────────────
 
-    if (_response.statusCode != 200 &&
-        _response.body != null &&
-        _response.body is! String) {
-      if (_response.body.toString().startsWith('{errors: [{code:')) {
-        ErrorResponse _errorResponse = ErrorResponse.fromJson(_response.body);
-        _response = Response(
-            statusCode: _response.statusCode,
-            body: _response.body,
-            statusText: _errorResponse.errors![0].message);
-      } else if (_response.body.toString().startsWith('{message')) {
-        _response = Response(
-            statusCode: _response.statusCode,
-            body: _response.body,
-            statusText: _response.body['message']);
-      }
-    } else if (_response.statusCode != 200 && _response.body == null) {
-      _response = Response(statusCode: 0, statusText: noInternetMessage);
-    }
-    debugPrint(
-        '=====> API Response: [${_response.statusCode}] $uri\n${_response.body}');
-    return _response;
+    return normalized;
   }
 
-  /// Clears local auth data and redirects to the login screen.
-  /// Called automatically on 401/403 — does NOT call the logout API
-  /// since the token is already invalid/expired.
+  String? _statusText(dynamic body, String? fallback) {
+    if (body is Map) {
+      for (final key in const [
+        'error_toast_description',
+        'error',
+        'message',
+      ]) {
+        final value = body[key];
+        if (value is String && value.trim().isNotEmpty) return value;
+      }
+      final errors = body['errors'];
+      if (errors is List && errors.isNotEmpty && errors.first is Map) {
+        final message = errors.first['message'];
+        if (message is String && message.isNotEmpty) return message;
+      }
+    }
+    return fallback;
+  }
+
   Future<void> _forceLogout() async {
+    if (_isHandlingUnauthorized) return;
+    _isHandlingUnauthorized = true;
     try {
-      // Clear token from memory.
       token = null;
-      updateHeader(null);
-
-      // Clear token from persistent storage.
-      await sharedPreferences.clear();
-
-      // Navigate to login, clearing the entire back-stack.
+      await tokenStore.clear();
       AppToast.showError(message: AppString.sessionExpired);
-      await Future.delayed(const Duration(milliseconds: 200));
+      await Future<void>.delayed(const Duration(milliseconds: 200));
       Navigation.replaceAll(RouteHelper.login);
     } finally {
       _isHandlingUnauthorized = false;
@@ -411,9 +446,9 @@ class ApiClient extends GetxService {
 }
 
 class MultipartBody {
-  String? key;
-  XFile? file;
-  String mimeType; // <-- new
-
   MultipartBody(this.key, this.file, this.mimeType);
+
+  final String? key;
+  final XFile? file;
+  final String mimeType;
 }

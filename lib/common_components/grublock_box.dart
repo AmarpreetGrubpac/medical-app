@@ -4,11 +4,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:grubpac_driver/common_components/app_text.dart';
 import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_images.dart';
-import 'package:grubpac_driver/core/utils/app_string.dart';
 
 class GrubLockBox extends StatelessWidget {
-  const GrubLockBox({super.key, this.onTap});
+  const GrubLockBox({super.key, required this.isLocked, this.onTap});
 
+  final bool isLocked;
   final VoidCallback? onTap;
 
   @override
@@ -26,9 +26,13 @@ class GrubLockBox extends StatelessWidget {
           child: Row(
             spacing: 8.w,
             children: [
-              SvgPicture.asset(IconAsset.lock, height: 24.h, width: 24.h),
+              SvgPicture.asset(
+                isLocked ? IconAsset.unlock : IconAsset.lock,
+                height: 24.h,
+                width: 24.h,
+              ),
               AppText(
-                text: AppString.grublockCapital,
+                text: isLocked ? 'UNLOCK' : 'LOCK',
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w500,
                 color: AppTheme.contentBrandPrimaryYellow,

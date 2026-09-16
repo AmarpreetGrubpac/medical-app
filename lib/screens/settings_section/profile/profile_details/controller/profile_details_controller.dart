@@ -44,7 +44,7 @@ class ProfileDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    if (profileRepo.sharedPreferences.containsKey(AppConstants.token)) {
+    if (profileRepo.apiClient.hasToken) {
       getProfileData();
     }
   }
@@ -64,8 +64,7 @@ class ProfileDetailsController extends GetxController {
     Response response = await profileRepo.getProfileData();
 
     if (response.statusCode == 200) {
-      _profiledata =
-          ProfileModel.fromJson(response.body, response.body['user_id']).data;
+      _profiledata = ProfileModel.fromJson(response.body).data;
 
       name = '${_profiledata?.firstName ?? ""} ${_profiledata?.lastName ?? ""}';
       firstname = _profiledata?.firstName ?? "";

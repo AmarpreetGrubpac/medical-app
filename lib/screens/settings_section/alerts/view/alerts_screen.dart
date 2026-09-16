@@ -76,8 +76,10 @@ class AlertsScreen extends StatelessWidget {
                                             padding: EdgeInsets.only(
                                                 top: 8.h, bottom: 24.h),
                                             child: AppText(
-                                              text:
-                                                  "Try adjusting or resetting your filter criteria.",
+                                              text: alertsController
+                                                      .hasMorePages
+                                                  ? "No matching alerts are loaded yet. Load more alerts or reset your filters."
+                                                  : "Try adjusting or resetting your filter criteria.",
                                               fontWeight: FontWeight.w400,
                                               textAlign: TextAlign.center,
                                               color: AppTheme
@@ -104,9 +106,24 @@ class AlertsScreen extends StatelessWidget {
                             )
                           : ListView.builder(
                               physics: const AlwaysScrollableScrollPhysics(),
-                              itemCount: alertsController.filteredAlerts.length,
+                              itemCount:
+                                  alertsController.filteredAlerts.length +
+                                      (alertsController.hasMorePages ? 1 : 0),
                               padding: EdgeInsets.only(bottom: 80.h),
                               itemBuilder: (context, index) {
+                                if (index ==
+                                    alertsController.filteredAlerts.length) {
+                                  return Center(
+                                    child: TextButton(
+                                      onPressed: alertsController.isLoadingMore
+                                          ? null
+                                          : alertsController.loadMore,
+                                      child: alertsController.isLoadingMore
+                                          ? const CircularProgressIndicator()
+                                          : const Text('LOAD MORE ALERTS'),
+                                    ),
+                                  );
+                                }
                                 final alert =
                                     alertsController.filteredAlerts[index];
                                 return AlertBox(

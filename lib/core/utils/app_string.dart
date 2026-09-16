@@ -1,6 +1,6 @@
 class AppString {
   //title
-  static const String appName = 'Driver';
+  static const String appName = 'Medical Owner';
   static const String home = 'Home';
   static const String settings = 'Settings';
   static const String help = 'Help';
@@ -10,21 +10,21 @@ class AppString {
   static const String splashTagline = 'Evolution is Revolution';
 
   // Login/Onboarding carousel
-  static const String linkYourBoxTitle = 'Link your Box';
+  static const String linkYourBoxTitle = 'Claim your box';
   static const String linkYourBoxDesc =
-      'Scan the box and connect via Bluetooth -- it\'s fast and easy.';
+      'Scan a box assigned to your organization to claim it.';
   static const String scanText = 'SCAN';
   static const String avoidBlamesTitle = 'Avoid Blames';
   static const String avoidBlamesDesc =
-      'If there\'s any issue with the delivery, the box captures it -- so you\'re protected.';
+      'Review box status and alerts so issues can be handled quickly.';
   static const String stayInformedTitle = 'Stay informed';
   static const String stayInformedDesc =
-      'Get real-time updates for issues -- before they become trouble.';
+      'Get real-time updates for issues - before they become trouble.';
   static const String getSupportTitle = 'Get Support';
   static const String somethingWentWrong = 'Something Went Wrong';
   static const String otpResendSucceessfully = ' OTP resent successfully';
   static const String getSupportDesc =
-      'Contact your restaurant directly from the app for any box or delivery issue.';
+      'Contact your organization for help with your account or boxes.';
 
   // Login form
   static const String enterRegisteredPrompt =
@@ -37,7 +37,7 @@ class AppString {
   static const String forgotPassword = 'FORGOT PASSWORD';
   static const String accountNotFound = 'Account not found';
   static const String incorrectMsg =
-      'We couldn’t find your details. Please contact your restaurant admin.';
+      'We couldn’t find your details. Please contact your organization administrator.';
 
   // Otp
   static const String otpVerification = 'OTP Verification';
@@ -69,9 +69,10 @@ class AppString {
   //welcome screen
   static const String allSet = 'All set!';
   static const String readyToDeliver =
-      "You’re ready to start your deliveries\nwith da Pizzeria Corner, Delhi.";
-  static const String scanQrBox = "Scan the QR Code on your box to add it.";
-  static const String addMyBox = 'ADD MY BOX';
+      "You’re ready to manage your organization’s GrubPac boxes.";
+  static const String scanQrBox =
+      "Scan the QR code on a pre-assigned box to claim it.";
+  static const String addMyBox = 'CLAIM MY BOX';
   static const String pointCamera =
       'Point your camera at the QR code on the box, and click on scan.';
 
@@ -189,11 +190,11 @@ class AppString {
   static const String maycauseHarm = 'May cause harm';
 
   //delete account
-  static const String deleteAccount = 'Delete your driver account?';
+  static const String deleteAccount = 'Delete your owner account?';
   static const String deleteAccountDescription1 =
       'This will permanently delete your account and all personal data stored by GrubPac.';
   static const String deleteAccountDescription2 =
-      'However, any data stored by your employer (e.g. delivery history, contact info) will not be affected.';
+      'Organization and box records retained by GrubPac will not be affected.';
   static const String deleteConfirmDescription =
       'Please type \'CONFIRM\' to permanently delete your account. This action cannot be undone.';
   static const String cancel = 'Cancel';
@@ -203,11 +204,12 @@ class AppString {
       'Are you sure you want to disconnect?';
   static const String removeBoxSurety =
       'Are you sure you want to remove the box?';
-  static const String scanQRLine = 'Scan the QR Code on your box to add it.';
+  static const String scanQRLine =
+      'Scan the QR code on a pre-assigned box to claim it.';
   static const String required = 'Required';
   static const String skip = 'Skip';
   static const String requiredPassword = 'Please enter pasword';
-  static const String welcomeTrip = 'Let’s get you trip ready!';
+  static const String welcomeTrip = 'Let’s set up your medical boxes.';
   static const String welcomeRavi = 'Welcome!';
   static const String enterPassValidation = 'Please enter password';
   static const String passEightChar =
@@ -229,9 +231,9 @@ class AppString {
       'Connected to BOX-1245 successfully!';
   static const String otpTryAgain = 'Please try again.';
   static const String invalidOTP = 'Invalid OTP';
-  static const String bocAdded = "Box added successfully!";
+  static const String bocAdded = "Box claimed successfully!";
   static const String boxNotRegister =
-      "This box isn't registered with your restaurant. Please check the code or try another box.";
+      "This box isn't assigned to your organization. Check the code or try another box.";
   static const String turnOnBluetooth = "Turn on Bluetooth on your phone";
   static const String bluetoothLocation =
       "Press the Bluetooth button on the box to enable pairing";
@@ -250,7 +252,7 @@ class AppString {
   static const String contact = "Contact";
   static const String password = "Password";
   static const String role = "Role";
-  static const String driver = "Driver";
+  static const String driver = "Owner";
   static const String locationRole = "Location";
   static const String createdDate = "created Date";
   static const String changePass = "Change password";
@@ -376,11 +378,11 @@ class AppString {
   static const String sameCurrentNewPass =
       'New password should not be the same as the current password.';
 
-  static const String boxAddedSuccess = "Box added successfully!";
-  static const String addingBox = "Adding box, please wait…";
+  static const String boxAddedSuccess = "Box claimed successfully!";
+  static const String addingBox = "Claiming box, please wait…";
   static const String boxNotRegistered = "Box not registered!";
   static const String boxNotRegisteredMsg =
-      "This box isn't registered with your restaurant. Please check the code or try another box.";
+      "This box isn't assigned to your organization. Check the code or try another box.";
   static const String invalidQr = "Invalid QR Code";
   static const String invalidQrMsg =
       "This QR code doesn't belong to a GrubPac . Please scan the QR code printed on the box.";

@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:grubpac_driver/core/exceptions/failure.dart';
@@ -10,45 +10,40 @@ import 'package:grubpac_driver/helper/navigation.dart';
 import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:grubpac_driver/screens/settings_section/box_management/controller/box_repo.dart';
 import 'package:grubpac_driver/screens/settings_section/box_management/model/box_info.dart';
-import 'package:grubpac_driver/screens/settings_section/box_management/widget/management_grublock_bottom_sheet.dart';
 
 import 'package:grubpac_driver/core/preference/app_preferences.dart';
 import 'package:grubpac_driver/core/preference/pref_key.dart';
-import 'package:timer_count_down/timer_controller.dart';
 
 import '../../../../core/utils/app_toast.dart';
 import '../../../../core/utils/app_utils.dart';
 import '../../../box_details/controller/box_details_controller.dart';
 
-class BoxManagementController extends GetxController {
+class BoxManagementController extends GetxController
+    with WidgetsBindingObserver {
   final BoxManagementRepo boxRepo;
   BoxManagementController({required this.boxRepo});
   final PageController pageController = PageController();
-  TextEditingController otpController = TextEditingController();
   bool isLoading = false;
-
-  bool isTimerCompleted = false;
-  String currentAction = "unlock";
-  String currentBoxId = "";
   String phone = "";
   String countryCode = "";
-  final CountdownController countdownController =
-      CountdownController(autoStart: true);
 
   int currentPage = 0;
   bool loadingBoxes = false;
+  String? boxLoadError;
   int extTemp = 23;
 
   // ── Simulator Heartbeat (Isolated Integration) ──────────────────────────────────
-  static const bool _enableSimulatorHeartbeat =
-      true; // Toggle to false to disable/remove
+  static const bool _enableSimulatorHeartbeat = kDebugMode;
   Timer? _simulatorHeartbeatTimer;
+  bool _heartbeatInProgress = false;
+  bool _appIsActive = true;
 
   @override
   void onInit() {
     phone = AppPreference.getString(PrefKey.phone);
     countryCode = AppPreference.getString(PrefKey.countryCode);
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     if (_enableSimulatorHeartbeat) {
       _startGlobalSimulatorHeartbeat();
     }
@@ -57,15 +52,22 @@ class BoxManagementController extends GetxController {
   @override
   void onClose() {
     _simulatorHeartbeatTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.onClose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _appIsActive = state == AppLifecycleState.resumed;
   }
 
   List<BoxInfo> boxes = <BoxInfo>[];
 
-  void fetchBoxes({bool isRefresh = true}) async {
+  Future<void> fetchBoxes({bool isRefresh = true}) async {
     try {
       if (isRefresh || boxes.isEmpty) {
         loadingBoxes = true;
+        boxLoadError = null;
         update();
         var res = await boxRepo.getBoxList();
         if (res.statusCode == 200) {
@@ -81,6 +83,7 @@ class BoxManagementController extends GetxController {
         }
       }
     } catch (e) {
+      boxLoadError = e is Failure ? e.message : AppString.somethingWentWrong;
       AppUtils.apiErrorHandler(e);
     } finally {
       loadingBoxes = false;
@@ -267,57 +270,24 @@ class BoxManagementController extends GetxController {
   void onViewDetailsBoxTap(String boxId) =>
       Navigation.pushNamed(RouteHelper.boxDetails, arg: {"box_id": boxId});
 
-  Future<OtpDetails> sendBoxOtp(String boxId,
-      {String action = "unlock"}) async {
+  Future<bool> setBoxLock(String boxId, String action) async {
     try {
       isLoading = true;
       update();
-      var res = await boxRepo.getBoxOtp(boxId, action: action);
-      if (res.statusCode == 200) {
+      final res = await boxRepo.setBoxLock(boxId, action);
+      if (res.statusCode == 200 || res.statusCode == 201) {
         AppToast.showSuccess(
-            message: res.body['message'] ?? "OTP sent successfully");
-        return OtpDetails.fromJson(res.body['data']['otp_details'],
-            status: true);
-      } else {
-        throw Failure(
-            message: res.body['message'] ??
-                res.body['error'] ??
-                'Failed to send OTP',
-            response: res);
-      }
-    } catch (e) {
-      AppUtils.apiErrorHandler(e);
-      return OtpDetails();
-    } finally {
-      isLoading = false;
-      update();
-    }
-  }
-
-  /// ON VERIFY OTP
-
-  Future<bool> verifyBoxOtp(String boxId, String otp,
-      {String action = "lock"}) async {
-    try {
-      isLoading = true;
-      update();
-      var res = await boxRepo.verifyBoxOtp(
-        boxId,
-        otp,
-        action,
-      );
-      if (res.statusCode == 200) {
-        AppToast.showSuccess(
-            message: res.body['message'] ?? "OTP verified successfully");
-        fetchBoxes();
+          message: res.body is Map && res.body['message'] != null
+              ? res.body['message']
+              : 'Box ${action == 'lock' ? 'locked' : 'unlocked'} successfully',
+        );
+        fetchBoxes(isRefresh: true);
         return true;
-      } else {
-        throw Failure(
-            message: res.body['message'] ??
-                res.body['error'] ??
-                'Failed to verify OTP',
-            response: res);
       }
+      throw Failure(
+        message: res.statusText ?? 'Failed to $action box',
+        response: res,
+      );
     } catch (e) {
       AppUtils.apiErrorHandler(e);
       return false;
@@ -327,93 +297,31 @@ class BoxManagementController extends GetxController {
     }
   }
 
-  void onCountdownFinished() {
-    isTimerCompleted = true;
-    update();
-  }
-
-  void onResendCode() async {
-    if (isLoading) return;
-
-    isLoading = true;
-    update();
-
-    try {
-      final OtpDetails success =
-          await sendBoxOtp(currentBoxId, action: currentAction);
-      if (success.status) {
-        countdownController.restart();
-        isTimerCompleted = false;
-      }
-    } finally {
-      isLoading = false;
-      update();
-    }
-  }
-
   Future<void> onLockTap(BuildContext context, String boxId) async {
     if (isLoading) return;
-    otpController.clear();
-    currentBoxId = boxId;
-
     final box = boxes.firstWhere((b) => b.id == boxId);
-    currentAction = box.isLocked ? "unlock" : "lock";
-
-    isLoading = true;
-    update();
-
-    try {
-      var res = await sendBoxOtp(boxId, action: currentAction);
-
-      isTimerCompleted = false;
-      countdownController.restart();
-
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) {
-          return Stack(
-            children: [
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.05),
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: managementGrublockBottomSheet(context, res),
-              ),
-            ],
-          );
-        },
-      );
-    } finally {
-      isLoading = false;
-      update();
-    }
-  }
-
-  Future<void> verifyOtp() async {
-    if (isLoading) return;
-
-    isLoading = true;
-    update();
-
-    try {
-      final success = await verifyBoxOtp(
-        currentBoxId,
-        otpController.text,
-        action: currentAction,
-      );
-      if (success) {
-        Navigation.pop();
-      }
-    } finally {
-      isLoading = false;
-      update();
-    }
+    final action = box.isLocked ? 'unlock' : 'lock';
+    final displayName = box.name.isNotEmpty ? box.name : box.boxDisplayId;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('${action == 'lock' ? 'Lock' : 'Unlock'} $displayName?'),
+        content: Text(
+          'Confirm that you want to $action this box.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('CANCEL'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(action.toUpperCase()),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) await setBoxLock(boxId, action);
   }
 
   // ── Simulator Global Heartbeat Polling Loop ──────────────────────────────────────────
@@ -421,92 +329,101 @@ class BoxManagementController extends GetxController {
     _simulatorHeartbeatTimer?.cancel();
     _simulatorHeartbeatTimer =
         Timer.periodic(const Duration(seconds: 4), (timer) async {
-      if (boxes.isEmpty || isLoading) return;
+      if (!_appIsActive || boxes.isEmpty || isLoading || _heartbeatInProgress) {
+        return;
+      }
+      _heartbeatInProgress = true;
 
-      final activeBoxes = List<BoxInfo>.from(boxes);
-      for (var box in activeBoxes) {
-        try {
-          final res = await boxRepo.getSimulatorHealth(box.id);
-          if (res.statusCode == 200) {
-            final data = res.body['data'];
-            if (data != null) {
-              final updatedBox = BoxInfo.fromJson(data);
+      try {
+        final activeBoxes = List<BoxInfo>.from(boxes);
+        for (var box in activeBoxes) {
+          try {
+            final res = await boxRepo.getSimulatorHealth(box.id);
+            if (res.statusCode == 200) {
+              final data = res.body['data'];
+              if (data != null) {
+                final updatedBox = BoxInfo.fromJson(data);
 
-              // Update box in BoxManagementController list
-              final index = boxes.indexWhere((element) => element.id == box.id);
-              BoxInfo? mergedBox;
-              if (index != -1) {
-                mergedBox = boxes[index].copyWith(
-                  isConnected: updatedBox.isConnected,
-                  batteryLevel: updatedBox.batteryLevel,
-                  isLocked: updatedBox.isLocked,
-                  zone1Temp: updatedBox.zone1Temp,
-                  zone2Temp: updatedBox.zone2Temp,
-                  extTemp: updatedBox.extTemp,
-                  connectionStatus: updatedBox.connectionStatus,
-                  powerStatus: updatedBox.powerStatus,
-                  healthStatus: updatedBox.healthStatus,
-                  battery1Level: updatedBox.battery1Level,
-                  battery2Level: updatedBox.battery2Level,
-                  gpsAvailable: updatedBox.gpsAvailable,
-                  latitude: updatedBox.latitude,
-                  longitude: updatedBox.longitude,
-                  solarPanel: updatedBox.solarPanel,
-                  port220V110V: updatedBox.port220V110V,
-                  memoryCardUsed: updatedBox.memoryCardUsed,
-                  gyroSensor: updatedBox.gyroSensor,
-                  turnSignals: updatedBox.turnSignals,
-                  isDualZone: updatedBox.isDualZone,
-                  settings: updatedBox.settings,
-                  isDriverConnected: updatedBox.isDriverConnected,
-                  bluetoothAvailable: updatedBox.bluetoothAvailable,
-                  wifiConnected: updatedBox.wifiConnected,
-                  driverId: updatedBox.driverId,
-                  connectedUser: updatedBox.connectedUser,
-                );
-                boxes[index] = mergedBox;
-              }
-
-              final targetBox = mergedBox ?? updatedBox;
-
-              // If BoxDetailsController is registered and viewing this box, sync detailed view UI
-              if (Get.isRegistered<BoxDetailsController>()) {
-                final detailsController = Get.find<BoxDetailsController>();
-                if (detailsController.boxId == box.id) {
-                  detailsController.boxInfo = targetBox;
-                  detailsController.advertSwitch =
-                      targetBox.settings?.advertDisplayEnabled ?? false;
-                  detailsController.dualZoneSwitch =
-                      targetBox.settings?.isDualZone ?? false;
-                  detailsController.ioniserSwitch =
-                      targetBox.settings?.ioniserEnabled ?? false;
-                  detailsController.firstBattery =
-                      targetBox.settings?.zone1Temp ?? 21;
-                  detailsController.secondBattery =
-                      targetBox.settings?.zone2Temp ?? 21;
-                  detailsController.boxConnectionStatus = targetBox.isConnected;
-                  detailsController.zoneBox1Switch =
-                      targetBox.settings?.zone1Status ?? true;
-                  detailsController.zoneBox2Switch =
-                      targetBox.settings?.zone2Status ?? false;
-
-                  detailsController.sliderController.value =
-                      AppUtils.normalizeSliderValue(
-                    detailsController.selectedBattery == 1
-                        ? detailsController.firstBattery.toDouble()
-                        : detailsController.secondBattery.toDouble(),
+                // Update box in BoxManagementController list
+                final index =
+                    boxes.indexWhere((element) => element.id == box.id);
+                BoxInfo? mergedBox;
+                if (index != -1) {
+                  mergedBox = boxes[index].copyWith(
+                    isConnected: updatedBox.isConnected,
+                    batteryLevel: updatedBox.batteryLevel,
+                    isLocked: updatedBox.isLocked,
+                    zone1Temp: updatedBox.zone1Temp,
+                    zone2Temp: updatedBox.zone2Temp,
+                    extTemp: updatedBox.extTemp,
+                    connectionStatus: updatedBox.connectionStatus,
+                    powerStatus: updatedBox.powerStatus,
+                    healthStatus: updatedBox.healthStatus,
+                    battery1Level: updatedBox.battery1Level,
+                    battery2Level: updatedBox.battery2Level,
+                    gpsAvailable: updatedBox.gpsAvailable,
+                    latitude: updatedBox.latitude,
+                    longitude: updatedBox.longitude,
+                    solarPanel: updatedBox.solarPanel,
+                    port220V110V: updatedBox.port220V110V,
+                    memoryCardUsed: updatedBox.memoryCardUsed,
+                    gyroSensor: updatedBox.gyroSensor,
+                    turnSignals: updatedBox.turnSignals,
+                    isDualZone: updatedBox.isDualZone,
+                    settings: updatedBox.settings,
+                    isDriverConnected: updatedBox.isDriverConnected,
+                    bluetoothAvailable: updatedBox.bluetoothAvailable,
+                    wifiConnected: updatedBox.wifiConnected,
+                    driverId: updatedBox.driverId,
+                    connectedUser: updatedBox.connectedUser,
                   );
-                  detailsController.update();
+                  boxes[index] = mergedBox;
+                }
+
+                final targetBox = mergedBox ?? updatedBox;
+
+                // If BoxDetailsController is registered and viewing this box, sync detailed view UI
+                if (Get.isRegistered<BoxDetailsController>()) {
+                  final detailsController = Get.find<BoxDetailsController>();
+                  if (detailsController.boxId == box.id) {
+                    detailsController.boxInfo = targetBox;
+                    detailsController.advertSwitch =
+                        targetBox.settings?.advertDisplayEnabled ?? false;
+                    detailsController.dualZoneSwitch =
+                        targetBox.settings?.isDualZone ?? false;
+                    detailsController.ioniserSwitch =
+                        targetBox.settings?.ioniserEnabled ?? false;
+                    detailsController.firstBattery =
+                        targetBox.settings?.zone1Temp ?? 21;
+                    detailsController.secondBattery =
+                        targetBox.settings?.zone2Temp ?? 21;
+                    detailsController.boxConnectionStatus =
+                        targetBox.isConnected;
+                    detailsController.zoneBox1Switch =
+                        targetBox.settings?.zone1Status ?? true;
+                    detailsController.zoneBox2Switch =
+                        targetBox.settings?.zone2Status ?? false;
+
+                    detailsController.sliderController.value =
+                        AppUtils.normalizeSliderValue(
+                      detailsController.selectedBattery == 1
+                          ? detailsController.firstBattery.toDouble()
+                          : detailsController.secondBattery.toDouble(),
+                    );
+                    detailsController.update();
+                  }
                 }
               }
             }
+          } catch (e) {
+            debugPrint(
+                "Simulator global health sync error for box ${box.id}: $e");
           }
-        } catch (e) {
-          debugPrint(
-              "Simulator global health sync error for box ${box.id}: $e");
         }
+        update();
+      } finally {
+        _heartbeatInProgress = false;
       }
-      update(); // Refresh list view UI
     });
   }
 }

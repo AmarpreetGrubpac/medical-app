@@ -14,15 +14,15 @@ class HelpRepo {
     int limit = 10,
     int page = 1,
   }) async {
-    String uri = '${AppConstants.categoryApi}?limit=$limit&page=$page';
-
-    if (query != null && query.isNotEmpty) {
-      uri += '&query=$query';
-    }
-
-    return await apiClient.getData(uri);
+    return await apiClient.getData(
+      AppConstants.categoryApi,
+      query: {
+        'limit': limit,
+        'page': page,
+        if (query != null && query.isNotEmpty) 'query': query,
+      },
+    );
   }
-
 
   Future<Response> getCategoryBYID({
     required String id,
@@ -30,14 +30,14 @@ class HelpRepo {
     int limit = 10,
     int page = 1,
   }) async {
-    String uri =
-        '${AppConstants.subCategoryApi}=$id&limit=$limit&page=$page';
-
-    if (query != null && query.isNotEmpty) {
-      uri += '&query=$query';
-    }
-
-    return await apiClient.getData(uri);
+    return await apiClient.getData(
+      AppConstants.subCategoryApi,
+      query: {
+        'category_id': id,
+        'limit': limit,
+        'page': page,
+        if (query != null && query.isNotEmpty) 'query': query,
+      },
+    );
   }
-
 }
