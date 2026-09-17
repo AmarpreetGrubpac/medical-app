@@ -164,7 +164,7 @@ class _CommonTextFieldState extends State<CommonTextField> {
               errorStyle: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: 14.sp,
-                color: AppTheme.contentBrandPrimary,
+                color: AppTheme.strokeBrandPrimaryAlt,
               ),
               border: widget.isSearch
                   ? UnderlineInputBorder(
@@ -188,16 +188,15 @@ class _CommonTextFieldState extends State<CommonTextField> {
                     ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(widget.isSearch ? 0 : 8.r),
-                borderSide:
-                    BorderSide(color: AppTheme.contentBrandPrimaryOrange),
+                borderSide: BorderSide(color: AppTheme.primary),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(widget.isSearch ? 0 : 8.r),
-                borderSide: BorderSide(color: AppTheme.contentBrandPrimary),
+                borderSide: BorderSide(color: AppTheme.strokeBrandPrimaryAlt),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(widget.isSearch ? 0 : 8.r),
-                borderSide: BorderSide(color: AppTheme.contentBrandPrimary),
+                borderSide: BorderSide(color: AppTheme.strokeBrandPrimaryAlt),
               ),
               disabledBorder: widget.isSearch
                   ? UnderlineInputBorder(

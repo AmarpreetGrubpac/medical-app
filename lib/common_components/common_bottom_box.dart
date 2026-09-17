@@ -43,7 +43,7 @@ class CommonBottomBox extends StatelessWidget {
               IconAsset.toastError,
               height: 32.h,
               width: 32,
-              colorFilter: ColorFilter.mode(AppTheme.contentBrandPrimary, BlendMode.srcIn),
+              colorFilter: ColorFilter.mode(AppTheme.strokeBrandPrimaryAlt, BlendMode.srcIn),
             ),
           AppText(text: title ?? "", fontWeight: FontWeight.w600, color: AppTheme.contentNeutralPrimary),
           AppText(
@@ -150,16 +150,23 @@ class _CallRestButtonState extends State<CallRestButton> {
         builder: (context, state, _) {
           switch (state) {
             case ButtonState.defaultState:
-              return _button(borderColor: AppTheme.contentBrandPrimary);
+              return _button(
+                borderColor: AppTheme.strokeBrandPrimaryAlt,
+                textColor: AppTheme.strokeBrandPrimaryAlt,
+              );
 
             case ButtonState.active:
-              return _button(borderColor: AppTheme.contentBrandPrimary);
+              return _button(
+                borderColor: AppTheme.strokeBrandPrimaryAlt,
+                textColor: AppTheme.strokeBrandPrimaryAlt,
+              );
 
             case ButtonState.pressed:
               return _button(
-                buttonColor: AppTheme.contentBrandPrimary.withValues(alpha: 0.2),
-                borderColor: AppTheme.contentBrandPrimary,
-                shadowColor: AppTheme.contentBrandPrimary.withValues(alpha: 0.4),
+                buttonColor: AppTheme.bgBrandSecondaryRed,
+                borderColor: AppTheme.strokeBrandPrimaryAlt,
+                textColor: AppTheme.strokeBrandPrimaryAlt,
+                shadowColor: AppTheme.strokeBrandPrimaryAlt.withValues(alpha: 0.4),
                 needUnderline: true,
               );
 
@@ -203,7 +210,7 @@ class _CallRestButtonState extends State<CallRestButton> {
               text: widget.title,
               fontSize: 16.sp,
               fontWeight: FontWeight.w500,
-              color: textColor ?? AppTheme.contentBrandPrimary,
+              color: textColor ?? AppTheme.strokeBrandPrimaryAlt,
               textDecoration: needUnderline ? TextDecoration.underline : TextDecoration.none,
             ),
           ),

@@ -73,48 +73,30 @@ class CommonBox extends StatelessWidget {
             Positioned(
               top: -12.h,
               left: -12.w,
-              child: Semantics(
-                button: true,
-                label: isBoxLocked ? 'Unlock box' : 'Lock box',
-                child: Tooltip(
-                  message: isBoxLocked ? 'Unlock box' : 'Lock box',
-                  child: GestureDetector(
-                    onTap: onTap,
-                    behavior: HitTestBehavior.translucent,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          height: 64.h,
-                          width: 64.h,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppTheme.strokeInteractiveBrandDefault,
-                            ),
-                            color: isBoxLocked
-                                ? AppTheme.bgBrandSecondaryYellow
-                                : AppTheme.background,
-                          ),
-                          child: Center(
-                            child: SvgPicture.asset(
-                              isBoxLocked ? IconAsset.unlock : IconAsset.lock,
-                              height: 48.h,
-                              width: 48.h,
-                              colorFilter: ColorFilter.mode(
-                                AppTheme.contentBrandPrimaryYellow,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                        ),
-                        AppText(
-                          text: isBoxLocked ? 'UNLOCK' : 'LOCK',
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.contentBrandPrimaryYellow,
-                        ),
-                      ],
+              child: GestureDetector(
+                onTap: onTap,
+                behavior: HitTestBehavior.translucent,
+                child: Container(
+                  height: 64.h,
+                  width: 64.h,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppTheme.strokeInteractiveBrandDefault,
+                    ),
+                    color: isBoxLocked
+                        ? AppTheme.bgBrandSecondaryYellow
+                        : AppTheme.background,
+                  ),
+                  child: Center(
+                    child: SvgPicture.asset(
+                      isBoxLocked ? IconAsset.lock : IconAsset.unlock,
+                      height: 48.h,
+                      width: 48.h,
+                      colorFilter: ColorFilter.mode(
+                        AppTheme.contentBrandPrimaryYellow,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
                 ),

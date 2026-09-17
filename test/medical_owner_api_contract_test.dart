@@ -82,15 +82,34 @@ void main() {
     expect(apiClient.payload, {'box_display_id': 'MED-BOX-001'});
   });
 
-  test('direct lock sends the existing action field', () async {
+  test('emergency unlock sends ids array to grublock endpoint', () async {
+    await repository.emergencyUnlockBoxes(['box-123']);
+
+    expect(apiClient.method, 'PATCH');
+    expect(apiClient.path, AppConstants.emergencyUnlockGrublock);
+    expect(apiClient.payload, {
+      'ids': ['box-123']
+    });
+  });
+
+  test('direct lock routes unlock to emergency_unlock endpoint', () async {
     await repository.setBoxLock('box-123', 'unlock');
 
     expect(apiClient.method, 'PATCH');
-    expect(
-      apiClient.path,
-      '${AppConstants.medicalOwnerPath}/boxes/box-123/lock',
-    );
-    expect(apiClient.payload, {'action': 'unlock'});
+    expect(apiClient.path, AppConstants.emergencyUnlockGrublock);
+    expect(apiClient.payload, {
+      'ids': ['box-123']
+    });
+  });
+
+  test('direct lock routes lock to lockGrublock endpoint', () async {
+    await repository.setBoxLock('box-123', 'lock');
+
+    expect(apiClient.method, 'PATCH');
+    expect(apiClient.path, AppConstants.lockGrublock);
+    expect(apiClient.payload, {
+      'ids': ['box-123']
+    });
   });
 
   test('owner box connection is not tied to the owner user id', () {

@@ -6,7 +6,7 @@ import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_images.dart';
 
 class GrubLockBox extends StatelessWidget {
-  const GrubLockBox({super.key, required this.isLocked, this.onTap});
+  const GrubLockBox({super.key, this.isLocked = true, this.onTap});
 
   final bool isLocked;
   final VoidCallback? onTap;
@@ -17,24 +17,25 @@ class GrubLockBox extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.fromLTRB(8.w, 4.h, 8.w, 4.h),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           decoration: BoxDecoration(
             color: AppTheme.bgBrandSecondaryYellow,
-            border: Border.all(color: AppTheme.contentBrandPrimaryYellow),
+            border: Border.all(color: AppTheme.strokeInteractiveBrandDefault),
             borderRadius: BorderRadius.circular(40.r),
           ),
           child: Row(
-            spacing: 8.w,
+            mainAxisSize: MainAxisSize.min,
             children: [
               SvgPicture.asset(
-                isLocked ? IconAsset.unlock : IconAsset.lock,
+                isLocked ? IconAsset.lock : IconAsset.unlock,
                 height: 24.h,
                 width: 24.h,
               ),
+              8.w.horizontalSpace,
               AppText(
-                text: isLocked ? 'UNLOCK' : 'LOCK',
+                text: "GRUBLOCK",
                 fontSize: 16.sp,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 color: AppTheme.contentBrandPrimaryYellow,
               ),
             ],

@@ -37,13 +37,18 @@ class ScanBoxController extends GetxController {
     }
 
     // ── Parse the QR payload ────────────────────────────────────────────────
-    // Expected format: {"box_display_id": "Qwer"}
+    // Supports JSON format: {"box_display_id": "MOB-MED-BOX-01"} or plain string
     String? boxDisplayId;
     try {
-      final Map<String, dynamic> data = jsonDecode(rawValue);
-      boxDisplayId = data['box_display_id']?.toString();
+      final decoded = jsonDecode(rawValue);
+      if (decoded is Map) {
+        boxDisplayId = decoded['box_display_id']?.toString();
+      } else if (decoded is String) {
+        boxDisplayId = decoded.trim();
+      }
     } catch (_) {
-      // rawValue is not valid JSON — not a Zabee box QR.
+      // rawValue is plain text QR code
+      boxDisplayId = rawValue.trim();
     }
 
     if (boxDisplayId == null || boxDisplayId.isEmpty) {

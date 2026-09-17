@@ -59,7 +59,32 @@ class BoxManagementRepo {
     return await apiClient.patchData(url, settings);
   }
 
+  Future<Response> emergencyUnlockBoxes(List<String> boxIds) async {
+    return await apiClient.patchData(
+      AppConstants.emergencyUnlockGrublock,
+      {"ids": boxIds},
+    );
+  }
+
+  Future<Response> lockBoxes(List<String> boxIds) async {
+    return await apiClient.patchData(
+      AppConstants.lockGrublock,
+      {"ids": boxIds},
+    );
+  }
+
   Future<Response> setBoxLock(String boxId, String action) async {
+    try {
+      if (action.toLowerCase() == 'unlock') {
+        final res = await emergencyUnlockBoxes([boxId]);
+        if (res.statusCode == 200) return res;
+      } else {
+        final res = await lockBoxes([boxId]);
+        if (res.statusCode == 200) return res;
+      }
+    } catch (_) {
+      // fallback to per-box endpoint
+    }
     final String url = AppConstants.lockBox.replaceAll(":box_id", boxId);
     return await apiClient.patchData(url, {"action": action});
   }

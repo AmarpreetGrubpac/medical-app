@@ -81,7 +81,7 @@ class AppToast {
                   IconAsset.toastError,
                   height: 20.h,
                   width: 20.h,
-                  colorFilter: ColorFilter.mode(AppTheme.contentBrandPrimary, BlendMode.srcIn),
+                  colorFilter: ColorFilter.mode(AppTheme.strokeBrandPrimaryAlt, BlendMode.srcIn),
                 ),
                 Expanded(
                   child: Column(

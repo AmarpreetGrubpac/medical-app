@@ -46,6 +46,9 @@ class AppConstants {
   static const String disconnectBox =
       '$medicalOwnerPath/boxes/:box_id/connection';
   static const String lockBox = '$medicalOwnerPath/boxes/:box_id/lock';
+  static const String emergencyUnlockGrublock =
+      '$medicalOwnerPath/grublock/emergency_unlock';
+  static const String lockGrublock = '$medicalOwnerPath/grublock/lock';
 
   // auth apis
 

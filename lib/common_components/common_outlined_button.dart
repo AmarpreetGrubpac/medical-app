@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:grubpac_driver/common_components/app_text.dart';
-import 'package:grubpac_driver/core/theme/light_theme_colors.dart';
+import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/enums.dart';
-
-import '../core/theme/app_theme.dart';
 
 class CommonOutlinedButton extends StatefulWidget {
   final VoidCallback onPressed;
@@ -123,15 +121,15 @@ class _CommonOutlinedButtonState extends State<CommonOutlinedButton> {
         builder: (context, state, _) {
           switch (state) {
             case ButtonState.defaultState:
-              return _button(borderColor: LightThemeColors.contentBrandPrimary);
+              return _button(borderColor: AppTheme.contentBrandPrimary);
 
             case ButtonState.active:
-              return _button(borderColor: LightThemeColors.contentBrandPrimary);
+              return _button(borderColor: AppTheme.contentBrandPrimary);
 
             case ButtonState.pressed:
               return _button(
                 buttonColor: AppTheme.contentBrandSecondary,
-                borderColor: LightThemeColors.contentBrandPrimary,
+                borderColor: AppTheme.contentBrandPrimary,
                 shadowColor: AppTheme.primary.withValues(alpha: 0.4),
                 needUnderline: true,
               );

@@ -110,57 +110,57 @@ class _CommonMenuBoxState extends State<CommonMenuBox> {
                               : null,
                           child: ClipRRect(
                             borderRadius: widget.isProfile
-                                ? BorderRadius.circular(
-                                    100.r) // 🔥 circular if profile
+                                ? BorderRadius.circular(100.r)
                                 : BorderRadius.circular(6.r),
-                            child:
-                                // Image.network(
-                                //   widget.image!,
-                                //   color: widget.isProfile ? null :state == ButtonState.defaultState
-                                //         ? AppTheme.contentBrandSecondaryOrange
-                                //         : AppTheme.primary,
-                                //   fit: BoxFit.cover,
-                                //   height: 32.h,
-                                //   width: 32.h,
-                                //   errorBuilder: (context, error, stackTrace) {
-                                //     return Center(
-                                //       child: AppText(
-                                //         text: widget.icon ?? "",
-                                //         fontWeight: FontWeight.w700,
-                                //         color: Colors.white,
-                                //       ),
-                                //     );
-                                //   },
-                                // ),
-                                CustomImage(
+                            child: CustomImage(
                               image: widget.image!,
                               color: widget.isProfile
                                   ? null
                                   : state == ButtonState.defaultState
-                                      ? AppTheme.contentBrandSecondaryOrange
-                                      : AppTheme.primary,
+                                      ? AppTheme.contentBrandPrimary
+                                      : AppTheme.pressedPrimaryButton,
                               fit: BoxFit.cover,
                               height: 32.h,
                               width: 32.h,
                             ),
                           ),
                         )
-                      : (widget.icon != null && widget.icon!.isNotEmpty)
-                          ? SvgPicture.asset(
-                              widget.icon,
-                              height: widget.iconSize ?? 32.h,
-                              width: widget.iconSize ?? 32.h,
-                              colorFilter: ColorFilter.mode(
-                                state == ButtonState.defaultState
-                                    ? AppTheme.contentBrandSecondaryOrange
-                                    : AppTheme.primary,
-                                BlendMode.srcIn,
-                              ),
-                            )
-                          : SizedBox(
+                      : widget.isProfile
+                          ? Container(
                               height: 32.h,
                               width: 32.h,
-                            ),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: state == ButtonState.defaultState
+                                    ? AppTheme.contentBrandSecondaryOrange
+                                    : AppTheme.primary,
+                              ),
+                              child: Center(
+                                child: AppText(
+                                  text: widget.icon,
+                                  fontWeight: FontWeight.w700,
+                                  color: state == ButtonState.defaultState
+                                      ? AppTheme.contentBrandPrimaryOrange
+                                      : AppTheme.contentOnPrimary,
+                                ),
+                              ),
+                            )
+                          : (widget.icon.isNotEmpty)
+                              ? SvgPicture.asset(
+                                  widget.icon,
+                                  height: widget.iconSize ?? 32.h,
+                                  width: widget.iconSize ?? 32.h,
+                                  colorFilter: ColorFilter.mode(
+                                    state == ButtonState.defaultState
+                                        ? AppTheme.contentBrandSecondary
+                                        : AppTheme.pressedPrimaryButton,
+                                    BlendMode.srcIn,
+                                  ),
+                                )
+                              : SizedBox(
+                                  height: 32.h,
+                                  width: 32.h,
+                                ),
                   AppText(
                     text: widget.title,
                     fontWeight: FontWeight.w600,

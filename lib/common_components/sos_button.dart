@@ -39,7 +39,7 @@ class SosButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppTheme.strokeBrandPrimaryAlt,
             shape: BoxShape.circle,
-            border: Border.all(color: AppTheme.contentBrandPrimary),
+            border: Border.all(color: Colors.transparent),
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 12.w),
@@ -85,6 +85,9 @@ class EmergencyBottomSheet extends StatelessWidget {
     return showModalBottomSheet<T>(
       backgroundColor: AppTheme.background,
       context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+      ),
       builder: (ctx) => EmergencyBottomSheet(
         onCallFacility: onCallFacility,
         onAlertFacility: onAlertFacility,
@@ -101,7 +104,7 @@ class EmergencyBottomSheet extends StatelessWidget {
     return SafeArea(
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.w),
-        height: 288.h,
+        height: onAlertFacility != null ? 300.h : 240.h,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -110,7 +113,7 @@ class EmergencyBottomSheet extends StatelessWidget {
               height: 32.h,
               width: 32.w,
               colorFilter: ColorFilter.mode(
-                AppTheme.contentBrandPrimary,
+                AppTheme.strokeBrandPrimaryAlt,
                 BlendMode.srcIn,
               ),
             ),
@@ -126,22 +129,37 @@ class EmergencyBottomSheet extends StatelessWidget {
               fontSize: 15.sp,
               color: AppTheme.contentNeutralPrimary,
             ),
-            CommonButton(
-              onPressed: () {
+            GestureDetector(
+              onTap: () {
                 Navigator.of(context).pop();
                 onCallFacility?.call();
               },
-              title: callFacilityTitle ?? AppString.callRestaurant,
-              padding: EdgeInsets.symmetric(vertical: 8.h),
+              child: Container(
+                height: 48.h,
+                width: double.maxFinite,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.r),
+                  color: AppTheme.strokeBrandPrimaryAlt,
+                ),
+                child: Center(
+                  child: AppText(
+                    text: callFacilityTitle ?? AppString.callRestaurant,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.contentOnPrimary,
+                  ),
+                ),
+              ),
             ),
-            CommonOutlinedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                onAlertFacility?.call();
-              },
-              title: alertFacilityTitle ?? AppString.writeToUsButton,
-              padding: EdgeInsets.symmetric(vertical: 8.h),
-            ),
+            if (onAlertFacility != null)
+              CommonOutlinedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  onAlertFacility?.call();
+                },
+                title: alertFacilityTitle ?? AppString.writeToUsButton,
+                height: 48.h,
+              ),
           ],
         ),
       ),

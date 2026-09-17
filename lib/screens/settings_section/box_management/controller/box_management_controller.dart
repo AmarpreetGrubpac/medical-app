@@ -16,6 +16,7 @@ import 'package:grubpac_driver/core/preference/pref_key.dart';
 
 import '../../../../core/utils/app_toast.dart';
 import '../../../../core/utils/app_utils.dart';
+import '../../../../common_components/grublock_bottom_sheet.dart';
 import '../../../box_details/controller/box_details_controller.dart';
 
 class BoxManagementController extends GetxController
@@ -282,6 +283,12 @@ class BoxManagementController extends GetxController
               : 'Box ${action == 'lock' ? 'locked' : 'unlocked'} successfully',
         );
         fetchBoxes(isRefresh: true);
+        if (Get.isRegistered<BoxDetailsController>()) {
+          final detailsController = Get.find<BoxDetailsController>();
+          if (detailsController.boxId == boxId) {
+            detailsController.fetchBoxDetails();
+          }
+        }
         return true;
       }
       throw Failure(
@@ -299,29 +306,18 @@ class BoxManagementController extends GetxController
 
   Future<void> onLockTap(BuildContext context, String boxId) async {
     if (isLoading) return;
-    final box = boxes.firstWhere((b) => b.id == boxId);
+    final boxIndex = boxes.indexWhere((b) => b.id == boxId);
+    if (boxIndex == -1) return;
+    final box = boxes[boxIndex];
     final action = box.isLocked ? 'unlock' : 'lock';
-    final displayName = box.name.isNotEmpty ? box.name : box.boxDisplayId;
-    final confirmed = await showDialog<bool>(
+
+    await GrubLockBottomSheet.show(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('${action == 'lock' ? 'Lock' : 'Unlock'} $displayName?'),
-        content: Text(
-          'Confirm that you want to $action this box.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('CANCEL'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(action.toUpperCase()),
-          ),
-        ],
-      ),
+      isLocked: box.isLocked,
+      onConfirm: () async {
+        return await setBoxLock(boxId, action);
+      },
     );
-    if (confirmed == true) await setBoxLock(boxId, action);
   }
 
   // ── Simulator Global Heartbeat Polling Loop ──────────────────────────────────────────

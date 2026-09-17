@@ -272,6 +272,8 @@ class _EmptyView extends StatelessWidget {
             AppTheme.isDark ? IconAsset.tripDark : IconAsset.trip,
             height: 200.h,
             width: 200.h,
+            colorFilter: ColorFilter.mode(
+                AppTheme.contentBrandSecondary, BlendMode.srcIn),
           ),
         ),
         AppText(

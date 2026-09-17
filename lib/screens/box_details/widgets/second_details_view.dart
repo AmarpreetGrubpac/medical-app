@@ -298,7 +298,7 @@ class _BoxWidget extends StatelessWidget {
                                       height: 32.h,
                                       width: 32.h,
                                       colorFilter: ColorFilter.mode(
-                                        AppTheme.contentBrandPrimaryOrange,
+                                        AppTheme.contentBrandPrimary,
                                         BlendMode.srcIn,
                                       ),
                                     ),
@@ -548,13 +548,13 @@ class _PowerWidget extends StatelessWidget {
                                 height: 24.h,
                                 width: 24.h,
                                 colorFilter: ColorFilter.mode(
-                                  AppTheme.contentBrandPrimary,
+                                  AppTheme.strokeBrandPrimaryAlt,
                                   BlendMode.srcIn,
                                 ),
                               ),
                               AppText(
                                 text: AppString.plsChargeBattery,
-                                color: AppTheme.contentBrandPrimary,
+                                color: AppTheme.strokeBrandPrimaryAlt,
                               ),
                             ],
                           ),

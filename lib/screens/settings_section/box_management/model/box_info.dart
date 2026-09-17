@@ -46,9 +46,9 @@ class BoxInfo {
   final bool isConnected;
   final int batteryLevel;
   final bool isLocked;
-  final int? zone1Temp;
-  final int? zone2Temp;
-  final int? extTemp;
+  final double? zone1Temp;
+  final double? zone2Temp;
+  final double? extTemp;
   final String? connectionStatus;
   final String? powerStatus;
   final String? healthStatus;
@@ -103,10 +103,10 @@ class BoxInfo {
   });
 
   factory BoxInfo.fromJson(Map<String, dynamic> json) {
-    final rawIsConnected = (json['is_driver_connected'] ??
-            json['is_connected'] ??
-            (json['connection_status'] != 'offline')) as bool? ??
-        false;
+    final rawIsConnected = (json['is_connected'] as bool?) ??
+        (json['connection_status'] != null
+            ? (json['connection_status'] != 'offline')
+            : (json['is_driver_connected'] as bool? ?? false));
 
     String? driverId = json['driver_id'] as String?;
     if (driverId == null && json['connected_user'] != null) {
@@ -120,17 +120,18 @@ class BoxInfo {
       name: json['name'] as String? ?? '',
       isConnected: rawIsConnected,
       batteryLevel:
-          (json['battery_level'] ?? json['battery_1_level'] ?? 0) as int,
+          ((json['battery_level'] ?? json['battery_1_level'] ?? 0) as num)
+              .toInt(),
       isLocked: json['is_locked'] as bool? ?? false,
-      zone1Temp: json['zone_1_temp'] as int?,
-      zone2Temp: json['zone_2_temp'] as int?,
-      extTemp: (json['ext_temp'] ?? json['ambient_temp']) as int?,
+      zone1Temp: (json['zone_1_temp'] as num?)?.toDouble(),
+      zone2Temp: (json['zone_2_temp'] as num?)?.toDouble(),
+      extTemp: ((json['ext_temp'] ?? json['ambient_temp']) as num?)?.toDouble(),
       connectionStatus: json['connection_status'] as String?,
       powerStatus: json['power_status'] as String? ??
           (json['is_power_on'] == true ? "on" : "off"),
       healthStatus: json['health_status'] as String?,
-      battery1Level: json['battery_1_level'] as int?,
-      battery2Level: json['battery_2_level'] as int?,
+      battery1Level: (json['battery_1_level'] as num?)?.toInt(),
+      battery2Level: (json['battery_2_level'] as num?)?.toInt(),
       gpsAvailable: json['gps_available'] as bool?,
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
@@ -143,8 +144,8 @@ class BoxInfo {
       settings: json['settings'] != null
           ? BoxSettings.fromJson(
               json['settings'] as Map<String, dynamic>,
-              temp1: json['zone_1_temp'] as int?,
-              temp2: json['zone_2_temp'] as int?,
+              temp1: (json['zone_1_temp'] as num?)?.toInt(),
+              temp2: (json['zone_2_temp'] as num?)?.toInt(),
             )
           : null,
       isDriverConnected: json['is_driver_connected'] as bool?,
@@ -197,9 +198,9 @@ class BoxInfo {
     bool? isConnected,
     int? batteryLevel,
     bool? isLocked,
-    int? zone1Temp,
-    int? zone2Temp,
-    int? extTemp,
+    double? zone1Temp,
+    double? zone2Temp,
+    double? extTemp,
     String? connectionStatus,
     String? powerStatus,
     String? healthStatus,
@@ -289,10 +290,8 @@ class BoxSettings {
           {int? temp1, int? temp2}) =>
       BoxSettings(
         isDualZone: json['is_dual_zone'] as bool? ?? false,
-        zone1Temp: (json['zone_1_temp'] ?? temp1)
-            as int?, //?? json['zone_1_target_temp']) as int?,
-        zone2Temp: (json['zone_2_temp'] ?? temp2)
-            as int?, //?? json['zone_2_target_temp']) as int?,
+        zone1Temp: ((json['zone_1_temp'] ?? temp1) as num?)?.toInt(),
+        zone2Temp: ((json['zone_2_temp'] ?? temp2) as num?)?.toInt(),
         advertDisplayEnabled: (json['advert_screen'] ??
                 json['advert_display_enabled']) as bool? ??
             false,

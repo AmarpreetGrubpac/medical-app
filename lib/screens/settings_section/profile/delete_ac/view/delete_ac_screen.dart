@@ -129,7 +129,7 @@ class DeleteAcScreen extends StatelessWidget {
                                 text: AppString.delete,
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.red,
+                                color: AppTheme.strokeBrandPrimaryAlt,
                               ),
                             ),
                           ],
