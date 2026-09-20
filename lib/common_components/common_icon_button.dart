@@ -15,7 +15,8 @@ class CommonIconButton extends StatefulWidget {
 }
 
 class _CommonIconButtonState extends State<CommonIconButton> {
-  final ValueNotifier<ButtonState> _stateNotifier = ValueNotifier(ButtonState.defaultState);
+  final ValueNotifier<ButtonState> _stateNotifier =
+      ValueNotifier(ButtonState.defaultState);
   final ValueNotifier<bool> _isProcessing = ValueNotifier(false);
 
   Future<void> _handleTap() async {
@@ -90,7 +91,13 @@ class _CommonIconButtonState extends State<CommonIconButton> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.r),
         boxShadow: shadowColor != null
-            ? [BoxShadow(offset: Offset(0, 0), color: shadowColor, blurRadius: 0, spreadRadius: 2)]
+            ? [
+                BoxShadow(
+                    offset: Offset(0, 0),
+                    color: shadowColor,
+                    blurRadius: 0,
+                    spreadRadius: 2)
+              ]
             : [],
       ),
       child: Container(
@@ -105,7 +112,8 @@ class _CommonIconButtonState extends State<CommonIconButton> {
             widget.icon,
             height: 24.h,
             width: 24.h,
-            colorFilter: ColorFilter.mode(iconColor ?? AppTheme.contentBrandDefault, BlendMode.srcIn),
+            colorFilter: ColorFilter.mode(
+                iconColor ?? AppTheme.contentBrandDefault, BlendMode.srcIn),
           ),
         ),
       ),
@@ -131,11 +139,13 @@ class CommonCompactIconButton extends StatefulWidget {
   final Color? iconColor, pressedIconColor, pressedBgColor;
 
   @override
-  State<CommonCompactIconButton> createState() => _CommonCompactIconButtonState();
+  State<CommonCompactIconButton> createState() =>
+      _CommonCompactIconButtonState();
 }
 
 class _CommonCompactIconButtonState extends State<CommonCompactIconButton> {
-  final ValueNotifier<ButtonState> _stateNotifier = ValueNotifier(ButtonState.defaultState);
+  final ValueNotifier<ButtonState> _stateNotifier =
+      ValueNotifier(ButtonState.defaultState);
   final ValueNotifier<bool> _isProcessing = ValueNotifier(false);
 
   Future<void> _handleTap() async {
@@ -193,12 +203,15 @@ class _CommonCompactIconButtonState extends State<CommonCompactIconButton> {
 
             case ButtonState.pressed:
               return _button(
-                buttonColor: widget.pressedBgColor ?? AppTheme.contentBrandSecondaryOrange,
+                buttonColor: widget.pressedBgColor ??
+                    AppTheme.contentBrandSecondaryOrange,
                 iconColor: widget.pressedIconColor ?? AppTheme.pressedIconColor,
               );
 
             case ButtonState.disabled:
-              return _button(buttonColor: AppTheme.disabledTextButton, iconColor: AppTheme.disabledTextColor);
+              return _button(
+                  buttonColor: AppTheme.disabledTextButton,
+                  iconColor: AppTheme.disabledTextColor);
           }
         },
       ),
@@ -218,7 +231,8 @@ class _CommonCompactIconButtonState extends State<CommonCompactIconButton> {
           widget.icon,
           height: widget.size,
           width: widget.size,
-          colorFilter: ColorFilter.mode(iconColor ?? AppTheme.contentBrandPrimaryOrange, BlendMode.srcIn),
+          colorFilter:
+              ColorFilter.mode(iconColor ?? AppTheme.primary, BlendMode.srcIn),
         ),
       ),
     );
