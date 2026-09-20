@@ -179,6 +179,9 @@ class _CommonButtonState extends State<CommonButton> {
                         widget.icon ?? "",
                         height: widget.iconSize ?? 32.h,
                         width: widget.iconSize ?? 32.h,
+                        colorFilter: ColorFilter.mode(
+                            textColor ?? AppTheme.contentOnPrimary,
+                            BlendMode.srcIn),
                       ),
                     AppText(
                       text: widget.title,

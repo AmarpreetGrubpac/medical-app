@@ -19,6 +19,9 @@ import 'package:grubpac_driver/screens/box_details/controller/box_details_contro
 import 'package:grubpac_driver/screens/box_details/widgets/battery_box_widget.dart';
 import 'package:grubpac_driver/screens/box_details/widgets/outlined_box.dart';
 
+import '../../../common_components/common_button.dart';
+import '../view/trackLocation_screem.dart';
+
 class FirstDetailsView extends StatelessWidget {
   const FirstDetailsView({super.key});
 
@@ -67,7 +70,7 @@ class FirstDetailsView extends StatelessWidget {
                               spacing: 16.w,
                               children: [
                                 Expanded(child: _AdvertBox()),
-                                Expanded(child: _BoxCamBox())
+                                Expanded(child: _NavigationBox())
                               ],
                             ),
                           ),
@@ -491,6 +494,68 @@ class _SwipeUpBox extends StatelessWidget {
                       color: AppTheme.contentNeutralLight)),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavigationBox extends StatelessWidget {
+  const _NavigationBox();
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<BoxDetailsController>(
+      builder: (controller) => OutlinedBox(
+        height: 100.h,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 8.h,
+          children: [
+            AppText(
+              fontSize: 16.sp,
+              text: AppString.trackLocation,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.contentNeutralPrimary,
+            ),
+            SizedBox(
+              width: 100.w,
+              child: CommonButton(
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                icon: IconAsset.locationArrow,
+                // dicon.Assets.icons.locationArrow.path,
+
+                iconSize: 20.w,
+                height: 40.h,
+                // textColor: AppTheme.contentOnPrimary,
+                onPressed: () {
+                  final displayName =
+                      controller.boxInfo?.name.isNotEmpty == true
+                          ? controller.boxInfo!.name
+                          : (controller.boxInfo?.boxDisplayId.isNotEmpty == true
+                              ? controller.boxInfo!.boxDisplayId
+                              : controller.boxId);
+                  Get.to(
+                    () => TracklocationScreeen(
+                      boxId: displayName.isNotEmpty ? displayName : null,
+                    ),
+                  );
+                },
+                title: AppString.liveBtn,
+                // borderColor: AppTheme.strokeBrandPrimary,
+                // backgroundColor: AppTheme.primary,
+              ),
+            ),
+            // Container(
+            //   height: 24.h,
+            //   alignment: Alignment.centerLeft,
+            //   child: CommonStatusPill(
+            //     title: AppString.on,
+            //     status: StatusType.connected,
+            //   ),
+            // ),
+          ],
         ),
       ),
     );

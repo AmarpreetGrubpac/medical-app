@@ -10,11 +10,13 @@ class OutlinedBox extends StatelessWidget {
     this.borderColor,
     this.boxColor,
     this.padding,
+    this.height,
   });
 
   final VoidCallback? onTap;
   final EdgeInsets? padding;
   final Widget child;
+  final double? height;
   final Color? borderColor, boxColor;
 
   @override
@@ -22,11 +24,13 @@ class OutlinedBox extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        height: height,
         padding: padding ?? EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 8.h),
         decoration: BoxDecoration(
           color: boxColor ?? AppTheme.backgroundNeutralSecondary,
           borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(color: borderColor ?? AppTheme.strokeInteractiveBrandDisabled),
+          border: Border.all(
+              color: borderColor ?? AppTheme.strokeInteractiveBrandDisabled),
         ),
         child: child,
       ),

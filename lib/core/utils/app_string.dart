@@ -436,4 +436,12 @@ class AppString {
       "We’ve made improvements to performance and reliability.\nUpdate now to get the best experience.";
   static const String noInternetConnectionDescription =
       "Looks like you’re offline. Please check your connection and try again.\nSome features may not be available without internet access.";
+
+  // Track location
+  static const String trackLocation = "Track Location";
+  // static const String liveBtn = "LIVE";
+  static const String youAreTrackingLive = "You are tracking live";
+  static const String lastUpdatedText = "Last updated just now";
+  static const String shareBtn = "SHARE";
+  static const String mapsBtn = "MAPS";
 }

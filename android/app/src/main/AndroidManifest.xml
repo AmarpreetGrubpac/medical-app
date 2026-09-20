@@ -11,8 +11,11 @@
     <application
         android:label="Driver"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
-        android:usesCleartextTraffic="true"
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
+         <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBw0NlFd-8vJxOS6_Os-IJjfoSaoanrPC0" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
