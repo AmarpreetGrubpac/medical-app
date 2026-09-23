@@ -11,7 +11,7 @@
 <!--    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />-->
 
     <application
-        android:label="Driver"
+        android:label="Medical Grubpac"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
@@ -80,3 +80,4 @@
         </intent>
     </queries>
 </manifest>
+

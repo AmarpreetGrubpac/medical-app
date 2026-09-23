@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '764491564419',
     projectId: 'driver-grubpac',
     storageBucket: 'driver-grubpac.firebasestorage.app',
-    iosBundleId: 'com.grubpac.driver2',
+    iosBundleId: 'com.grubpac.medical2',
   );
 }

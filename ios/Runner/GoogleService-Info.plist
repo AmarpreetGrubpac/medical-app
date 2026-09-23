@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.grubpac.driver2</string>
+	<string>com.grubpac.medical2</string>
 	<key>PROJECT_ID</key>
 	<string>driver-grubpac</string>
 	<key>STORAGE_BUCKET</key>

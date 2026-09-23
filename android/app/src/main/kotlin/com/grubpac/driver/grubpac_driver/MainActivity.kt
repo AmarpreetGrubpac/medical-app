@@ -1,4 +1,4 @@
-package com.grubpac.driver
+package com.grubpac.medical
 
 import io.flutter.embedding.android.FlutterActivity
 
