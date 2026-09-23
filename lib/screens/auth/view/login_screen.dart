@@ -14,6 +14,7 @@ import 'package:grubpac_driver/core/utils/app_images.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/screens/auth/controller/login_controller.dart';
 import 'package:grubpac_driver/screens/auth/widget/page_indicator.dart';
+import 'package:grubpac_driver/core/flavor/app_flavor_config.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -145,17 +146,72 @@ class LoginScreen extends StatelessWidget {
                                       colorFilter: ColorFilter.mode(
                                           AppTheme.primary, BlendMode.srcIn),
                                     ),
-                                    Padding(
-                                      padding: EdgeInsetsGeometry.symmetric(
-                                          vertical: 36.h),
-                                      child: AppText(
-                                        text: AppString.enterRegisteredPrompt,
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.w400,
-                                        textAlign: TextAlign.center,
-                                        color: AppTheme.contentNeutralSecondary,
+                                    if (controller.isDemoMode) ...[
+                                      Container(
+                                        margin: EdgeInsets.only(
+                                            top: 16.h, bottom: 20.h),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 14.w, vertical: 10.h),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.contentBrandPrimaryGreen
+                                              .withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(10.r),
+                                          border: Border.all(
+                                            color: AppTheme
+                                                .contentBrandPrimaryGreen
+                                                .withValues(alpha: 0.4),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.science_outlined,
+                                              color: AppTheme
+                                                  .contentBrandPrimaryGreen,
+                                              size: 22.sp,
+                                            ),
+                                            10.w.horizontalSpace,
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  AppText(
+                                                    text: "Demo Mode Active",
+                                                    fontSize: 13.sp,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: AppTheme
+                                                        .contentNeutralPrimary,
+                                                  ),
+                                                  2.h.verticalSpace,
+                                                  AppText(
+                                                    text:
+                                                        "Mock data active. Tap continue to test flow.",
+                                                    fontSize: 11.sp,
+                                                    fontWeight: FontWeight.w400,
+                                                    color: AppTheme
+                                                        .contentNeutralSecondary,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
+                                    ] else ...[
+                                      Padding(
+                                        padding: EdgeInsetsGeometry.symmetric(
+                                            vertical: 36.h),
+                                        child: AppText(
+                                          text: AppString.enterRegisteredPrompt,
+                                          fontSize: 18.sp,
+                                          fontWeight: FontWeight.w400,
+                                          textAlign: TextAlign.center,
+                                          color: AppTheme.contentNeutralSecondary,
+                                        ),
+                                      ),
+                                    ],
                                     CommonTextField(
                                       hintText: AppString.mobileEmailHint,
                                       controller: controller.emailController,
@@ -198,7 +254,7 @@ class LoginScreen extends StatelessWidget {
                                     ),
                                     Padding(
                                       padding: EdgeInsets.only(
-                                          top: 36.h, bottom: 26.h),
+                                          top: 28.h, bottom: 12.h),
                                       child: CommonButton(
                                         onPressed: controller.onContinueTap,
                                         isLoading: false,
@@ -206,6 +262,68 @@ class LoginScreen extends StatelessWidget {
                                         isDisabled: controller.isBtnDisabled,
                                       ),
                                     ),
+                                    if (AppFlavorConfig.isInitialized
+                                        ? AppFlavorConfig.current.hasTestMode
+                                        : true) ...[
+                                      InkWell(
+                                        onTap: controller.toggleDemoMode,
+                                        borderRadius:
+                                            BorderRadius.circular(8.r),
+                                        child: Container(
+                                          height: 46.h,
+                                          width: double.maxFinite,
+                                          decoration: BoxDecoration(
+                                            color: controller.isDemoMode
+                                                ? AppTheme.primary
+                                                    .withValues(alpha: 0.08)
+                                                : AppTheme
+                                                    .contentBrandPrimaryGreen
+                                                    .withValues(alpha: 0.08),
+                                            borderRadius:
+                                                BorderRadius.circular(8.r),
+                                            border: Border.all(
+                                              color: controller.isDemoMode
+                                                  ? AppTheme.primary
+                                                      .withValues(alpha: 0.35)
+                                                  : AppTheme
+                                                      .contentBrandPrimaryGreen
+                                                      .withValues(alpha: 0.35),
+                                              width: 1.2,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                controller.isDemoMode
+                                                    ? Icons.logout_outlined
+                                                    : Icons.science_outlined,
+                                                size: 18.sp,
+                                                color: controller.isDemoMode
+                                                    ? AppTheme.primary
+                                                    : AppTheme
+                                                        .contentBrandPrimaryGreen,
+                                              ),
+                                              8.w.horizontalSpace,
+                                              AppText(
+                                                text: controller.isDemoMode
+                                                    ? "SWITCH TO LIVE LOGIN"
+                                                    : "EXPLORE DEMO MODE",
+                                                fontSize: 13.sp,
+                                                fontWeight: FontWeight.w600,
+                                                color: controller.isDemoMode
+                                                    ? AppTheme.primary
+                                                    : AppTheme
+                                                        .contentBrandPrimaryGreen,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      12.h.verticalSpace,
+                                    ],
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,

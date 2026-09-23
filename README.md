@@ -1,105 +1,80 @@
-# 🚚 GrubPac Driver App
+# GrubPac Medical App (Production)
+
+Welcome to the **GrubPac Medical** application. This repository contains the code for the main production environment of the app.
 
 ---
 
 ## 🚀 Getting Started
 
-This repository is the foundation for a **GrubPac Driver** app built using Flutter.
+Follow these steps to set up the project on your local machine and run the production application.
 
-### 📚 Helpful Flutter Resources
+### 1. Prerequisites (Setting up Flutter)
+Ensure you have the following installed on your machine:
+* [Flutter SDK](https://docs.flutter.dev/get-started/install) (Version 3.22.x or later is recommended)
+* [Dart SDK](https://dart.dev/get-dart)
+* Android Studio (with Android SDK) or Visual Studio Code
+* Xcode (for iOS development, macOS only)
 
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter Cookbook](https://docs.flutter.dev/cookbook)
-- [Flutter Docs](https://docs.flutter.dev/)
+To verify your Flutter installation, run:
+```bash
+flutter doctor
+```
+
+### 2. Clone the Repository
+Clone the project repository to your local machine:
+```bash
+git clone <repository_url>
+cd medical-app
+```
+
+### 3. Switch to Main Branch
+Ensure you are on the `main` branch which contains the production-ready code:
+```bash
+git checkout main
+```
+
+### 4. Fetch Dependencies
+Download the required packages defined in `pubspec.yaml`:
+```bash
+flutter pub get
+```
+
+### 5. Running the Application (Production Flavor)
+The app is configured using Flutter flavors. To run the production environment, you must specify the `prod` flavor and the `main_prod.dart` entry point.
+
+Run on an attached device or emulator:
+```bash
+flutter run --flavor prod -t lib/main_prod.dart
+```
+
+To build a production App Bundle (AAB) for Google Play:
+```bash
+flutter build appbundle --flavor prod -t lib/main_prod.dart
+```
 
 ---
 
-## ⚙️ Environment Setup
+## 🌍 URLs and Endpoints
 
-Ensure your development environment is configured as follows:
+**Production (Live) URL:**
+* `https://43.204.34.10.nip.io/api/v1`
 
-| Tool           | Version        |
-|----------------|----------------|
-| Flutter        | stable, 3.32.2 |
-| Android Studio | 2024.3         |
-| VS Code        | 1.100.3        |
-| OpenJDK        | 21.0.5         |
-| macOS          | 15.4.1 (ARM64) |
+*(Note: Production endpoints connect to the live backend server. All API requests are routed through the `/medical-mobile/owner` path.)*
 
 ---
 
-## 📁 Project Structure
+## 🏗️ Architecture
 
-```plaintext
-lib/
-├── main.dart               # App entry point
-│
-├── common_components/      # Reusable widgets like buttons, text fields, etc.
-│
-├── core/                   # Foundational code for theme and utilities
-│   ├── theme/              # Light/Dark themes
-│   │   ├── app_theme.dart
-│   │   ├── dark_theme_colors.dart
-│   │   └── light_theme_colors.dart
-│   └── utils/              # Helpers and constants
-│       ├── app_images.dart
-│       ├── app_string.dart
-│       ├── app_text_styles.dart
-│       └── app_toast.dart
-│
-├── helper/                 # Routing and Dependency Injection
-│   ├── get_di.dart
-│   └── route_helper.dart
-│
-└── screens/                # App screens
-    ├── auth_screens/
-    │   ├── controller/     # GetX controllers for auth
-    │   ├── data/           # Auth models and repositories
-    │   └── view/           # Auth UI screens
-    ├── dashboard_screen/
-    ├── home_screen/
-    └── splash_screen/
+The app is built using a structured combination of **Clean Architecture** principles and **GetX** for state management, dependency injection, and routing. 
 
-## Screen Module Structure
+### Key Architectural Layers:
+1. **View/Presentation Layer (`lib/screens/`)**: Contains the Flutter UI code (`_screen.dart` files) and GetX Controllers (`_controller.dart`). The views observe state changes from the controllers.
+2. **Domain/Repository Layer (`lib/screens/.../repo/`)**: Contains repository classes that act as the single source of truth for data fetching. They abstract the API client from the controllers.
+3. **Data/Network Layer (`lib/data/`)**: 
+   * **`ApiClient`**: A centralized HTTP client wrapper handling token injection, timeouts, error parsing, and multipart requests.
+   * **`TokenStore`**: Manages secure storage and refreshing of JWT auth tokens.
+4. **Configuration Layer (`lib/core/flavor/`)**: 
+   * **`AppFlavorConfig`**: Manages environment-specific variables like app name, package ID, base URLs, and feature flags based on the active flavor (`prod`).
 
-Each feature-specific screen directory (e.g., `auth_screens`, `dashboard_screen`) follows a consistent structure to keep related code organized. Here's a breakdown of the structure using `auth_screens` as an example:
-
-*   `controller/`: This directory contains GetX controllers responsible for managing the screen's state and business logic. For example, in `auth_screens`, you might have a `LoginController` that handles form validation, API calls, and navigation.
-*   `data/`: This directory holds data models and repositories specific to the feature. In the case of `auth_screens`, you might have a `UserModel` and a `AuthRepository` that encapsulates API calls for authentication.
-*   `view/`: This directory contains the UI (widgets and screens) for the feature. For `auth_screens`, you might have a `LoginScreen` widget that uses the `LoginController` and displays the login form.
-
-This structure helps maintain a clear separation of concerns, making it easier to develop, test, and maintain individual features within the application.
-
-## State Management
-
-This project uses **GetX** for state management, dependency injection, and route management.
-
-## Flutter Commands
-
-### Build Commands
-
-*   **Generate APK:**
-    ```sh
-    flutter build apk --release
-    ```
-*   **Generate App Bundle (AAB):**
-    ```sh
-    flutter build appbundle --release
-    ```
-
-### Clean Command
-
-*   To clean the project and remove the build directory:
-    ```sh
-    flutter clean
-    ```
-
-### iOS Pods
-
-*   **Install/Update Pods:** (Navigate to the `ios` directory first)
-    ```sh
-    cd ios
-    pod install
-    ```
-
-# Delivery-App
+### State Management & DI
+* **GetX** is used extensively. Dependency Injection (DI) is initialized in `lib/helper/get_di.dart`, where all Repositories, Controllers, and core services (like `ApiClient` and `SharedPreferences`) are lazily registered (`Get.lazyPut()`).

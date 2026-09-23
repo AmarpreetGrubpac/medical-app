@@ -14,6 +14,7 @@ import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/app_utils.dart';
 import 'package:grubpac_driver/core/utils/screen_size.dart';
+import 'package:grubpac_driver/core/flavor/app_flavor_config.dart';
 import 'package:grubpac_driver/helper/get_di.dart';
 import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:toastification/toastification.dart';
@@ -29,7 +30,18 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
+/// Entry point for flavor-specific launches (main_dev.dart, main_prod.dart).
+void runMainApp(AppFlavorConfig config) {
+  AppFlavorConfig.init(config);
+  main();
+}
+
 Future<void> main() async {
+  // Default to dev flavor if not already initialised via runMainApp.
+  if (!AppFlavorConfig.isInitialized) {
+    AppFlavorConfig.init(AppFlavorConfig.dev);
+  }
+
   runZonedGuarded<Future<void>>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
@@ -66,7 +78,9 @@ class MyApp extends StatelessWidget {
     return ToastificationWrapper(
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
-        title: AppString.appName,
+        title: AppFlavorConfig.isInitialized
+            ? AppFlavorConfig.current.appName
+            : AppString.appName,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
         themeMode: AppTheme.isDark ? ThemeMode.dark : ThemeMode.light,

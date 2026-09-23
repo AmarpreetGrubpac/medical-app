@@ -49,6 +49,21 @@ android {
         versionName = flutter.versionName
     }
 
+    flavorDimensions += "default"
+
+    productFlavors {
+        create("dev") {
+            dimension = "default"
+            applicationId = "com.grubpac.medical.test"
+            resValue("string", "app_name", "GrubPac Medical Dev")
+        }
+        create("prod") {
+            dimension = "default"
+            applicationId = "com.grubpac.medical"
+            resValue("string", "app_name", "GrubPac Medical")
+        }
+    }
+
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")

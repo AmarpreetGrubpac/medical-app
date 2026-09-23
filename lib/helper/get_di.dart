@@ -34,7 +34,11 @@ Future<void> init() async {
   Get.put<SharedPreferences>(sharedPreferences, permanent: true);
   Get.put<TokenStore>(tokenStore, permanent: true);
   Get.lazyPut(
-      () => ApiClient(appBaseUrl: AppConstants.baseUrl, tokenStore: Get.find()),
+      () => ApiClient(
+            appBaseUrl: AppConstants.baseUrl,
+            tokenStore: Get.find(),
+            sharedPreferences: Get.find(),
+          ),
       fenix: true);
 
   Get.lazyPut(

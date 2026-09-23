@@ -3,27 +3,44 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:grubpac_driver/core/flavor/app_flavor_config.dart';
 import 'package:grubpac_driver/core/utils/app_constant.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/app_toast.dart';
 import 'package:grubpac_driver/data/auth/token_store.dart';
+import 'package:grubpac_driver/data/mock/mock_data_provider.dart';
 import 'package:grubpac_driver/helper/navigation.dart';
 import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum _RefreshResult { success, rejected, transientFailure }
 
 class ApiClient extends GetxService {
-  ApiClient({required this.appBaseUrl, required this.tokenStore}) {
+  ApiClient({
+    required this.appBaseUrl,
+    required this.tokenStore,
+    required this.sharedPreferences,
+  }) {
     token = tokenStore.accessToken;
   }
 
   final String appBaseUrl;
   final TokenStore tokenStore;
+  final SharedPreferences sharedPreferences;
   final int timeoutInSeconds = 30;
+
+  /// Demo mode: intercept all API calls with mock data.
+  bool get isDemoMode {
+    final hasTestMode = AppFlavorConfig.isInitialized
+        ? AppFlavorConfig.current.hasTestMode
+        : true;
+    if (!hasTestMode) return false;
+    return sharedPreferences.getBool(AppConstants.isDemoMode) ?? false;
+  }
 
   static const String noInternetMessage =
       'Connection to API server failed due to internet connection';
@@ -80,6 +97,11 @@ class ApiClient extends GetxService {
     bool authenticated = true,
     bool allowRefresh = true,
   }) async {
+    if (isDemoMode) {
+      debugPrint('====> [DEMO MODE] Intercepted GET: $uri');
+      final mockRes = MockDataProvider.getMockResponse(uri, 'GET');
+      if (mockRes != null) return mockRes;
+    }
     try {
       _log('GET', uri);
       final response = await http
@@ -178,6 +200,11 @@ class ApiClient extends GetxService {
     required bool authenticated,
     required bool allowRefresh,
   }) async {
+    if (isDemoMode) {
+      debugPrint('====> [DEMO MODE] Intercepted $method: $uri');
+      final mockRes = MockDataProvider.getMockResponse(uri, method, body: body);
+      if (mockRes != null) return mockRes;
+    }
     try {
       _log(method, uri);
       final request = http.Request(method, _buildUri(uri, null))
@@ -252,6 +279,11 @@ class ApiClient extends GetxService {
     required bool authenticated,
     required bool allowRefresh,
   }) async {
+    if (isDemoMode) {
+      debugPrint('====> [DEMO MODE] Intercepted MULTIPART $method: $uri');
+      final mockRes = MockDataProvider.getMockResponse(uri, method, body: body);
+      if (mockRes != null) return mockRes;
+    }
     try {
       _log(method, uri);
       final request = http.MultipartRequest(method, _buildUri(uri, null));

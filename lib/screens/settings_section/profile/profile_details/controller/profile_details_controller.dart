@@ -27,7 +27,7 @@ class ProfileDetailsController extends GetxController {
   String image = AppConstants.custmImageuRl;
 
   // String? image;
-  String location = "da Pizza Corner, Delhi";
+  String location = "GRUB MEDICAL, Delhi";
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();

@@ -11,6 +11,8 @@ import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:grubpac_driver/screens/auth/repo/auth_repo.dart';
 import 'package:grubpac_driver/screens/auth/model/carousel_model.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:grubpac_driver/core/flavor/app_flavor_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginController extends GetxController implements GetxService{
   final AuthRepo authRepo;
@@ -40,12 +42,45 @@ class LoginController extends GetxController implements GetxService{
   bool isLoading = false;
   bool isPhoneNumber = false;
   bool isBtnDisabled = true;
+  bool isDemoMode = false;
 
 
   @override
   void onInit() {
     super.onInit();
+    final hasTestMode = AppFlavorConfig.isInitialized
+        ? AppFlavorConfig.current.hasTestMode
+        : true;
+    final prefs = Get.find<SharedPreferences>();
+    isDemoMode = hasTestMode &&
+        (prefs.getBool(AppConstants.isDemoMode) ?? false);
+    if (isDemoMode) {
+      emailController.text = "demo@grubpac.com";
+    }
     emailController.addListener(_validatePrefix);
+    _validatePrefix();
+  }
+
+  /// TOGGLE DEMO TEST ENVIRONMENT
+  Future<void> toggleDemoMode() async {
+    isDemoMode = !isDemoMode;
+    final prefs = Get.find<SharedPreferences>();
+
+    if (isDemoMode) {
+      await prefs.setBool(AppConstants.isDemoMode, true);
+      emailController.text = "demo@grubpac.com";
+      AppToast.showSuccess(
+        message: "Demo Mode active. Prefilled demo credentials.",
+      );
+    } else {
+      await prefs.remove(AppConstants.isDemoMode);
+      emailController.clear();
+      AppToast.showSuccess(
+        message: "Switched to Live Environment.",
+      );
+    }
+    _validatePrefix();
+    update();
   }
 
   /// ON CHANGE PAGE
