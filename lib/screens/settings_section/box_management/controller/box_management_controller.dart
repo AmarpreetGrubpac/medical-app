@@ -18,6 +18,7 @@ import '../../../../core/utils/app_toast.dart';
 import '../../../../core/utils/app_utils.dart';
 import '../../../../common_components/grublock_bottom_sheet.dart';
 import '../../../box_details/controller/box_details_controller.dart';
+import '../../../../data/auth/session_manager.dart';
 
 class BoxManagementController extends GetxController
     with WidgetsBindingObserver {
@@ -311,6 +312,21 @@ class BoxManagementController extends GetxController
     final box = boxes[boxIndex];
     final action = box.isLocked ? 'unlock' : 'lock';
 
+    final session = Get.isRegistered<SessionManager>() ? Get.find<SessionManager>() : null;
+    if (session?.isHandler == true) {
+      // Handler uses OTP lock flow per matrix
+      AppToast.showSuccess(
+        message: "OTP requested for box ${box.isLocked ? 'unlock' : 'lock'}.",
+      );
+      try {
+        await boxRepo.apiClient.postData('boxes/$boxId/otp-lock', {
+          "action": action,
+        });
+      } catch (_) {}
+      return;
+    }
+
+    // Owner uses Force / Grublock (no OTP)
     await GrubLockBottomSheet.show(
       context: context,
       isLocked: box.isLocked,

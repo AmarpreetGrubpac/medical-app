@@ -12,6 +12,7 @@ import 'package:grubpac_driver/core/utils/app_utils.dart';
 import 'package:grubpac_driver/screens/settings_section/profile/profile_details/controller/profile_details_controller.dart';
 import 'package:grubpac_driver/screens/settings_section/profile/profile_details/widgets/details_row.dart';
 import 'package:grubpac_driver/screens/settings_section/profile/profile_details/widgets/edit_icon_button.dart';
+import 'package:grubpac_driver/common_components/role_gated.dart';
 import 'package:intl/intl.dart';
 
 class ProfileDetailsScreen extends StatelessWidget {
@@ -27,8 +28,10 @@ class ProfileDetailsScreen extends StatelessWidget {
               CommonAppNameBar(),
               CommonBackAppBar(
                 title: AppString.yourProfile,
-                trailing: EditIconButton(
-                  onTap: controller.onChangePassTap,
+                trailing: OwnerOnly(
+                  child: EditIconButton(
+                    onTap: controller.onChangePassTap,
+                  ),
                 ),
               ),
               Divider(

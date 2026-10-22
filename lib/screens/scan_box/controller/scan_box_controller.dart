@@ -42,7 +42,7 @@ class ScanBoxController extends GetxController {
     try {
       final decoded = jsonDecode(rawValue);
       if (decoded is Map) {
-        boxDisplayId = decoded['box_display_id']?.toString();
+        boxDisplayId = (decoded['display_id'] ?? decoded['box_display_id'])?.toString();
       } else if (decoded is String) {
         boxDisplayId = decoded.trim();
       }

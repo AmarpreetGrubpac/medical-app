@@ -143,11 +143,25 @@ class VerifyOtpController extends GetxController implements GetxService {
         }
         AppToast.showSuccess(message: AppString.otpVerified);
         if (flow == "otp_login") {
+          final data = body['data'] is Map ? body['data'] : {};
+          final args = Get.arguments is Map ? Get.arguments : null;
+          final persona = (body['persona'] ?? data['persona'] ?? args?['persona'])?.toString() ?? '';
+          final apiPrefix = (body['api_prefix'] ?? data['api_prefix'] ?? args?['api_prefix'])?.toString() ?? '';
+          final clientId = (body['client_id'] ?? data['client_id'] ?? args?['client_id'])?.toString();
+          final userId = (data['id'] ?? data['user_id'] ?? body['user_id'])?.toString();
+
+          if (persona.isNotEmpty && apiPrefix.isNotEmpty) {
+            await authRepo.saveUserSession(
+              persona: persona,
+              apiPrefix: apiPrefix,
+              clientId: clientId,
+              userId: userId,
+            );
+          }
+
           await authRepo.saveUserToken(token);
           await authRepo.onUpdateToken(token);
           Navigation.replaceAll(RouteHelper.dashboard);
-
-          // Navigation.removeAll(RouteHelper.dashboard);
           return;
         }
 

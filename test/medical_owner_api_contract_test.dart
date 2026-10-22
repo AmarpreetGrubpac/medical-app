@@ -1,17 +1,25 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:grubpac_driver/core/utils/app_constant.dart';
 import 'package:grubpac_driver/data/api/api_client.dart';
+import 'package:grubpac_driver/data/auth/session_manager.dart';
 import 'package:grubpac_driver/data/auth/token_store.dart';
 import 'package:grubpac_driver/screens/settings_section/box_management/controller/box_repo.dart';
 import 'package:grubpac_driver/screens/settings_section/box_management/model/box_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _RecordingApiClient extends ApiClient {
-  _RecordingApiClient(TokenStore tokenStore)
-      : super(
-            appBaseUrl: 'https://example.test/api/v1', tokenStore: tokenStore);
+  _RecordingApiClient({
+    required TokenStore tokenStore,
+    required SharedPreferences sharedPreferences,
+    required SessionManager sessionManager,
+  }) : super(
+          appBaseUrl: 'https://example.test/api/v1/',
+          tokenStore: tokenStore,
+          sharedPreferences: sharedPreferences,
+          sessionManager: sessionManager,
+        );
 
   String? method;
   String? path;
@@ -50,14 +58,24 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late SharedPreferences preferences;
+  late SessionManager sessionManager;
   late _RecordingApiClient apiClient;
   late BoxManagementRepo repository;
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
     preferences = await SharedPreferences.getInstance();
+    sessionManager = SessionManager(prefs: preferences);
+    sessionManager.initialize();
+
+    final tokenStore = TokenStore(legacyPreferences: preferences);
+    await tokenStore.initialize();
+
     apiClient = _RecordingApiClient(
-      TokenStore(legacyPreferences: preferences),
+      tokenStore: tokenStore,
+      sharedPreferences: preferences,
+      sessionManager: sessionManager,
     );
     repository = BoxManagementRepo(
       sharedPreferences: preferences,
@@ -65,21 +83,25 @@ void main() {
     );
   });
 
-  test('active endpoint constants use the Medical Owner prefix', () {
-    expect(AppConstants.configApi, startsWith(AppConstants.medicalOwnerPath));
-    expect(AppConstants.loginApi, startsWith(AppConstants.medicalOwnerPath));
-    expect(AppConstants.getProfile, startsWith(AppConstants.medicalOwnerPath));
-    expect(AppConstants.getAllBoxes, startsWith(AppConstants.medicalOwnerPath));
-    expect(AppConstants.getAlerts, startsWith(AppConstants.medicalOwnerPath));
-    expect(AppConstants.categoryApi, startsWith(AppConstants.medicalOwnerPath));
+  test('active endpoint constants use unified relative paths', () {
+    expect(AppConstants.configApi, 'config');
+    expect(AppConstants.checkAccountApi, 'medical-mobile/auth/check-account');
+    expect(AppConstants.ExistingUserApi, 'medical-mobile/auth/login');
+    expect(AppConstants.getProfile, 'profile');
+    expect(AppConstants.getAllBoxes, 'boxes');
+    expect(AppConstants.getAlerts, 'notification');
+    expect(AppConstants.categoryApi, 'support/category');
   });
 
-  test('box scanner claims by box_display_id', () async {
+  test('box scanner claims with display_id', () async {
     await repository.registerbox('MED-BOX-001');
 
     expect(apiClient.method, 'POST');
     expect(apiClient.path, AppConstants.claimBox);
-    expect(apiClient.payload, {'box_display_id': 'MED-BOX-001'});
+    expect(apiClient.payload, {
+      'display_id': 'MED-BOX-001',
+      'box_display_id': 'MED-BOX-001',
+    });
   });
 
   test('emergency unlock sends ids array to grublock endpoint', () async {

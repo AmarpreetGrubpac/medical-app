@@ -139,14 +139,32 @@ class ExistingUserController extends GetxController implements GetxService {
       update();
 
       if (response.statusCode == 200) {
-        String? token = response.body['data']?['auth_token'];
-        String? refreshToken = response.body['data']?['refresh_token'];
+        final body = response.body is Map ? response.body : {};
+        final data = body['data'] is Map ? body['data'] : {};
+
+        String? token = data['auth_token'] ?? body['auth_token'];
+        String? refreshToken = data['refresh_token'] ?? body['refresh_token'];
+
+        final args = Get.arguments is Map ? Get.arguments : null;
+        final persona = (body['persona'] ?? data['persona'] ?? args?['persona'])?.toString() ?? '';
+        final apiPrefix = (body['api_prefix'] ?? data['api_prefix'] ?? args?['api_prefix'])?.toString() ?? '';
+        final clientId = (body['client_id'] ?? data['client_id'] ?? args?['client_id'])?.toString();
+        final userId = (data['id'] ?? data['user_id'] ?? body['user_id'])?.toString();
+
+        if (persona.isNotEmpty && apiPrefix.isNotEmpty) {
+          await authRepo.saveUserSession(
+            persona: persona,
+            apiPrefix: apiPrefix,
+            clientId: clientId,
+            userId: userId,
+          );
+        }
+
         if (token != null && token.isNotEmpty) {
           await authRepo.saveUserToken(token);
           await authRepo.saveUserRefreshToken(refreshToken ?? '');
           await authRepo.onUpdateToken(token);
 
-          // Navigation.pushNamed(RouteHelper.dashboard);
           Navigation.replaceAll(RouteHelper.dashboard);
         } else {
           AppToast.showError(
@@ -172,29 +190,27 @@ class ExistingUserController extends GetxController implements GetxService {
   }
 
   Future<bool> clearSavedData() async {
+    await authRepo.clearSharedPrefrences();
     Navigation.replaceAll(RouteHelper.login);
     AppToast.showSuccess(message: AppString.logoutSuccess);
-    await Future.delayed(const Duration(milliseconds: 100));
-    return authRepo.clearSharedPrefrences();
+    return true;
   }
 
   Future<bool> deleteSavedData() async {
+    await authRepo.clearSharedPrefrences();
     Navigation.replaceAll(RouteHelper.login);
     AppToast.showSuccess(message: AppString.deleteTitle);
-    await Future.delayed(const Duration(milliseconds: 100));
-    return authRepo.clearSharedPrefrences();
+    return true;
   }
 
   Future<void> logoutAccount() async {
     update();
-    Response response = await authRepo.logoutAccount();
-    if (response.statusCode == 200) {
-      clearSavedData();
-    } else {
-      AppToast.showError(message: "Logout failed");
-      Get.back();
-      ApiChecker.checkApi(response);
+    try {
+      await authRepo.logoutAccount();
+    } catch (_) {
+      // Ignore network errors during logout to allow client cleanup
     }
+    await clearSavedData();
   }
 
   Future<void> deleteAccount(String pass) async {

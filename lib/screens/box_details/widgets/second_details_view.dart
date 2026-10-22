@@ -66,7 +66,7 @@ class SecondDetailsView extends StatelessWidget {
                           _ConnectionsWidget(),
                           _PowerWidget(),
                           _StorageWidget(),
-                          _CameraWidget(),
+                          // Live camera / video logs hidden per unified handoff matrix: Owner ✗, Handler ✗
                           _LightWidget(),
                         ],
                       ),

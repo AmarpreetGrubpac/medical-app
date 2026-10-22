@@ -5,7 +5,7 @@ class MockDataProvider {
     final cleanUri = uri.trim();
 
     // 1. Config API
-    if (cleanUri.contains('/medical-mobile/owner/config')) {
+    if (cleanUri.contains('/config')) {
       return Response(
         statusCode: 200,
         body: {
@@ -25,34 +25,40 @@ class MockDataProvider {
     }
 
     // 2. Auth APIs
-    if (cleanUri.contains('/medical-mobile/owner/auth/check-account')) {
+    if (cleanUri.contains('/auth/check-account')) {
       return const Response(
         statusCode: 200,
         body: {
           "success": true,
           "is_account_found": true,
-          "is_password_set": true
+          "is_password_set": true,
+          "persona": "owner",
+          "api_prefix": "medical-mobile/owner/"
         },
       );
     }
 
-    if (cleanUri.contains('/medical-mobile/owner/auth/login')) {
+    if (cleanUri.contains('/auth/login')) {
       return const Response(
         statusCode: 200,
         body: {
           "success": true,
+          "persona": "owner",
+          "api_prefix": "medical-mobile/owner/",
           "data": {
             "auth_token": "mock_demo_jwt_token_medical_12345",
-            "refresh_token": "mock_demo_refresh_token_67890"
+            "refresh_token": "mock_demo_refresh_token_67890",
+            "persona": "owner",
+            "api_prefix": "medical-mobile/owner/"
           }
         },
       );
     }
 
-    if (cleanUri.contains('/medical-mobile/owner/auth/send-otp') ||
-        cleanUri.contains('/medical-mobile/owner/auth/resend-otp') ||
-        cleanUri.contains('/medical-mobile/owner/auth/forget-password/otp/send') ||
-        cleanUri.contains('/medical-mobile/owner/auth/forget-password/otp/resend')) {
+    if (cleanUri.contains('/auth/send-otp') ||
+        cleanUri.contains('/auth/resend-otp') ||
+        cleanUri.contains('/auth/forget-password/otp/send') ||
+        cleanUri.contains('/auth/forget-password/otp/resend')) {
       return const Response(
         statusCode: 200,
         body: {
@@ -62,22 +68,26 @@ class MockDataProvider {
       );
     }
 
-    if (cleanUri.contains('/medical-mobile/owner/auth/verify-otp') ||
-        cleanUri.contains('/medical-mobile/owner/auth/forget-password/otp/verify')) {
+    if (cleanUri.contains('/auth/verify-otp') ||
+        cleanUri.contains('/auth/forget-password/otp/verify')) {
       return const Response(
         statusCode: 200,
         body: {
           "success": true,
+          "persona": "owner",
+          "api_prefix": "medical-mobile/owner/",
           "data": {
             "auth_token": "mock_demo_jwt_token_medical_12345",
-            "refresh_token": "mock_demo_refresh_token_67890"
+            "refresh_token": "mock_demo_refresh_token_67890",
+            "persona": "owner",
+            "api_prefix": "medical-mobile/owner/"
           }
         },
       );
     }
 
-    if (cleanUri.contains('/medical-mobile/owner/auth/set-password') ||
-        cleanUri.contains('/medical-mobile/owner/auth/forget-password/set-password')) {
+    if (cleanUri.contains('/auth/set-password') ||
+        cleanUri.contains('/auth/forget-password/set-password')) {
       return const Response(
         statusCode: 200,
         body: {
@@ -87,7 +97,7 @@ class MockDataProvider {
       );
     }
 
-    if (cleanUri.contains('/medical-mobile/owner/auth/logout')) {
+    if (cleanUri.contains('/auth/logout')) {
       return const Response(
         statusCode: 200,
         body: {
@@ -97,7 +107,7 @@ class MockDataProvider {
       );
     }
 
-    if (cleanUri.contains('/medical-mobile/owner/auth/refresh')) {
+    if (cleanUri.contains('/auth/refresh')) {
       return const Response(
         statusCode: 200,
         body: {
@@ -111,7 +121,7 @@ class MockDataProvider {
     }
 
     // 3. User Profile API
-    if (cleanUri.contains('/medical-mobile/owner/profile') || cleanUri.contains('/medical-mobile/owner/account')) {
+    if (cleanUri.contains('/profile') || cleanUri.contains('/account')) {
       if (method == 'GET') {
         return const Response(
           statusCode: 200,
@@ -229,7 +239,7 @@ class MockDataProvider {
     }
 
     // 6. Box List / Details / Claim / Connect / Settings
-    if (cleanUri.contains('/medical-mobile/owner/boxes')) {
+    if (cleanUri.contains('/boxes')) {
       // Box settings update
       if (cleanUri.contains('/settings') && (method == 'PATCH' || method == 'PUT')) {
         return const Response(
@@ -447,7 +457,7 @@ class MockDataProvider {
     }
 
     // 7. Notifications / Alerts
-    if (cleanUri.contains('/medical-mobile/owner/notification')) {
+    if (cleanUri.contains('/notification')) {
       if (method == 'GET') {
         return Response(
           statusCode: 200,
@@ -501,7 +511,7 @@ class MockDataProvider {
     }
 
     // 8. Help FAQ & Categories
-    if (cleanUri.contains('/medical-mobile/owner/support/category')) {
+    if (cleanUri.contains('/support/category')) {
       return const Response(
         statusCode: 200,
         body: {
@@ -552,7 +562,7 @@ class MockDataProvider {
       );
     }
 
-    if (cleanUri.contains('/medical-mobile/owner/support/faq')) {
+    if (cleanUri.contains('/support/faq')) {
       return const Response(
         statusCode: 200,
         body: {

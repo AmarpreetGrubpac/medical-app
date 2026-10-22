@@ -7,6 +7,7 @@ import 'package:grubpac_driver/core/flavor/app_flavor_config.dart';
 import 'package:grubpac_driver/core/utils/app_constant.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/app_toast.dart';
+import 'package:grubpac_driver/data/auth/session_manager.dart';
 import 'package:grubpac_driver/data/auth/token_store.dart';
 import 'package:grubpac_driver/data/mock/mock_data_provider.dart';
 import 'package:grubpac_driver/helper/navigation.dart';
@@ -24,6 +25,7 @@ class ApiClient extends GetxService {
     required this.appBaseUrl,
     required this.tokenStore,
     required this.sharedPreferences,
+    required this.sessionManager,
   }) {
     token = tokenStore.accessToken;
   }
@@ -31,6 +33,7 @@ class ApiClient extends GetxService {
   final String appBaseUrl;
   final TokenStore tokenStore;
   final SharedPreferences sharedPreferences;
+  final SessionManager sessionManager;
   final int timeoutInSeconds = 30;
 
   /// Demo mode: intercept all API calls with mock data.
@@ -54,9 +57,35 @@ class ApiClient extends GetxService {
   void updateHeader(String? value) => token = value;
 
   Uri _buildUri(String path, Map<String, dynamic>? query) {
-    final uri = Uri.parse('$appBaseUrl$path');
-    if (query == null || query.isEmpty) return uri;
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      final uri = Uri.parse(path);
+      return _applyQuery(uri, query);
+    }
 
+    String base = appBaseUrl;
+    if (!base.endsWith('/')) {
+      base = '$base/';
+    }
+
+    String cleanPath = path.startsWith('/') ? path.substring(1) : path;
+
+    String finalUrl;
+    if (cleanPath.startsWith('medical-mobile/auth/') ||
+        cleanPath.startsWith('simulator/') ||
+        cleanPath.startsWith('medical-mobile/owner/') ||
+        cleanPath.startsWith('medical-mobile/driver/')) {
+      finalUrl = '$base$cleanPath';
+    } else {
+      final prefix = sessionManager.normalizedApiPrefix;
+      finalUrl = '$base$prefix$cleanPath';
+    }
+
+    final uri = Uri.parse(finalUrl);
+    return _applyQuery(uri, query);
+  }
+
+  Uri _applyQuery(Uri uri, Map<String, dynamic>? query) {
+    if (query == null || query.isEmpty) return uri;
     final parameters = <String, String>{...uri.queryParameters};
     query.forEach((key, value) {
       if (value != null) parameters[key] = value.toString();
@@ -468,6 +497,7 @@ class ApiClient extends GetxService {
     try {
       token = null;
       await tokenStore.clear();
+      await sessionManager.clearSession();
       AppToast.showError(message: AppString.sessionExpired);
       await Future<void>.delayed(const Duration(milliseconds: 200));
       Navigation.replaceAll(RouteHelper.login);

@@ -2,13 +2,19 @@ import 'package:get/get.dart';
 import 'package:grubpac_driver/core/exceptions/failure.dart';
 import 'package:grubpac_driver/core/utils/app_constant.dart';
 import 'package:grubpac_driver/data/api/api_client.dart';
+import 'package:grubpac_driver/data/auth/session_manager.dart';
 import 'package:grubpac_driver/data/auth/token_store.dart';
 
 class AuthRepo {
   final TokenStore tokenStore;
   final ApiClient apiClient;
+  final SessionManager sessionManager;
 
-  AuthRepo({required this.apiClient, required this.tokenStore});
+  AuthRepo({
+    required this.apiClient,
+    required this.tokenStore,
+    required this.sessionManager,
+  });
 
   Future<Response> onLogin(String type, String emailOrPhone) async {
     final body = {"type": type, "body": emailOrPhone};
@@ -184,8 +190,25 @@ class AuthRepo {
     return tokenStore.hasAccessToken;
   }
 
-  Future<bool> clearSharedPrefrences() {
-    return tokenStore.clear().then((_) => true);
+  Future<void> saveUserSession({
+    required String persona,
+    required String apiPrefix,
+    String? clientId,
+    String? userId,
+  }) async {
+    await sessionManager.saveSession(
+      persona: persona,
+      apiPrefix: apiPrefix,
+      clientId: clientId,
+      userId: userId,
+    );
+  }
+
+  Future<bool> clearSharedPrefrences() async {
+    await sessionManager.clearSession();
+    await tokenStore.clear();
+    apiClient.updateHeader(null);
+    return true;
   }
 
   Future<Response> logoutAccount() async {

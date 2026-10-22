@@ -173,7 +173,8 @@ class LoginController extends GetxController implements GetxService{
       );
 
       if (response.statusCode == 200) {
-        bool isAccountFound = response.body['is_account_found'] ?? false;
+        final body = response.body is Map ? response.body : {};
+        bool isAccountFound = body['is_account_found'] ?? false;
 
         if (!isAccountFound) {
           AppToast.showError(
@@ -181,7 +182,21 @@ class LoginController extends GetxController implements GetxService{
               title: AppString.accountNotFound);
           return;
         }
-        bool isPasswordSet = response.body['is_password_set'] ?? false;
+
+        // Extract persona & api_prefix returned by unified check-account
+        final persona = (body['persona'] ?? body['data']?['persona'])?.toString() ?? '';
+        final apiPrefix = (body['api_prefix'] ?? body['data']?['api_prefix'])?.toString() ?? '';
+        final clientId = (body['client_id'] ?? body['data']?['client_id'])?.toString();
+
+        if (persona.isNotEmpty && apiPrefix.isNotEmpty) {
+          await authRepo.saveUserSession(
+            persona: persona,
+            apiPrefix: apiPrefix,
+            clientId: clientId,
+          );
+        }
+
+        bool isPasswordSet = body['is_password_set'] ?? false;
 
         if (isPasswordSet) {
           Get.find<ExistingUserController>().prefillAuth(input, isPhoneNumber);
@@ -190,6 +205,9 @@ class LoginController extends GetxController implements GetxService{
             arg: {
               'auth': input,
               'is_number': isPhoneNumber,
+              'persona': persona,
+              'api_prefix': apiPrefix,
+              'client_id': clientId,
             },
           );
         } else {
@@ -200,6 +218,9 @@ class LoginController extends GetxController implements GetxService{
               "is_number": isPhoneNumber,
               if (isPhoneNumber) "country_code": "+91",
               "flow": "login",
+              'persona': persona,
+              'api_prefix': apiPrefix,
+              'client_id': clientId,
             },
           );
         }

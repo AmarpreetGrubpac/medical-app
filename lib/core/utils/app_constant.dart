@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class AppConstants {
   static const String appName = 'GrubPac Medical';
   static const String appUrl = 'GrubPac Medical';
@@ -13,58 +11,57 @@ class AppConstants {
   //   throw StateError('API_BASE_URL is required for release builds.');
   // }
 
-  static const String medicalOwnerPath = '/medical-mobile/owner';
-  static const String configApi = '$medicalOwnerPath/config';
-  static const String checkAccountApi = '$medicalOwnerPath/auth/check-account';
-  static const String ExistingUserApi = '$medicalOwnerPath/auth/login';
-  static const String loginApi = '$medicalOwnerPath/auth/send-otp';
-  static const String resendOtpApi = '$medicalOwnerPath/auth/resend-otp';
-  static const String verifyOtpApi = '$medicalOwnerPath/auth/verify-otp';
-  static const String setPassword = '$medicalOwnerPath/auth/set-password';
-  static const String refreshTokenApi = '$medicalOwnerPath/auth/refresh';
+  static const String ownerPrefix = 'medical-mobile/owner/';
+  static const String driverPrefix = 'medical-mobile/driver/';
+  static const String unifiedAuthPath = 'medical-mobile/auth';
 
-  /// forgt password urlsp
+  // Unified auth endpoints
+  static const String checkAccountApi = '$unifiedAuthPath/check-account';
+  static const String ExistingUserApi = '$unifiedAuthPath/login';
+  static const String loginApi = '$unifiedAuthPath/send-otp';
+  static const String resendOtpApi = '$unifiedAuthPath/resend-otp';
+  static const String verifyOtpApi = '$unifiedAuthPath/verify-otp';
+  static const String setPassword = '$unifiedAuthPath/set-password';
+  static const String refreshTokenApi = '$unifiedAuthPath/refresh';
+
+  /// Forgot password urls
   static const String forgotPasswordUrl =
-      '$medicalOwnerPath/auth/forget-password/otp/send';
+      '$unifiedAuthPath/forget-password/otp/send';
   static const String resendForgotPasswordUrl =
-      '$medicalOwnerPath/auth/forget-password/otp/resend';
+      '$unifiedAuthPath/forget-password/otp/resend';
   static const String verifyforgotPasswordotp =
-      '$medicalOwnerPath/auth/forget-password/otp/verify';
+      '$unifiedAuthPath/forget-password/otp/verify';
   static const String setNewPasswordApi =
-      '$medicalOwnerPath/auth/forget-password/set-password';
+      '$unifiedAuthPath/forget-password/set-password';
 
-  // profile apis
-  static const String getProfile = '$medicalOwnerPath/profile';
-  static const String updateProfile = '$medicalOwnerPath/account';
+  // Config & Profile apis (relative to session.apiPrefix)
+  static const String configApi = 'config';
+  static const String getProfile = 'profile';
+  static const String updateProfile = 'account';
 
-  //Box apis
-  static const String getAllBoxes = '$medicalOwnerPath/boxes';
-  static const String claimBox = '$medicalOwnerPath/boxes/claim';
-  static const String removebox = '$medicalOwnerPath/boxes/:box_id';
-  static const String updatebox = '$medicalOwnerPath/boxes/:box_id/settings';
-  static const String connectBox = '$medicalOwnerPath/boxes/:box_id/connection';
-  static const String disconnectBox =
-      '$medicalOwnerPath/boxes/:box_id/connection';
-  static const String lockBox = '$medicalOwnerPath/boxes/:box_id/lock';
-  static const String emergencyUnlockGrublock =
-      '$medicalOwnerPath/grublock/emergency_unlock';
-  static const String lockGrublock = '$medicalOwnerPath/grublock/lock';
+  // Box apis (relative to session.apiPrefix)
+  static const String getAllBoxes = 'boxes';
+  static const String claimBox = 'boxes/claim';
+  static const String registerQrBox = 'boxes';
+  static const String removebox = 'boxes/:box_id';
+  static const String updatebox = 'boxes/:box_id/settings';
+  static const String connectBox = 'boxes/:box_id/connection';
+  static const String disconnectBox = 'boxes/:box_id/connection';
+  static const String lockBox = 'boxes/:box_id/lock';
+  static const String emergencyUnlockGrublock = 'grublock/emergency_unlock';
+  static const String lockGrublock = 'grublock/lock';
+  static const String emergencyAlert = 'emergency/alert';
 
-  // auth apis
+  // Auth & Account apis (relative to session.apiPrefix)
+  static const String logoutApi = 'auth/logout';
+  static const String deleteAccount = 'account';
+  static const String changePasswordApi = 'account';
 
-  static const String logoutApi = '$medicalOwnerPath/auth/logout';
-  static const String deleteAccount = '$medicalOwnerPath/account';
-  static const String changePasswordApi = '$medicalOwnerPath/account';
-
-// categories
-  static const String categoryApi = '$medicalOwnerPath/support/category';
-  static const String subCategoryApi = '$medicalOwnerPath/support/faq';
-
-  /// notification
-  static const String alertList = '$medicalOwnerPath/support/faq';
-
-  /// alerts
-  static const String getAlerts = '$medicalOwnerPath/notification';
+  // Support & Notification apis (relative to session.apiPrefix)
+  static const String categoryApi = 'support/category';
+  static const String subCategoryApi = 'support/faq';
+  static const String alertList = 'support/faq';
+  static const String getAlerts = 'notification';
 
   static String privacyPolicyR = 'https://www.grubpac.com/privacypolicy';
   // 'https://www.lenskart.com/eyeglasses/gender/all-men-eyeglasses.html';

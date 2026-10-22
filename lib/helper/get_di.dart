@@ -1,5 +1,7 @@
+import 'package:grubpac_driver/core/flavor/app_flavor_config.dart';
 import 'package:grubpac_driver/core/utils/app_constant.dart';
 import 'package:grubpac_driver/data/api/api_client.dart';
+import 'package:grubpac_driver/data/auth/session_manager.dart';
 import 'package:grubpac_driver/data/auth/token_store.dart';
 import 'package:grubpac_driver/screens/auth/repo/auth_repo.dart';
 import 'package:grubpac_driver/screens/auth/controller/login_controller.dart';
@@ -31,13 +33,21 @@ Future<void> init() async {
   final tokenStore = TokenStore(legacyPreferences: sharedPreferences);
   await tokenStore.initialize();
 
+  final sessionManager = SessionManager(prefs: sharedPreferences);
+  sessionManager.initialize();
+
   Get.put<SharedPreferences>(sharedPreferences, permanent: true);
   Get.put<TokenStore>(tokenStore, permanent: true);
+  Get.put<SessionManager>(sessionManager, permanent: true);
+
   Get.lazyPut(
       () => ApiClient(
-            appBaseUrl: AppConstants.baseUrl,
+            appBaseUrl: AppFlavorConfig.isInitialized
+                ? AppFlavorConfig.current.baseUrl
+                : AppConstants.baseUrl,
             tokenStore: Get.find(),
             sharedPreferences: Get.find(),
+            sessionManager: Get.find(),
           ),
       fenix: true);
 
@@ -47,7 +57,12 @@ Future<void> init() async {
       fenix: true);
 
   //repository
-  Get.lazyPut(() => AuthRepo(apiClient: Get.find(), tokenStore: Get.find()),
+  Get.lazyPut(
+      () => AuthRepo(
+            apiClient: Get.find(),
+            tokenStore: Get.find(),
+            sessionManager: Get.find(),
+          ),
       fenix: true);
   Get.lazyPut(() => SplashRepo(apiClient: Get.find()), fenix: true);
   Get.lazyPut(

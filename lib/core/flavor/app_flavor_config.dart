@@ -1,5 +1,6 @@
 enum AppFlavor {
   dev,
+  staging,
   prod,
 }
 
@@ -31,15 +32,26 @@ class AppFlavorConfig {
   }
 
   static bool get isDev => _isInitialized && _instance.flavor == AppFlavor.dev;
+  static bool get isStaging =>
+      _isInitialized && _instance.flavor == AppFlavor.staging;
   static bool get isProd =>
       _isInitialized && _instance.flavor == AppFlavor.prod;
 
-  /// Default Dev / Test configuration
+  /// Default Dev / Pre-prod configuration
   static final AppFlavorConfig dev = AppFlavorConfig(
     flavor: AppFlavor.dev,
     appName: "GrubPac Medical Dev",
-    baseUrl: "https://preprod.43.204.34.10.nip.io/api/v1",
+    baseUrl: "https://preprod.43.204.34.10.nip.io/api/v1/",
     packageId: "com.grubpac.medical.test",
+    hasTestMode: true,
+  );
+
+  /// Default Staging configuration
+  static final AppFlavorConfig staging = AppFlavorConfig(
+    flavor: AppFlavor.staging,
+    appName: "GrubPac Medical Staging",
+    baseUrl: "https://staging.43.204.34.10.nip.io/api/v1/",
+    packageId: "com.grubpac.medical.staging",
     hasTestMode: true,
   );
 
@@ -47,7 +59,7 @@ class AppFlavorConfig {
   static final AppFlavorConfig prod = AppFlavorConfig(
     flavor: AppFlavor.prod,
     appName: "GrubPac Medical",
-    baseUrl: "https://43.204.34.10.nip.io/api/v1",
+    baseUrl: "https://43.204.34.10.nip.io/api/v1/",
     packageId: "com.grubpac.medical",
     hasTestMode: false,
   );

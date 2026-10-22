@@ -16,9 +16,32 @@ class BoxManagementRepo {
   }
 
   Future<Response> registerbox(String boxId) async {
+    final isHandler = apiClient.sessionManager.isHandler;
+    if (isHandler) {
+      // Handler: POST …/boxes (QR)
+      return await apiClient.postData(
+        AppConstants.registerQrBox,
+        {
+          "display_id": boxId,
+          "box_display_id": boxId,
+        },
+      );
+    } else {
+      // Owner: POST …/boxes/claim { "display_id": ... }
+      return await apiClient.postData(
+        AppConstants.claimBox,
+        {
+          "display_id": boxId,
+          "box_display_id": boxId,
+        },
+      );
+    }
+  }
+
+  Future<Response> postEmergencyAlert(Map<String, dynamic> data) async {
     return await apiClient.postData(
-      AppConstants.claimBox,
-      {"box_display_id": boxId},
+      AppConstants.emergencyAlert,
+      data,
     );
   }
 
