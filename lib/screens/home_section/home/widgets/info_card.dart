@@ -32,19 +32,28 @@ class InfoCard extends StatelessWidget {
             colorFilter:
                 ColorFilter.mode(AppTheme.contentBrandPrimary, BlendMode.srcIn),
           ),
-          Column(
-            spacing: 8.h,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppText(
-                  text: label, fontSize: 14.sp, fontWeight: FontWeight.w400),
-              AppText(
-                text: value,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.contentNeutralPrimary,
-              ),
-            ],
+          Expanded(
+            child: Column(
+              spacing: 8.h,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppText(
+                  text: label,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                AppText(
+                  text: value,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.contentNeutralPrimary,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ],
       ),

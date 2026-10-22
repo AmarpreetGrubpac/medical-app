@@ -48,6 +48,12 @@ class ApiClient extends GetxService {
   static const String noInternetMessage =
       'Connection to API server failed due to internet connection';
 
+  Response? _demoResponse(String uri, String method, {dynamic body}) {
+    final path = uri.trim();
+    final mockPath = path.startsWith('/') ? path : '/$path';
+    return MockDataProvider.getMockResponse(mockPath, method, body: body);
+  }
+
   String? token;
   bool _isHandlingUnauthorized = false;
   Future<_RefreshResult>? _refreshFuture;
@@ -128,7 +134,7 @@ class ApiClient extends GetxService {
   }) async {
     if (isDemoMode) {
       debugPrint('====> [DEMO MODE] Intercepted GET: $uri');
-      final mockRes = MockDataProvider.getMockResponse(uri, 'GET');
+      final mockRes = _demoResponse(uri, 'GET');
       if (mockRes != null) return mockRes;
     }
     try {
@@ -231,7 +237,7 @@ class ApiClient extends GetxService {
   }) async {
     if (isDemoMode) {
       debugPrint('====> [DEMO MODE] Intercepted $method: $uri');
-      final mockRes = MockDataProvider.getMockResponse(uri, method, body: body);
+      final mockRes = _demoResponse(uri, method, body: body);
       if (mockRes != null) return mockRes;
     }
     try {
@@ -310,7 +316,7 @@ class ApiClient extends GetxService {
   }) async {
     if (isDemoMode) {
       debugPrint('====> [DEMO MODE] Intercepted MULTIPART $method: $uri');
-      final mockRes = MockDataProvider.getMockResponse(uri, method, body: body);
+      final mockRes = _demoResponse(uri, method, body: body);
       if (mockRes != null) return mockRes;
     }
     try {
