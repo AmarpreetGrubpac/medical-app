@@ -10,7 +10,6 @@ import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_images.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/app_utils.dart';
-import 'package:grubpac_driver/core/utils/enums.dart';
 import 'package:grubpac_driver/screens/box_details/widgets/outlined_box.dart';
 import 'package:grubpac_driver/screens/box_details/controller/box_details_controller.dart';
 
@@ -29,9 +28,9 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<BoxDetailsController>();
-    final batteryLevel = controller.boxInfo?.batteryLevel ?? 0;
-    final battery1Level = controller.boxInfo?.battery1Level ?? 100;
-    final battery2Level = controller.boxInfo?.battery2Level ?? 0;
+    final batteryLevel = controller.boxInfo?.batteryLevel;
+    final battery1Level = controller.boxInfo?.battery1Level;
+    final battery2Level = controller.boxInfo?.battery2Level;
 
     return Stack(
       children: [
@@ -84,7 +83,7 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
                     spacing: 8.h,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      if (batteryLevel <= 20)
+                      if (batteryLevel != null && batteryLevel <= 20)
                         IntrinsicWidth(
                           child: OutlinedBox(
                             boxColor: AppTheme.bgBrandSecondaryRed,
@@ -97,9 +96,13 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
                                   IconAsset.toastError,
                                   height: 24.h,
                                   width: 24.h,
-                                  colorFilter: ColorFilter.mode(AppTheme.strokeBrandPrimaryAlt, BlendMode.srcIn),
+                                  colorFilter: ColorFilter.mode(
+                                      AppTheme.strokeBrandPrimaryAlt,
+                                      BlendMode.srcIn),
                                 ),
-                                AppText(text: AppString.plsChargeBattery, color: AppTheme.strokeBrandPrimaryAlt),
+                                AppText(
+                                    text: AppString.plsChargeBattery,
+                                    color: AppTheme.strokeBrandPrimaryAlt),
                               ],
                             ),
                           ),
@@ -125,7 +128,8 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
                                   Expanded(
                                     child: Column(
                                       spacing: 8.h,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         AppText(
                                           text: "Battery A",
@@ -134,10 +138,10 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
                                           fontWeight: FontWeight.w600,
                                         ),
                                         CommonStatusPill(
-                                            title: "$battery1Level%",
-                                            type: battery1Level > 20
-                                                ? StatusType.connected
-                                                : StatusType.disconnected),
+                                            title: AppUtils.batteryLabel(
+                                                battery1Level),
+                                            type: AppUtils.batteryStatus(
+                                                battery1Level)),
                                       ],
                                     ),
                                   ),
@@ -163,7 +167,8 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
                                   Expanded(
                                     child: Column(
                                       spacing: 8.h,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         AppText(
                                           text: "Battery B",
@@ -172,10 +177,10 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
                                           fontWeight: FontWeight.w600,
                                         ),
                                         CommonStatusPill(
-                                            title: "$battery2Level%",
-                                            type: battery2Level > 20
-                                                ? StatusType.connected
-                                                : StatusType.disconnected),
+                                            title: AppUtils.batteryLabel(
+                                                battery2Level),
+                                            type: AppUtils.batteryStatus(
+                                                battery2Level)),
                                       ],
                                     ),
                                   ),
@@ -204,7 +209,7 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             AppText(
-                              text: "$batteryLevel%",
+                              text: AppUtils.batteryLabel(batteryLevel),
                               fontSize: 28.sp,
                               fontWeight: FontWeight.w600,
                               color: AppTheme.contentBrandPrimaryOrange,
@@ -217,7 +222,9 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
                                 child: Row(
                                   spacing: 8.w,
                                   children: [
-                                    AppText(text: AppString.closeBtn, color: AppTheme.contentBrandDefault),
+                                    AppText(
+                                        text: AppString.closeBtn,
+                                        color: AppTheme.contentBrandDefault),
                                     SvgPicture.asset(
                                       IconAsset.arrowDown,
                                       height: 20.h,
@@ -259,7 +266,8 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
                                       ),
                                     ),
                                     AppText(
-                                      text: "$battery1Level%",
+                                      text:
+                                          AppUtils.batteryLabel(battery1Level),
                                       color: AppTheme.contentBrandDefault,
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w600,
@@ -280,7 +288,8 @@ class OverlayBatteryMenuWidget extends StatelessWidget {
                                       ),
                                     ),
                                     AppText(
-                                      text: "$battery2Level%",
+                                      text:
+                                          AppUtils.batteryLabel(battery2Level),
                                       color: AppTheme.contentBrandDefault,
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w600,

@@ -99,7 +99,7 @@ class MyApp extends StatelessWidget {
           );
 
           return ScreenUtilInit(
-            designSize: Size(390, 880),
+            designSize: Size(390, 844),
             minTextAdapt: true,
             splitScreenMode: true,
             builder: (context, _) {

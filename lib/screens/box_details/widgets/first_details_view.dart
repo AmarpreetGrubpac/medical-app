@@ -227,7 +227,8 @@ class _BatteryBox extends StatelessWidget {
                               Positioned(
                                 top: -12.h,
                                 child: TempratureButtons(
-                                  onTap: isConnected
+                                  onTap: isConnected &&
+                                          controller.canEditSelectedTarget
                                       ? () => controller.onSelectTempButtons(70)
                                       : null,
                                   value: 70,
@@ -241,7 +242,8 @@ class _BatteryBox extends StatelessWidget {
                                 top: 0,
                                 bottom: 0,
                                 child: TempratureButtons(
-                                  onTap: isConnected
+                                  onTap: isConnected &&
+                                          controller.canEditSelectedTarget
                                       ? () => controller.onSelectTempButtons(25)
                                       : null,
                                   value: 25,
@@ -270,7 +272,8 @@ class _BatteryBox extends StatelessWidget {
                                 bottom: 0,
                                 left: 48.w,
                                 child: CommonTempSlider(
-                                  onChanged: isConnected
+                                  onChanged: isConnected &&
+                                          controller.canEditSelectedTarget
                                       ? controller.onSliderChange
                                       : null,
                                   controller: controller.sliderController,
@@ -298,7 +301,11 @@ class _BatteryBox extends StatelessWidget {
                       child: BatteryBoxWidget(
                         isSelected: true,
                         title: "Zone 1",
-                        temp: controller.firstBattery,
+                        temp: controller.boxInfo?.zone1Temp?.round(),
+                        targetTemp:
+                            controller.boxInfo?.settings?.zone1Temp == null
+                                ? null
+                                : controller.firstBattery,
                         type: BatteryBoxType.full,
                       ),
                     ),
@@ -314,7 +321,11 @@ class _BatteryBox extends StatelessWidget {
                             : null,
                         isSelected: controller.selectedBattery == 1,
                         title: "Zone 1",
-                        temp: controller.firstBattery,
+                        temp: controller.boxInfo?.zone1Temp?.round(),
+                        targetTemp:
+                            controller.boxInfo?.settings?.zone1Temp == null
+                                ? null
+                                : controller.firstBattery,
                         type: BatteryBoxType.first,
                       ),
                     ),
@@ -330,7 +341,11 @@ class _BatteryBox extends StatelessWidget {
                             : null,
                         isSelected: controller.selectedBattery == 2,
                         title: "Zone 2",
-                        temp: controller.secondBattery,
+                        temp: controller.boxInfo?.zone2Temp?.round(),
+                        targetTemp:
+                            controller.boxInfo?.settings?.zone2Temp == null
+                                ? null
+                                : controller.secondBattery,
                         type: BatteryBoxType.second,
                       ),
                     ),
@@ -374,7 +389,8 @@ class _BatteryDetailsBox extends StatelessWidget {
                             ? SvgPicture.asset("assets/icons/charge.svg")
                             : SizedBox.shrink(),
                         AppText(
-                            text: "${controller.boxInfo?.batteryLevel ?? 0}%",
+                            text: AppUtils.batteryLabel(
+                                controller.boxInfo?.batteryLevel),
                             fontSize: 28.sp,
                             fontWeight: FontWeight.w600),
                       ],
@@ -407,18 +423,18 @@ class _BatteryDetailsBox extends StatelessWidget {
                           children: [
                             SvgPicture.asset(
                               AppUtils.getBatteryIcon(
-                                  controller.boxInfo?.battery1Level ?? 100),
+                                  controller.boxInfo?.battery1Level),
                               height: 24.h,
                               width: 24.h,
                               colorFilter: ColorFilter.mode(
                                 AppUtils.getBatteryColor(
-                                    controller.boxInfo?.battery1Level ?? 100),
+                                    controller.boxInfo?.battery1Level),
                                 BlendMode.srcIn,
                               ),
                             ),
                             AppText(
-                              text:
-                                  "${controller.boxInfo?.battery1Level ?? 100}%",
+                              text: AppUtils.batteryLabel(
+                                  controller.boxInfo?.battery1Level),
                               color: AppTheme.contentBrandDefault,
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
@@ -431,18 +447,18 @@ class _BatteryDetailsBox extends StatelessWidget {
                           children: [
                             SvgPicture.asset(
                               AppUtils.getBatteryIcon(
-                                  controller.boxInfo?.battery2Level ?? 0),
+                                  controller.boxInfo?.battery2Level),
                               height: 24.h,
                               width: 24.h,
                               colorFilter: ColorFilter.mode(
                                 AppUtils.getBatteryColor(
-                                    controller.boxInfo?.battery2Level ?? 0),
+                                    controller.boxInfo?.battery2Level),
                                 BlendMode.srcIn,
                               ),
                             ),
                             AppText(
-                              text:
-                                  "${controller.boxInfo?.battery2Level ?? 0}%",
+                              text: AppUtils.batteryLabel(
+                                  controller.boxInfo?.battery2Level),
                               color: AppTheme.contentBrandDefault,
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
@@ -530,15 +546,9 @@ class _NavigationBox extends StatelessWidget {
                 height: 40.h,
                 // textColor: AppTheme.contentOnPrimary,
                 onPressed: () {
-                  final displayName =
-                      controller.boxInfo?.name.isNotEmpty == true
-                          ? controller.boxInfo!.name
-                          : (controller.boxInfo?.boxDisplayId.isNotEmpty == true
-                              ? controller.boxInfo!.boxDisplayId
-                              : controller.boxId);
                   Get.to(
                     () => TracklocationScreeen(
-                      boxId: displayName.isNotEmpty ? displayName : null,
+                      boxId: controller.boxId,
                     ),
                   );
                 },

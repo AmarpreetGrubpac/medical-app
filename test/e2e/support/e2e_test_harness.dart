@@ -158,7 +158,8 @@ class E2ETestHarness {
     Get.put(SetPasswordController(authRepo: authRepo), permanent: true);
     Get.put(ExistingUserController(authRepo: authRepo), permanent: true);
     Get.put(BoxManagementController(boxRepo: boxRepo), permanent: true);
-    Get.put(ProfileDetailsController(profileRepo: profileRepo), permanent: true);
+    Get.put(ProfileDetailsController(profileRepo: profileRepo),
+        permanent: true);
     Get.put(DashboardController(), permanent: true);
     Get.put(HomeController(), permanent: true);
     Get.put(SettingController(), permanent: true);
@@ -178,14 +179,15 @@ class E2ETestHarness {
   }) {
     return ToastificationWrapper(
       child: ScreenUtilInit(
-        designSize: const Size(390, 880),
+        designSize: const Size(390, 844),
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (context, child) => GetMaterialApp(
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
-          initialRoute: home == null ? (initialRoute ?? RouteHelper.splash) : null,
+          initialRoute:
+              home == null ? (initialRoute ?? RouteHelper.splash) : null,
           home: home,
           getPages: RouteHelper.pages,
         ),

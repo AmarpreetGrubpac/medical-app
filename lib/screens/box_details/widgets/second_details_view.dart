@@ -135,9 +135,8 @@ class _ZoneBoxes extends StatelessWidget {
               child: ZoneCard(
                 zoneName: "Zone 1",
                 targetTemp:
-                    "${controller.boxInfo?.zone1Temp ?? controller.firstBattery}", //controller.boxInfo?.settings?.zone1Temp
-                achievedTemp:
-                    "${controller.boxInfo?.zone1Temp ?? controller.firstBattery}",
+                    controller.boxInfo?.settings?.zone1Temp?.toString() ?? "--",
+                achievedTemp: controller.boxInfo?.zone1Temp?.toString() ?? "--",
                 isOn: controller.zoneBox1Switch,
                 onToggle: isConnected ? controller.toggleZoneBox1 : () {},
                 type: controller.zoneBox1Switch
@@ -152,9 +151,10 @@ class _ZoneBoxes extends StatelessWidget {
                 child: ZoneCard(
                   zoneName: "Zone 2",
                   targetTemp:
-                      "${controller.boxInfo?.zone2Temp ?? controller.secondBattery}",
+                      controller.boxInfo?.settings?.zone2Temp?.toString() ??
+                          "--",
                   achievedTemp:
-                      "${controller.boxInfo?.zone2Temp ?? controller.secondBattery}",
+                      controller.boxInfo?.zone2Temp?.toString() ?? "--",
                   isOn: controller.zoneBox2Switch,
                   onToggle: isConnected ? controller.toggleZoneBox2 : () {},
                   type: controller.zoneBox2Switch
@@ -427,15 +427,16 @@ class _PowerWidget extends StatelessWidget {
               icon: IconAsset.powerBank,
               title: AppString.batteryLabel,
               trailing: AppText(
-                  text: "${controller.boxInfo?.batteryLevel ?? 0}%",
+                  text: AppUtils.batteryLabel(controller.boxInfo?.batteryLevel),
                   fontWeight: FontWeight.w600),
               child: Column(
                 spacing: 12.h,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AppText(
-                    text: AppString.aboutFifty.replaceAll(
-                        "50%", "${controller.boxInfo?.batteryLevel ?? 0}%"),
+                    text: controller.boxInfo?.batteryLevel == null
+                        ? 'Battery telemetry unavailable.'
+                        : 'Reported battery level: ${controller.boxInfo!.batteryLevel}%.',
                     maxLines: 3,
                     fontWeight: FontWeight.w400,
                     fontSize: 14.sp,
@@ -451,12 +452,12 @@ class _PowerWidget extends StatelessWidget {
                             children: [
                               SvgPicture.asset(
                                 AppUtils.getBatteryIcon(
-                                    controller.boxInfo?.battery1Level ?? 100),
+                                    controller.boxInfo?.battery1Level),
                                 height: 32.h,
                                 width: 32.h,
                                 colorFilter: ColorFilter.mode(
                                   AppUtils.getBatteryColor(
-                                      controller.boxInfo?.battery1Level ?? 100),
+                                      controller.boxInfo?.battery1Level),
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -472,14 +473,10 @@ class _PowerWidget extends StatelessWidget {
                                       fontWeight: FontWeight.w600,
                                     ),
                                     CommonStatusPill(
-                                        title:
-                                            "${controller.boxInfo?.battery1Level ?? 100}%",
-                                        type: (controller.boxInfo
-                                                        ?.battery1Level ??
-                                                    100) >
-                                                20
-                                            ? StatusType.connected
-                                            : StatusType.disconnected),
+                                        title: AppUtils.batteryLabel(
+                                            controller.boxInfo?.battery1Level),
+                                        type: AppUtils.batteryStatus(
+                                            controller.boxInfo?.battery1Level)),
                                   ],
                                 ),
                               ),
@@ -495,12 +492,12 @@ class _PowerWidget extends StatelessWidget {
                             children: [
                               SvgPicture.asset(
                                 AppUtils.getBatteryIcon(
-                                    controller.boxInfo?.battery2Level ?? 0),
+                                    controller.boxInfo?.battery2Level),
                                 height: 32.h,
                                 width: 32.h,
                                 colorFilter: ColorFilter.mode(
                                   AppUtils.getBatteryColor(
-                                      controller.boxInfo?.battery2Level ?? 0),
+                                      controller.boxInfo?.battery2Level),
                                   BlendMode.srcIn,
                                 ),
                               ),
@@ -516,14 +513,10 @@ class _PowerWidget extends StatelessWidget {
                                       fontWeight: FontWeight.w600,
                                     ),
                                     CommonStatusPill(
-                                        title:
-                                            "${controller.boxInfo?.battery2Level ?? 0}%",
-                                        type: (controller.boxInfo
-                                                        ?.battery2Level ??
-                                                    0) >
-                                                20
-                                            ? StatusType.connected
-                                            : StatusType.disconnected),
+                                        title: AppUtils.batteryLabel(
+                                            controller.boxInfo?.battery2Level),
+                                        type: AppUtils.batteryStatus(
+                                            controller.boxInfo?.battery2Level)),
                                   ],
                                 ),
                               ),
@@ -533,7 +526,8 @@ class _PowerWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  if ((controller.boxInfo?.batteryLevel ?? 0) <= 20)
+                  if (controller.boxInfo?.batteryLevel != null &&
+                      controller.boxInfo!.batteryLevel! <= 20)
                     Center(
                       child: IntrinsicWidth(
                         child: OutlinedBox(

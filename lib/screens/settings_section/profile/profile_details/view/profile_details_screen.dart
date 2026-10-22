@@ -13,7 +13,6 @@ import 'package:grubpac_driver/screens/settings_section/profile/profile_details/
 import 'package:grubpac_driver/screens/settings_section/profile/profile_details/widgets/details_row.dart';
 import 'package:grubpac_driver/screens/settings_section/profile/profile_details/widgets/edit_icon_button.dart';
 import 'package:grubpac_driver/common_components/role_gated.dart';
-import 'package:intl/intl.dart';
 
 class ProfileDetailsScreen extends StatelessWidget {
   const ProfileDetailsScreen({super.key});
@@ -52,17 +51,22 @@ class ProfileDetailsScreen extends StatelessWidget {
                             children: [
                               CircleAvatar(
                                 radius: 60.h,
-                                backgroundImage: NetworkImage(
-                                  controller.image,
-                                ),
-                                // backgroundColor:
-                                //     AppTheme.contentBrandPrimaryOrange,
-                                // child: AppText(
-                                //   text: AppUtils.getInitials(controller.name),
-                                //   fontSize: 28.sp,
-                                //   fontWeight: FontWeight.w600,
-                                //   color: Colors.white,
-                                // ),
+                                backgroundColor: AppTheme.contentBrandSecondary,
+                                child: ClipOval(
+                                    child: controller.image.isEmpty
+                                        ? AppText(
+                                            text: AppUtils.getInitials(
+                                                controller.name),
+                                            fontSize: 28.sp)
+                                        : Image.network(controller.image,
+                                            width: 120.h,
+                                            height: 120.h,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) =>
+                                                AppText(
+                                                    text: AppUtils.getInitials(
+                                                        controller.name),
+                                                    fontSize: 28.sp))),
                               ),
                               Padding(
                                 padding: EdgeInsets.symmetric(vertical: 24.h),
@@ -122,12 +126,12 @@ class ProfileDetailsScreen extends StatelessWidget {
                                 children: [
                                   DetailsRow(
                                     icon: IconAsset.user,
-                                    title: AppString.role,
-                                    value: controller.role,
+                                    title: "Department",
+                                    value: controller.department,
                                   ),
                                   DetailsRow(
                                     icon: IconAsset.locationPin,
-                                    title: AppString.location,
+                                    title: "Facility",
                                     value: controller.location,
                                     maxlines: 3,
                                   ),

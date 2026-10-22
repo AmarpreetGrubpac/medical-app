@@ -151,7 +151,14 @@ class BoxManagementController extends GetxController
   }
 
   /// LOGS
-  void onLogsTap() => Navigation.pushNamed(RouteHelper.alerts);
+  void onLogsTap() {
+    if (boxes.isEmpty || currentPage >= boxes.length) return;
+    final box = boxes[currentPage];
+    Navigation.pushNamed(RouteHelper.alerts, arg: {
+      'box_id': box.id,
+      'box_name': box.name.isNotEmpty ? box.name : box.boxDisplayId
+    });
+  }
 
   /// ADD BOX
   void onAddBoxTap() => Navigation.pushNamed(RouteHelper.scanBox);
@@ -278,6 +285,16 @@ class BoxManagementController extends GetxController
       update();
       final res = await boxRepo.setBoxLock(boxId, action);
       if (res.statusCode == 200 || res.statusCode == 201) {
+        final check = await boxRepo.getBoxDetail(boxId);
+        if (check.statusCode != 200 ||
+            check.body is! Map ||
+            check.body['data'] is! Map ||
+            check.body['data']['is_locked'] != (action == 'lock')) {
+          throw Failure(
+              message:
+                  'Box lock state could not be confirmed. Refresh before retrying.',
+              response: check);
+        }
         AppToast.showSuccess(
           message: res.body is Map && res.body['message'] != null
               ? res.body['message']
@@ -312,17 +329,33 @@ class BoxManagementController extends GetxController
     final box = boxes[boxIndex];
     final action = box.isLocked ? 'unlock' : 'lock';
 
-    final session = Get.isRegistered<SessionManager>() ? Get.find<SessionManager>() : null;
+    final session =
+        Get.isRegistered<SessionManager>() ? Get.find<SessionManager>() : null;
     if (session?.isHandler == true) {
-      // Handler uses OTP lock flow per matrix
-      AppToast.showSuccess(
-        message: "OTP requested for box ${box.isLocked ? 'unlock' : 'lock'}.",
-      );
+      isLoading = true;
+      update();
       try {
-        await boxRepo.apiClient.postData('boxes/$boxId/otp-lock', {
-          "action": action,
-        });
-      } catch (_) {}
+        final res = await boxRepo.apiClient
+            .postData('boxes/$boxId/otp-lock', {'action': action});
+        if (res.statusCode != 200 && res.statusCode != 201) {
+          throw Failure(
+              message: res.statusCode == 404
+                  ? 'Box access verification is currently unavailable. Contact your facility.'
+                  : 'Unable to request box access verification. Please try again.',
+              response: res);
+        }
+        AppToast.showSuccess(
+            message:
+                'Verification request accepted. Contact your facility to complete box access.');
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(
+            e is Failure ? e.message : 'Unable to request box access verification. Please try again.')));
+        }
+      } finally {
+        isLoading = false;
+        update();
+      }
       return;
     }
 
@@ -397,7 +430,8 @@ class BoxManagementController extends GetxController
                 // If BoxDetailsController is registered and viewing this box, sync detailed view UI
                 if (Get.isRegistered<BoxDetailsController>()) {
                   final detailsController = Get.find<BoxDetailsController>();
-                  if (detailsController.boxId == box.id) {
+                  if (detailsController.boxId == box.id &&
+                      !detailsController.hasPendingSettings) {
                     detailsController.boxInfo = targetBox;
                     detailsController.advertSwitch =
                         targetBox.settings?.advertDisplayEnabled ?? false;
@@ -405,10 +439,12 @@ class BoxManagementController extends GetxController
                         targetBox.settings?.isDualZone ?? false;
                     detailsController.ioniserSwitch =
                         targetBox.settings?.ioniserEnabled ?? false;
-                    detailsController.firstBattery =
-                        targetBox.settings?.zone1Temp ?? 21;
-                    detailsController.secondBattery =
-                        targetBox.settings?.zone2Temp ?? 21;
+                    if (!detailsController.hasPendingTemperatureChanges) {
+                      detailsController.firstBattery =
+                          targetBox.settings?.zone1Temp ?? 0;
+                      detailsController.secondBattery =
+                          targetBox.settings?.zone2Temp ?? 0;
+                    }
                     detailsController.boxConnectionStatus =
                         targetBox.isConnected;
                     detailsController.zoneBox1Switch =

@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../../help_section/help/view/help_screen.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,6 +24,20 @@ class BoxDetailsController extends GetxController {
   String boxId = "";
   BoxInfo? boxInfo;
   Timer? _debounceTimer;
+  bool _temperatureWritePending = false;
+  final Set<String> _pendingSettings = {};
+  bool get hasPendingSettings =>
+      _pendingSettings.isNotEmpty || hasPendingTemperatureChanges;
+  final Map<int, int> _temperatureDrafts = {};
+  final Map<int, int> _previousTargets = {};
+  bool get hasPendingTemperatureChanges =>
+      _temperatureWritePending || _temperatureDrafts.isNotEmpty;
+  bool get canEditSelectedTarget =>
+      !_temperatureWritePending &&
+      (selectedBattery == 1 || !dualZoneSwitch
+              ? boxInfo?.settings?.zone1Temp
+              : boxInfo?.settings?.zone2Temp) !=
+          null;
 
   @override
   void onInit() {
@@ -78,8 +93,8 @@ class BoxDetailsController extends GetxController {
         advertSwitch = boxInfo?.settings?.advertDisplayEnabled ?? false;
         dualZoneSwitch = boxInfo?.settings?.isDualZone ?? false;
         ioniserSwitch = boxInfo?.settings?.ioniserEnabled ?? false;
-        firstBattery = boxInfo?.settings?.zone1Temp ?? 21;
-        secondBattery = boxInfo?.settings?.zone2Temp ?? 21;
+        firstBattery = boxInfo?.settings?.zone1Temp ?? 0;
+        secondBattery = boxInfo?.settings?.zone2Temp ?? 0;
         boxConnectionStatus = boxInfo?.isConnected ?? false;
         zoneBox1Switch = boxInfo?.settings?.zone1Status ?? true;
         zoneBox2Switch = boxInfo?.settings?.zone2Status ?? false;
@@ -107,14 +122,13 @@ class BoxDetailsController extends GetxController {
     }
   }
 
-  Future<void> _updateSettings(
+  Future<bool> _updateSettings(
     Map<String, dynamic> changes, {
     required VoidCallback onRollback,
   }) async {
+    _pendingSettings.addAll(changes.keys);
     try {
-      if (boxId.isEmpty) {
-        return;
-      }
+      if (boxId.isEmpty) throw StateError("No box selected");
       final res = await boxRepo.updateBoxSettings(boxId, changes);
       if (res.statusCode != 200) {
         throw Failure(
@@ -124,9 +138,13 @@ class BoxDetailsController extends GetxController {
           response: res,
         );
       }
+      return true;
     } catch (e) {
       onRollback();
       AppUtils.apiErrorHandler(e);
+      return false;
+    } finally {
+      _pendingSettings.removeAll(changes.keys);
     }
   }
 
@@ -168,27 +186,52 @@ class BoxDetailsController extends GetxController {
     }
   }
 
-  void _debounceUpdateSettings() {
-    if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
-      final int initialFirst = firstBattery;
-      final int initialSecond = secondBattery;
-      _updateSettings(
-        {
-          "zone_1_temp": firstBattery,
-          "zone_2_temp": secondBattery,
-        },
-        onRollback: () {
-          firstBattery = initialFirst;
-          secondBattery = initialSecond;
-          sliderController.value = AppUtils.normalizeSliderValue(
-            selectedBattery == 1
-                ? firstBattery.toDouble()
-                : secondBattery.toDouble(),
-          );
-          update();
-        },
-      );
+  void _changeTarget(int value) {
+    // Match the existing slider bounds. Medical operating limits still require
+    // server-side validation and an agreed facility policy.
+    if (value < -20 || value > 70) {
+      AppToast.showError(
+          message: 'Choose a temperature between -20 and 70 degrees Celsius.');
+      return;
+    }
+    if (!canEditSelectedTarget) {
+      AppToast.showError(
+          message:
+              'Target temperature is unavailable or a change is pending. Refresh and try again.');
+      return;
+    }
+    final zone = selectedBattery == 1 || !dualZoneSwitch ? 1 : 2;
+    _previousTargets.putIfAbsent(
+        zone, () => zone == 1 ? firstBattery : secondBattery);
+    _temperatureDrafts[zone] = value;
+    if (zone == 1) {
+      firstBattery = value;
+    } else {
+      secondBattery = value;
+    }
+    sliderController.value = AppUtils.normalizeSliderValue(value.toDouble());
+    update();
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
+      final changes = {
+        for (final entry in _temperatureDrafts.entries)
+          'zone_${entry.key}_target_temp': entry.value
+      };
+      final previous = Map<int, int>.from(_previousTargets);
+      _temperatureDrafts.clear();
+      _previousTargets.clear();
+      _temperatureWritePending = true;
+      update();
+      final saved = await _updateSettings(changes, onRollback: () {
+        if (previous.containsKey(1)) firstBattery = previous[1]!;
+        if (previous.containsKey(2)) secondBattery = previous[2]!;
+        sliderController.value = AppUtils.normalizeSliderValue(
+            (selectedBattery == 1 ? firstBattery : secondBattery).toDouble());
+        update();
+      });
+      _temperatureWritePending = false;
+      if (saved && !isClosed) await fetchBoxDetails();
+      if (!isClosed) update();
     });
   }
 
@@ -229,7 +272,7 @@ class BoxDetailsController extends GetxController {
   }
 
   /// HELP
-  void onHelpTap() => Navigation.pushNamed(RouteHelper.helpFaqList);
+  void onHelpTap() => Get.to(() => const Scaffold(body: HelpScreen()));
 
   /// GRUBLOCK
   Future<void> onLockTap(BuildContext context) async {
@@ -249,6 +292,7 @@ class BoxDetailsController extends GetxController {
   void onLogsTap() => Navigation.pushNamed(
         RouteHelper.alerts,
         arg: {
+          "box_id": boxId,
           "box_name": (boxInfo?.name.isNotEmpty == true)
               ? boxInfo!.name
               : (boxInfo?.boxDisplayId ?? ""),
@@ -257,13 +301,7 @@ class BoxDetailsController extends GetxController {
 
   /// SLIDER CHANGE
   void onSliderChange(double value) {
-    if (selectedBattery == 1 || !dualZoneSwitch) {
-      firstBattery = value.toInt();
-    } else {
-      secondBattery = value.toInt();
-    }
-    update();
-    _debounceUpdateSettings();
+    if (value.isFinite) _changeTarget(value.round());
   }
 
   /// SELECT BATTERY
@@ -278,20 +316,13 @@ class BoxDetailsController extends GetxController {
   }
 
   /// SELECT TEMPERATURE BUTTON
-  void onSelectTempButtons(int value) {
-    sliderController.value = AppUtils.normalizeSliderValue(value.toDouble());
-    if (selectedBattery == 1 || !dualZoneSwitch) {
-      firstBattery = value;
-    } else {
-      secondBattery = value;
-    }
-    update();
-    _debounceUpdateSettings();
-  }
+  void onSelectTempButtons(int value) => _changeTarget(value);
 
   /// DUAL ZONE
   void toggleDualZone() {
-    dualZoneSwitch = !dualZoneSwitch;
+    if (_pendingSettings.contains('is_dual_zone')) return;
+    final previous = dualZoneSwitch;
+    dualZoneSwitch = !previous;
     selectedBattery = 1;
     sliderController.value =
         AppUtils.normalizeSliderValue(firstBattery.toDouble());
@@ -300,7 +331,7 @@ class BoxDetailsController extends GetxController {
     _updateSettings(
       {"is_dual_zone": dualZoneSwitch},
       onRollback: () {
-        dualZoneSwitch = !dualZoneSwitch;
+        dualZoneSwitch = previous;
         selectedBattery = 1;
         sliderController.value =
             AppUtils.normalizeSliderValue(firstBattery.toDouble());
@@ -311,13 +342,15 @@ class BoxDetailsController extends GetxController {
 
   /// ADVERT
   void toggleAdvert() {
-    advertSwitch = !advertSwitch;
+    if (_pendingSettings.contains('advert_display_enabled')) return;
+    final previous = advertSwitch;
+    advertSwitch = !previous;
     update();
 
     _updateSettings(
       {"advert_display_enabled": advertSwitch},
       onRollback: () {
-        advertSwitch = !advertSwitch;
+        advertSwitch = previous;
         update();
       },
     );
@@ -325,25 +358,39 @@ class BoxDetailsController extends GetxController {
 
   /// ZONE BOX 1
   void toggleZoneBox1() {
-    zoneBox1Switch = !zoneBox1Switch;
+    if (_pendingSettings.contains('zone_1_status')) return;
+    final previous = zoneBox1Switch;
+    zoneBox1Switch = !previous;
     update();
+    _updateSettings({'zone_1_status': zoneBox1Switch}, onRollback: () {
+      zoneBox1Switch = previous;
+      update();
+    });
   }
 
   /// ZONE BOX 2
   void toggleZoneBox2() {
-    zoneBox2Switch = !zoneBox2Switch;
+    if (_pendingSettings.contains('zone_2_status')) return;
+    final previous = zoneBox2Switch;
+    zoneBox2Switch = !previous;
     update();
+    _updateSettings({'zone_2_status': zoneBox2Switch}, onRollback: () {
+      zoneBox2Switch = previous;
+      update();
+    });
   }
 
   /// IONISER
   void toggleIoniserSwitch() {
-    ioniserSwitch = !ioniserSwitch;
+    if (_pendingSettings.contains('ioniser_enabled')) return;
+    final previous = ioniserSwitch;
+    ioniserSwitch = !previous;
     update();
 
     _updateSettings(
       {"ioniser_enabled": ioniserSwitch},
       onRollback: () {
-        ioniserSwitch = !ioniserSwitch;
+        ioniserSwitch = previous;
         update();
       },
     );

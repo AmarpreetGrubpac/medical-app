@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:grubpac_driver/core/utils/app_constant.dart';
 import 'package:grubpac_driver/helper/navigation.dart';
 import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:grubpac_driver/screens/settings_section/profile/profile_details/controller/model/profile_model.dart';
@@ -24,10 +23,11 @@ class ProfileDetailsController extends GetxController {
   String countryCode = "";
   String id = "";
   String role = "";
-  String image = AppConstants.custmImageuRl;
+  String image = "";
 
   // String? image;
-  String location = "GRUB MEDICAL, Delhi";
+  String location = "Unavailable";
+  String department = "Unavailable";
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -77,7 +77,9 @@ class ProfileDetailsController extends GetxController {
       id = _profiledata?.employeeId ?? "";
       role = _profiledata?.role ?? "";
       createdDate = _profiledata?.joiningDate;
-      image = _profiledata?.profilePic ?? AppConstants.custmImageuRl;
+      image = _profiledata?.profilePic ?? "";
+      department = _profiledata?.department ?? "Unavailable";
+      location = _profiledata?.facility ?? "Unavailable";
       // image = _profiledata?.profilePic;
     }
 

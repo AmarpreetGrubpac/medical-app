@@ -1,3 +1,5 @@
+const _unchanged = Object();
+
 class ConnectedUser {
   final String? driverId;
   final String? driverUserId;
@@ -44,7 +46,7 @@ class BoxInfo {
   final String boxDisplayId;
   final String name;
   final bool isConnected;
-  final int batteryLevel;
+  final int? batteryLevel;
   final bool isLocked;
   final double? zone1Temp;
   final double? zone2Temp;
@@ -70,12 +72,24 @@ class BoxInfo {
   final String? driverId;
   final ConnectedUser? connectedUser;
 
+  bool get hasValidLocation =>
+      gpsAvailable == true &&
+      latitude != null &&
+      longitude != null &&
+      latitude!.isFinite &&
+      longitude!.isFinite &&
+      latitude! >= -90 &&
+      latitude! <= 90 &&
+      longitude! >= -180 &&
+      longitude! <= 180 &&
+      !(latitude == 0 && longitude == 0);
+
   BoxInfo({
     required this.id,
     required this.boxDisplayId,
     this.name = "",
     this.isConnected = false,
-    this.batteryLevel = 0,
+    this.batteryLevel,
     this.isLocked = true,
     this.zone1Temp,
     this.zone2Temp,
@@ -119,9 +133,7 @@ class BoxInfo {
           (json['box_display_id'] ?? json['display_id']) as String? ?? '',
       name: json['name'] as String? ?? '',
       isConnected: rawIsConnected,
-      batteryLevel:
-          ((json['battery_level'] ?? json['battery_1_level'] ?? 0) as num)
-              .toInt(),
+      batteryLevel: (json['battery_level'] as num?)?.toInt(),
       isLocked: json['is_locked'] as bool? ?? false,
       zone1Temp: (json['zone_1_temp'] as num?)?.toDouble(),
       zone2Temp: (json['zone_2_temp'] as num?)?.toDouble(),
@@ -196,7 +208,7 @@ class BoxInfo {
     String? boxDisplayId,
     String? name,
     bool? isConnected,
-    int? batteryLevel,
+    Object? batteryLevel = _unchanged,
     bool? isLocked,
     double? zone1Temp,
     double? zone2Temp,
@@ -204,8 +216,8 @@ class BoxInfo {
     String? connectionStatus,
     String? powerStatus,
     String? healthStatus,
-    int? battery1Level,
-    int? battery2Level,
+    Object? battery1Level = _unchanged,
+    Object? battery2Level = _unchanged,
     bool? gpsAvailable,
     double? latitude,
     double? longitude,
@@ -227,7 +239,9 @@ class BoxInfo {
         boxDisplayId: boxDisplayId ?? this.boxDisplayId,
         name: name ?? this.name,
         isConnected: isConnected ?? this.isConnected,
-        batteryLevel: batteryLevel ?? this.batteryLevel,
+        batteryLevel: identical(batteryLevel, _unchanged)
+            ? this.batteryLevel
+            : batteryLevel as int?,
         isLocked: isLocked ?? this.isLocked,
         zone1Temp: zone1Temp ?? this.zone1Temp,
         zone2Temp: zone2Temp ?? this.zone2Temp,
@@ -235,8 +249,12 @@ class BoxInfo {
         connectionStatus: connectionStatus ?? this.connectionStatus,
         powerStatus: powerStatus ?? this.powerStatus,
         healthStatus: healthStatus ?? this.healthStatus,
-        battery1Level: battery1Level ?? this.battery1Level,
-        battery2Level: battery2Level ?? this.battery2Level,
+        battery1Level: identical(battery1Level, _unchanged)
+            ? this.battery1Level
+            : battery1Level as int?,
+        battery2Level: identical(battery2Level, _unchanged)
+            ? this.battery2Level
+            : battery2Level as int?,
         gpsAvailable: gpsAvailable ?? this.gpsAvailable,
         latitude: latitude ?? this.latitude,
         longitude: longitude ?? this.longitude,
@@ -290,8 +308,8 @@ class BoxSettings {
           {int? temp1, int? temp2}) =>
       BoxSettings(
         isDualZone: json['is_dual_zone'] as bool? ?? false,
-        zone1Temp: ((json['zone_1_temp'] ?? temp1) as num?)?.toInt(),
-        zone2Temp: ((json['zone_2_temp'] ?? temp2) as num?)?.toInt(),
+        zone1Temp: (json['zone_1_target_temp'] as num?)?.toInt(),
+        zone2Temp: (json['zone_2_target_temp'] as num?)?.toInt(),
         advertDisplayEnabled: (json['advert_screen'] ??
                 json['advert_display_enabled']) as bool? ??
             false,
@@ -310,8 +328,8 @@ class BoxSettings {
 
   Map<String, dynamic> toJson() => {
         'is_dual_zone': isDualZone,
-        'zone_1_temp': zone1Temp,
-        'zone_2_temp': zone2Temp,
+        'zone_1_target_temp': zone1Temp,
+        'zone_2_target_temp': zone2Temp,
         'advert_display_enabled': advertDisplayEnabled,
         'ioniser_enabled': ioniserEnabled,
         'light_enabled': lightEnabled,

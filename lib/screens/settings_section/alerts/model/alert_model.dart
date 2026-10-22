@@ -2,7 +2,6 @@
 //
 //     final alertModel = alertModelFromJson(jsonString);
 
-import 'dart:convert';
 
 import 'package:grubpac_driver/core/utils/enums.dart';
 
@@ -45,14 +44,17 @@ class AlertModel {
         id: json["id"] ?? "N.A",
         clientId: json["client_id"] ?? "N.A",
         verticalId: json["vertical_id"] ?? "N.A",
-        boxId: json["box_id"],
+        boxId: json["box_id"] ?? '',
         boxDisplayId: json["box_display_id"] ?? "N.A",
-        boxName: json["box_name"] ?? "N.A",
+        boxName: json["box_name"] ??
+            json["box_display_id"] ??
+            json["box_id"] ??
+            "Unknown box",
         restaurantName: json["restaurant_name"] ?? "N.A",
         category: _parseCategory(json["category"] ?? ""),
-        type: _parseType(json["type"] ?? ''),
+        type: _parseType(json["severity"] ?? json["type"] ?? ''),
         title: json["title"] ?? "N.A",
-        description: json["description"] ?? "N.A",
+        description: json["body"] ?? json["description"] ?? "",
         isRead: json["is_read"] ?? false,
         isDismissed: json["is_dismissed"] ?? false,
         createdAt:
@@ -72,8 +74,9 @@ class AlertModel {
 
   static AlertType _parseType(String? val) {
     final lower = val?.toLowerCase();
-    // if (lower == 'medium') return AlertType.warning;
-    // if (lower == 'high') return AlertType.error;
+    if (lower == 'medium') return AlertType.warning;
+    if (lower == 'high' || lower == 'critical') return AlertType.error;
+    if (lower == 'info' || lower == 'low') return AlertType.notification;
     return AlertType.values.firstWhere(
       (e) => e.name == lower,
       orElse: () => AlertType.notification,

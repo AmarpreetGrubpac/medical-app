@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../box_management/controller/box_management_controller.dart';
 import 'package:get/get.dart';
 import 'package:grubpac_driver/core/utils/app_toast.dart';
 import 'package:grubpac_driver/core/utils/enums.dart';
@@ -21,10 +22,13 @@ class AlertsController extends GetxController {
         args["box_name"].toString().isNotEmpty) {
       selectedBox = args["box_name"];
     }
+    if (args is Map && args['box_id'] != null)
+      selectedBoxId = args['box_id'].toString();
     getAlerts();
   }
 
   String selectedBox = "All";
+  String? selectedBoxId;
   String selectedDateRange = "All"; // All, Today, Yesterday, Last 7 Days
   String selectedAlertSeverity = "All"; // All, Warning, Error, Success
   String selectedCategory = "All"; // All, Camera, Battery, Lock, Display, Other
@@ -57,6 +61,16 @@ class AlertsController extends GetxController {
         for (var alert in alertList) {
           try {
             final parsed = AlertModel.fromJson(alert);
+            if (Get.isRegistered<BoxManagementController>()) {
+              for (final box in Get.find<BoxManagementController>().boxes) {
+                if (box.id == parsed.boxId) {
+                  parsed.boxName =
+                      box.name.isNotEmpty ? box.name : box.boxDisplayId;
+                  parsed.boxDisplayId = box.boxDisplayId;
+                  break;
+                }
+              }
+            }
             if (!alerts.any((existing) => existing.id == parsed.id)) {
               alerts.add(parsed);
             }
@@ -90,7 +104,10 @@ class AlertsController extends GetxController {
 
   List<AlertModel> get filteredAlerts {
     return alerts.where((alert) {
-      if (selectedBox != "All" && alert.boxName != selectedBox) {
+      if (selectedBoxId != null && alert.boxId != selectedBoxId) return false;
+      if (selectedBoxId == null &&
+          selectedBox != "All" &&
+          alert.boxName != selectedBox) {
         return false;
       }
 
@@ -138,6 +155,7 @@ class AlertsController extends GetxController {
     required String alertSeverity,
     required String category,
   }) {
+    selectedBoxId = null;
     selectedBox = box;
     selectedDateRange = dateRange;
     selectedAlertSeverity = alertSeverity;
@@ -146,6 +164,7 @@ class AlertsController extends GetxController {
   }
 
   void resetFilters() {
+    selectedBoxId = null;
     selectedBox = "All";
     selectedDateRange = "All";
     selectedAlertSeverity = "All";

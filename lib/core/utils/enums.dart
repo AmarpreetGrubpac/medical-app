@@ -79,12 +79,15 @@ abstract class ZoneBoxType {
 }
 
 abstract class StatusType {
+  static const String unknown = "unknown";
   static const String connected = "connected";
   static const String weak = "weak";
   static const String disconnected = "disconnected";
 
   static Color color(String value) {
     switch (value) {
+      case unknown:
+        return AppTheme.contentBrandDisabled;
       case connected:
         return AppTheme.contentBrandPrimaryGreen;
       case weak:
@@ -98,6 +101,8 @@ abstract class StatusType {
 
   static Color boxColor(String value) {
     switch (value) {
+      case unknown:
+        return AppTheme.backgroundNeutralSecondary;
       case connected:
         return AppTheme.bgBrandSecondaryGreen;
       case weak:

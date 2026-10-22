@@ -33,6 +33,8 @@ class Profile {
   String? role;
   String? joiningDate;
   String? profilePic;
+  String? department;
+  String? facility;
 
   Profile(
       {this.id,
@@ -57,6 +59,8 @@ class Profile {
     role = json['role'];
     joiningDate = json['joining_date'];
     profilePic = json['profile_pic'];
+    department = json['department'];
+    facility = json['facility'] ?? json['organization_name'];
     // id = json['id'];
   }
 
@@ -71,6 +75,8 @@ class Profile {
     data['role'] = this.role;
     data['joining_date'] = this.joiningDate;
     data['profile_pic'] = this.profilePic;
+    data['department'] = department;
+    data['facility'] = facility;
     return data;
   }
 }

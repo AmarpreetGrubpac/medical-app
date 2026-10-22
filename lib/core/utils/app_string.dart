@@ -10,21 +10,21 @@ class AppString {
   static const String splashTagline = 'Evolution is Revolution';
 
   // Login/Onboarding carousel
-  static const String linkYourBoxTitle = 'Claim your box';
+  static const String linkYourBoxTitle = 'Precision in temperature';
   static const String linkYourBoxDesc =
-      'Scan a box assigned to your organization to claim it.';
+      'Keep critical medical items at the right temperature all the time.';
   static const String scanText = 'SCAN';
-  static const String avoidBlamesTitle = 'Avoid Blames';
+  static const String avoidBlamesTitle = 'Live tracking';
   static const String avoidBlamesDesc =
-      'Review box status and alerts so issues can be handled quickly.';
+      'Know exactly where your box is, in real-time—anytime.';
   static const String stayInformedTitle = 'Stay informed';
   static const String stayInformedDesc =
       'Get real-time updates for issues - before they become trouble.';
-  static const String getSupportTitle = 'Get Support';
+  static const String getSupportTitle = 'Secure from start to end';
   static const String somethingWentWrong = 'Something Went Wrong';
   static const String otpResendSucceessfully = ' OTP resent successfully';
   static const String getSupportDesc =
-      'Contact your organization for help with your account or boxes.';
+      'With GrubLock, and ensure safe handover—fully traceable, fully secure.';
 
   // Login form
   static const String enterRegisteredPrompt =
@@ -209,7 +209,7 @@ class AppString {
   static const String required = 'Required';
   static const String skip = 'Skip';
   static const String requiredPassword = 'Please enter pasword';
-  static const String welcomeTrip = 'Let’s set up your medical boxes.';
+  static const String welcomeTrip = 'No box added yet!';
   static const String welcomeRavi = 'Welcome!';
   static const String enterPassValidation = 'Please enter password';
   static const String passEightChar =

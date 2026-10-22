@@ -97,18 +97,8 @@ class BoxManagementRepo {
   }
 
   Future<Response> setBoxLock(String boxId, String action) async {
-    try {
-      if (action.toLowerCase() == 'unlock') {
-        final res = await emergencyUnlockBoxes([boxId]);
-        if (res.statusCode == 200) return res;
-      } else {
-        final res = await lockBoxes([boxId]);
-        if (res.statusCode == 200) return res;
-      }
-    } catch (_) {
-      // fallback to per-box endpoint
-    }
-    final String url = AppConstants.lockBox.replaceAll(":box_id", boxId);
-    return await apiClient.patchData(url, {"action": action});
+    if (action == 'unlock') return emergencyUnlockBoxes([boxId]);
+    if (action == 'lock') return lockBoxes([boxId]);
+    throw ArgumentError.value(action, 'action', 'Expected lock or unlock');
   }
 }

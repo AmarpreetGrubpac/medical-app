@@ -1,9 +1,9 @@
+import '../core/utils/facility_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:grubpac_driver/common_components/app_text.dart';
-import 'package:grubpac_driver/common_components/common_button.dart';
 import 'package:grubpac_driver/common_components/common_outlined_button.dart';
 import 'package:grubpac_driver/core/theme/app_theme.dart';
 import 'package:grubpac_driver/core/utils/app_images.dart';
@@ -26,8 +26,11 @@ class SosButton extends StatelessWidget {
           HapticFeedback.lightImpact();
           EmergencyBottomSheet.show(
             context: context,
-            onCallFacility: onCallFacility,
-            onAlertFacility: onAlertFacility,
+            onCallFacility:
+                onCallFacility ?? () => FacilityActions.call(context),
+            onAlertFacility: onAlertFacility ??
+                () => FacilityActions.unavailable(context,
+                    'Facility alerts are currently unavailable. Contact your facility directly.'),
           );
         },
         customBorder: const CircleBorder(),
@@ -143,7 +146,7 @@ class EmergencyBottomSheet extends StatelessWidget {
                 ),
                 child: Center(
                   child: AppText(
-                    text: callFacilityTitle ?? AppString.callRestaurant,
+                    text: callFacilityTitle ?? "CALL FACILITY",
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.contentOnPrimary,
@@ -157,7 +160,7 @@ class EmergencyBottomSheet extends StatelessWidget {
                   Navigator.of(context).pop();
                   onAlertFacility?.call();
                 },
-                title: alertFacilityTitle ?? AppString.writeToUsButton,
+                title: alertFacilityTitle ?? "ALERT FACILITY",
                 height: 48.h,
               ),
           ],

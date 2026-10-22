@@ -71,13 +71,16 @@ class LoginScreen extends StatelessWidget {
                                           mainAxisAlignment:
                                               MainAxisAlignment.end,
                                           children: [
-                                            Container(
-                                              height: 168.h,
-                                              margin:
-                                                  EdgeInsets.only(bottom: 24.h),
-                                              width: double.maxFinite,
-                                              decoration: BoxDecoration(
-                                                  color: AppTheme.loginGreyBox),
+                                            Flexible(
+                                              child: Container(
+                                                height: 168.h,
+                                                margin: EdgeInsets.only(
+                                                    bottom: 24.h),
+                                                width: double.maxFinite,
+                                                decoration: BoxDecoration(
+                                                    color:
+                                                        AppTheme.loginGreyBox),
+                                              ),
                                             ),
                                             AppText(
                                               text: item.title,
@@ -153,7 +156,8 @@ class LoginScreen extends StatelessWidget {
                                         padding: EdgeInsets.symmetric(
                                             horizontal: 14.w, vertical: 10.h),
                                         decoration: BoxDecoration(
-                                          color: AppTheme.contentBrandPrimaryGreen
+                                          color: AppTheme
+                                              .contentBrandPrimaryGreen
                                               .withValues(alpha: 0.1),
                                           borderRadius:
                                               BorderRadius.circular(10.r),
@@ -208,7 +212,8 @@ class LoginScreen extends StatelessWidget {
                                           fontSize: 18.sp,
                                           fontWeight: FontWeight.w400,
                                           textAlign: TextAlign.center,
-                                          color: AppTheme.contentNeutralSecondary,
+                                          color:
+                                              AppTheme.contentNeutralSecondary,
                                         ),
                                       ),
                                     ],

@@ -1,3 +1,4 @@
+import '../../../../core/utils/facility_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -57,11 +58,10 @@ class _HelpScreenState extends State<HelpScreen> {
                       Padding(
                         padding: EdgeInsets.only(top: 24.h, bottom: 16.h),
                         child: CommonBottomBox(
-                          onPressed: () =>
-                              AppUtils.contactSupport("+919876543210"),
+                          onPressed: () => FacilityActions.call(context),
                           title: AppString.emergency,
                           description: AppString.emergencySubText,
-                          buttonText: AppString.callRestaurant,
+                          buttonText: "CALL FACILITY",
                           isEmergency: true,
                         ),
                       ),

@@ -33,7 +33,9 @@ class PageIndicator extends StatelessWidget {
             width: isActive ? selectedDotSize : dotSize,
             height: isActive ? selectedDotSize : dotSize,
             decoration: BoxDecoration(
-              color: isActive ? AppTheme.backgroundBrandSecondary : AppTheme.backgroundNeutralSecondary,
+              color: isActive
+                  ? AppTheme.contentBrandSecondary
+                  : AppTheme.backgroundNeutralSecondary,
               shape: BoxShape.circle,
             ),
           );

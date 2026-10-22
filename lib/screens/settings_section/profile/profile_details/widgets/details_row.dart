@@ -10,7 +10,7 @@ class DetailsRow extends StatelessWidget {
       required this.icon,
       required this.title,
       required this.value,
-      this.maxlines = 1});
+      this.maxlines = 4});
 
   final String icon, title, value;
   final int maxlines;
@@ -47,7 +47,7 @@ class DetailsRow extends StatelessWidget {
             child: AppText(
               text: value,
               fontWeight: FontWeight.w400,
-              overflow: TextOverflow.ellipsis,
+              overflow: TextOverflow.visible,
               maxLines: maxlines,
             ),
           ),

@@ -1,3 +1,4 @@
+import 'enums.dart';
 import 'package:flutter/material.dart';
 import 'package:grubpac_driver/core/exceptions/failure.dart';
 import 'package:grubpac_driver/core/theme/app_theme.dart';
@@ -8,13 +9,24 @@ import 'package:url_launcher/url_launcher.dart';
 
 abstract class AppUtils {
   /// GET BATTERY ICON
-  static String getBatteryIcon(int level) {
-    return level > 20 ? IconAsset.batteryFull : IconAsset.battery;
+  static String batteryLabel(int? level) =>
+      level == null ? 'Unavailable' : '$level%';
+
+  static String batteryStatus(int? level) => level == null
+      ? StatusType.unknown
+      : level > 20
+          ? StatusType.connected
+          : StatusType.disconnected;
+
+  static String getBatteryIcon(int? level) {
+    return level != null && level > 20
+        ? IconAsset.batteryFull
+        : IconAsset.battery;
   }
 
   /// GET BATTERY COLOR
-  static Color getBatteryColor(int level) {
-    if (level <= 0) {
+  static Color getBatteryColor(int? level) {
+    if (level == null || level <= 0) {
       return AppTheme.contentBrandDisabled;
     } else if (level < 30) {
       return AppTheme.contentBrandPrimaryOrange;
