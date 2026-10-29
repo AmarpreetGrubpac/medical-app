@@ -56,3 +56,12 @@ Use the [178-scenario inventory](../reports/preprod-2026-10-22/scenario-matrix.c
 When a real facility number is supplied, builds may use `--dart-define=FACILITY_PHONE=<actual-number>`. This is a deployment fallback until a per-facility API contact contract exists. No example phone, password or token is committed.
 
 Detailed logs and screenshots are local artifacts under `reports/`, which this repository ignores. This handoff and tracker are stored separately in `docs/` so they can be versioned with the app.
+
+## Recovery verification: 29 October 2026
+
+- Located the original 22 October audit/repair chat and 27 October tracking-screen chat in local Codex session history.
+- The October 22 app repairs and their regression tests survived in the cloned repository; they did not need to be reapplied.
+- Restored the later tracking-screen UI: flat lower panel, blue location dot with halo, box display ID header, SHARE/MAPS icon buttons, and SOS positioning. Existing selected-box polling, missing-GPS handling and external actions remain in place.
+- Restored production APK build/install instructions in README and removed its malformed NUL-containing footer.
+- Verification: all 47 existing automated tests pass. Tracking-screen analysis has no errors or warnings; one existing filename-style information finding remains.
+- Historical screenshots, live API payload captures and reports referenced above are absent from this clone. Previous live/device validation is historical and was not repeated during recovery. Server handoff items remain unverified.
