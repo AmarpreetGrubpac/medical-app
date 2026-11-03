@@ -122,14 +122,17 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Extract App Version
+      - name: Resolve Version and Auto-Increment Build Number
         id: version
         run: |
-          VERSION_NAME=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1 | tr -d ' ')
-          VERSION_CODE=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f2 | tr -d ' ')
-          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
-          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
-          echo "Build Version: $VERSION_NAME+$VERSION_CODE (Run: ${{ github.run_number }})"
+          PUB_VERSION_NAME=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1 | tr -d ' ')
+          PUB_VERSION_CODE=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f2 | tr -d ' ')
+          PUB_VERSION_CODE=${PUB_VERSION_CODE:-1}
+          AUTO_CODE=$((PUB_VERSION_CODE + GITHUB_RUN_NUMBER))
+
+          echo "version_name=$PUB_VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "version_code=$AUTO_CODE" >> $GITHUB_OUTPUT
+          echo "Build Version: $PUB_VERSION_NAME+$AUTO_CODE (Run: ${{ github.run_number }})"
 
       - name: Build APK (${{ matrix.flavor }})
         if: ${{ github.event.inputs.build_type == 'apk' || github.event.inputs.build_type == 'both' || github.event_name == 'push' }}
@@ -140,7 +143,7 @@ jobs:
             -t $TARGET_MAIN \
             --release \
             --build-name=${{ steps.version.outputs.version_name }} \
-            --build-number=${{ github.run_number }}
+            --build-number=${{ steps.version.outputs.version_code }}
 
           mkdir -p dist
           SRC_APK="build/app/outputs/flutter-apk/app-${{ matrix.flavor }}-release.apk"
@@ -157,7 +160,7 @@ jobs:
             -t $TARGET_MAIN \
             --release \
             --build-name=${{ steps.version.outputs.version_name }} \
-            --build-number=${{ github.run_number }}
+            --build-number=${{ steps.version.outputs.version_code }}
 
           mkdir -p dist
           SRC_AAB="build/app/outputs/bundle/${{ matrix.flavor }}Release/app-${{ matrix.flavor }}-release.aab"
@@ -168,7 +171,7 @@ jobs:
       - name: Upload Artifacts to GitHub Run
         uses: actions/upload-artifact@v4
         with:
-          name: grubpac-medical-${{ matrix.flavor }}-v${{ steps.version.outputs.version_name }}+${{ github.run_number }}
+          name: grubpac-medical-${{ matrix.flavor }}-v${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}
           path: dist/*
           retention-days: 14
 
@@ -201,9 +204,9 @@ jobs:
 
           TARGET_FILE_ID=""
           if [ "${{ matrix.flavor }}" = "dev" ]; then
-            TARGET_FILE_ID="$GDRIVE_DEV_FILE_ID"
+            TARGET_FILE_ID="${{ secrets.GDRIVE_MEDICAL_DEV_FILE_ID || secrets.GDRIVE_DEV_FILE_ID }}"
           elif [ "${{ matrix.flavor }}" = "prod" ]; then
-            TARGET_FILE_ID="$GDRIVE_PROD_FILE_ID"
+            TARGET_FILE_ID="${{ secrets.GDRIVE_MEDICAL_PROD_FILE_ID || secrets.GDRIVE_PROD_FILE_ID }}"
           fi
 
           python3 .github/scripts/upload_to_gdrive.py \
