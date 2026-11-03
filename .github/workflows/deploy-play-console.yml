@@ -249,8 +249,8 @@ jobs:
           echo " Package: $PACKAGE_NAME"
           echo " Track:   $TRACK"
           echo " Status:  $STATUS"
-          echo " Fraction: ${{USER_FRACTION:-'(none - full release)'}}"
-          echo " Mapping: ${{MAPPING_ARG:-'(none)'}}"
+          echo " Fraction: ${USER_FRACTION:-(none - full release)}"
+          echo " Mapping: ${MAPPING_ARG:-(none)}"
           echo "=================================================="
 
       - name: Upload to Google Play Console
