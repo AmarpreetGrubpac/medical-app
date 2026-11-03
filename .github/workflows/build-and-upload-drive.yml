@@ -1,0 +1,214 @@
+name: Build & Upload to Google Drive
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      flavor:
+        description: 'Flavor to build'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - dev
+          - prod
+      build_type:
+        description: 'Build artifact type'
+        required: true
+        default: 'apk'
+        type: choice
+        options:
+          - apk
+          - aab
+          - both
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-check:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Pub Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Analyze Project
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+  build-and-upload:
+    name: Build & Upload (${{ matrix.flavor }})
+    needs: quality-check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        flavor: ${{ github.event.inputs.flavor == 'dev' && fromJson('["dev"]') || github.event.inputs.flavor == 'prod' && fromJson('["prod"]') || fromJson('["dev", "prod"]') }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Gradle & Pub
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.pub-cache
+          key: ${{ runner.os }}-build-${{ matrix.flavor }}-${{ hashFiles('**/pubspec.lock', 'android/**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ matrix.flavor }}-
+
+      - name: Set up Android Keystore & key.properties
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "--> Decoding release keystore from secrets..."
+            echo "$KEYSTORE_BASE64" | base64 --decode > android/app/keystore.jks
+            cat <<EOF > android/key.properties
+            storePassword=$KEYSTORE_PASSWORD
+            keyPassword=$KEY_PASSWORD
+            keyAlias=$KEY_ALIAS
+            storeFile=keystore.jks
+          EOF
+            echo "--> Release keystore configured successfully."
+          else
+            echo "::warning::ANDROID_KEYSTORE_BASE64 secret is not configured. Falling back to debug signing."
+          fi
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Extract App Version
+        id: version
+        run: |
+          VERSION_NAME=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1 | tr -d ' ')
+          VERSION_CODE=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f2 | tr -d ' ')
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "Build Version: $VERSION_NAME+$VERSION_CODE (Run: ${{ github.run_number }})"
+
+      - name: Build APK (${{ matrix.flavor }})
+        if: ${{ github.event.inputs.build_type == 'apk' || github.event.inputs.build_type == 'both' || github.event_name == 'push' }}
+        run: |
+          TARGET_MAIN="lib/main_${{ matrix.flavor }}.dart"
+          flutter build apk \
+            --flavor ${{ matrix.flavor }} \
+            -t $TARGET_MAIN \
+            --release \
+            --build-name=${{ steps.version.outputs.version_name }} \
+            --build-number=${{ github.run_number }}
+
+          mkdir -p dist
+          SRC_APK="build/app/outputs/flutter-apk/app-${{ matrix.flavor }}-release.apk"
+          DEST_APK="dist/grubpac-medical-${{ matrix.flavor }}.apk"
+          cp "$SRC_APK" "$DEST_APK"
+          echo "Built APK: $DEST_APK"
+
+      - name: Build AAB (${{ matrix.flavor }})
+        if: ${{ github.event.inputs.build_type == 'aab' || github.event.inputs.build_type == 'both' }}
+        run: |
+          TARGET_MAIN="lib/main_${{ matrix.flavor }}.dart"
+          flutter build appbundle \
+            --flavor ${{ matrix.flavor }} \
+            -t $TARGET_MAIN \
+            --release \
+            --build-name=${{ steps.version.outputs.version_name }} \
+            --build-number=${{ github.run_number }}
+
+          mkdir -p dist
+          SRC_AAB="build/app/outputs/bundle/${{ matrix.flavor }}Release/app-${{ matrix.flavor }}-release.aab"
+          DEST_AAB="dist/grubpac-medical-${{ matrix.flavor }}.aab"
+          cp "$SRC_AAB" "$DEST_AAB"
+          echo "Built AAB: $DEST_AAB"
+
+      - name: Upload Artifacts to GitHub Run
+        uses: actions/upload-artifact@v4
+        with:
+          name: grubpac-medical-${{ matrix.flavor }}-v${{ steps.version.outputs.version_name }}+${{ github.run_number }}
+          path: dist/*
+          retention-days: 14
+
+      - name: Set up Python for Drive Upload
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Drive Upload Dependencies
+        run: pip install --no-cache-dir google-api-python-client google-auth google-auth-httplib2
+
+      - name: Upload / Update on Google Drive
+        id: gdrive_upload
+        env:
+          GDRIVE_SERVICE_ACCOUNT_KEY: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_KEY }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+          GDRIVE_DEV_FILE_ID: ${{ secrets.GDRIVE_DEV_FILE_ID }}
+          GDRIVE_PROD_FILE_ID: ${{ secrets.GDRIVE_PROD_FILE_ID }}
+        run: |
+          if [ -z "$GDRIVE_SERVICE_ACCOUNT_KEY" ]; then
+            echo "::warning::GDRIVE_SERVICE_ACCOUNT_KEY secret is not set. Skipping Google Drive upload step."
+            echo "See docs/ci-cd-setup-guide.md for instructions on setting up Google Drive upload."
+            exit 0
+          fi
+
+          FILE_TO_UPLOAD="dist/grubpac-medical-${{ matrix.flavor }}.apk"
+          if [ ! -f "$FILE_TO_UPLOAD" ]; then
+            FILE_TO_UPLOAD="dist/grubpac-medical-${{ matrix.flavor }}.aab"
+          fi
+
+          TARGET_FILE_ID=""
+          if [ "${{ matrix.flavor }}" = "dev" ]; then
+            TARGET_FILE_ID="$GDRIVE_DEV_FILE_ID"
+          elif [ "${{ matrix.flavor }}" = "prod" ]; then
+            TARGET_FILE_ID="$GDRIVE_PROD_FILE_ID"
+          fi
+
+          python3 .github/scripts/upload_to_gdrive.py \
+            --file-path "$FILE_TO_UPLOAD" \
+            --file-name "grubpac-medical-${{ matrix.flavor }}.apk" \
+            --flavor "${{ matrix.flavor }}" \
+            ${TARGET_FILE_ID:+--file-id "$TARGET_FILE_ID"} \
+            ${GDRIVE_FOLDER_ID:+--folder-id "$GDRIVE_FOLDER_ID"}
