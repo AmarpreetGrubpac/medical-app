@@ -1,4 +1,4 @@
-# GrubPac Medical App (Production)
+# GrubPac Medical App (Release) 
 
 Welcome to the **GrubPac Medical** application. This repository contains the code for the main production environment of the app.
 
