@@ -28,7 +28,8 @@ class DetailsRow extends StatelessWidget {
           colorFilter:
               ColorFilter.mode(AppTheme.contentNeutralLight, BlendMode.srcIn),
         ),
-        Expanded(
+        SizedBox(
+          width: 88.w,
           child: Container(
             constraints: BoxConstraints(minHeight: 24.h),
             alignment: Alignment.centerLeft,

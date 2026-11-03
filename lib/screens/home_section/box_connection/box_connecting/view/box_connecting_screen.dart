@@ -68,7 +68,17 @@ class _BoxConnectingScreenState extends State<BoxConnectingScreen>
     final success = await controller.connectBox(boxId);
 
     if (success) {
-      AppToast.showSuccess(message: AppString.bluetoothConnectSuccess);
+      String name = boxDisplayId;
+      if (name.isEmpty) {
+        for (var b in controller.boxes) {
+          if (b.id == boxId) {
+            name = b.name.isNotEmpty ? b.name : b.boxDisplayId;
+            break;
+          }
+        }
+      }
+      if (name.isEmpty) name = "box";
+      AppToast.showSuccess(message: AppString.boxConnectedSuccess(name));
       await Future.delayed(const Duration(seconds: 2));
       Navigation.doublePop();
     } else {

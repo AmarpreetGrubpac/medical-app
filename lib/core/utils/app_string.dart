@@ -16,15 +16,15 @@ class AppString {
   static const String scanText = 'SCAN';
   static const String avoidBlamesTitle = 'Live tracking';
   static const String avoidBlamesDesc =
-      'Know exactly where your box is, in real-time—anytime.';
+      'Know exactly where your box is, in real-time — anytime.';
   static const String stayInformedTitle = 'Stay informed';
   static const String stayInformedDesc =
-      'Get real-time updates for issues - before they become trouble.';
+      'Get real-time updates for issues — before they become trouble.';
   static const String getSupportTitle = 'Secure from start to end';
   static const String somethingWentWrong = 'Something Went Wrong';
-  static const String otpResendSucceessfully = ' OTP resent successfully';
+  static const String otpResendSucceessfully = 'OTP resent successfully';
   static const String getSupportDesc =
-      'With GrubLock, and ensure safe handover—fully traceable, fully secure.';
+      'With GrubLock, and ensure safe handover — fully traceable, fully secure.';
 
   // Login form
   static const String enterRegisteredPrompt =
@@ -229,6 +229,13 @@ class AppString {
   static const String passwordchanged = 'Password Changed!';
   static const String bluetoothConnectSuccess =
       'Connected to BOX-1245 successfully!';
+  static const String recipients = "Recipients: ";
+  static String boxConnectedSuccess(String name) =>
+      'Connected to ${name.isNotEmpty ? name : "box"} successfully!';
+  static String boxDisconnectedSuccess(String name) =>
+      '${name.isNotEmpty ? name : "Box"} disconnected successfully!';
+  static String boxRemovedSuccess(String name) =>
+      '${name.isNotEmpty ? name : "Box"} removed successfully!';
   static const String otpTryAgain = 'Please try again.';
   static const String invalidOTP = 'Invalid OTP';
   static const String bocAdded = "Box claimed successfully!";

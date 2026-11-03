@@ -71,10 +71,14 @@ class DisconnectBoxScreen extends StatelessWidget {
                         isLoading: controller.isLoading,
                         onPressed: () async {
                           final String boxId = Get.arguments?["box_id"] ?? "";
+                          final String name = Get.arguments?["displayName"] ??
+                              Get.arguments?["box_display_id"] ??
+                              Get.arguments?["box_id"] ??
+                              "Box";
                           final success = await controller.disconnectBox(boxId);
                           if (success) {
                             AppToast.showSuccess(
-                                message: AppString.boxDisConnected);
+                                message: AppString.boxDisconnectedSuccess(name));
                             Navigation.pop(data: {"result": true});
                           }
                         },

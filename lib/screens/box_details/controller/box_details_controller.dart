@@ -323,13 +323,27 @@ class BoxDetailsController extends GetxController {
     if (_pendingSettings.contains('is_dual_zone')) return;
     final previous = dualZoneSwitch;
     dualZoneSwitch = !previous;
+    if (dualZoneSwitch) {
+      zoneBox1Switch = true;
+      zoneBox2Switch = true;
+    } else {
+      zoneBox2Switch = false;
+    }
     selectedBattery = 1;
     sliderController.value =
         AppUtils.normalizeSliderValue(firstBattery.toDouble());
     update();
 
     _updateSettings(
-      {"is_dual_zone": dualZoneSwitch},
+      {
+        "is_dual_zone": dualZoneSwitch,
+        if (dualZoneSwitch) ...{
+          "zone_1_status": true,
+          "zone_2_status": true,
+        } else ...{
+          "zone_2_status": false,
+        }
+      },
       onRollback: () {
         dualZoneSwitch = previous;
         selectedBattery = 1;
@@ -370,6 +384,7 @@ class BoxDetailsController extends GetxController {
 
   /// ZONE BOX 2
   void toggleZoneBox2() {
+    if (!dualZoneSwitch) return;
     if (_pendingSettings.contains('zone_2_status')) return;
     final previous = zoneBox2Switch;
     zoneBox2Switch = !previous;
