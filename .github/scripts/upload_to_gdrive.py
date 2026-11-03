@@ -2,6 +2,7 @@
 """
 Upload or update builds on Google Drive.
 Updates existing file versions in place (preserving the same fileId and shareable link).
+Handles Google Service Account quota limits gracefully with detailed diagnostics.
 """
 
 import os
@@ -12,6 +13,7 @@ from pathlib import Path
 
 try:
     from google.oauth2 import service_account
+    from google.oauth2.credentials import Credentials
     from googleapiclient.discovery import build
     from googleapiclient.http import MediaFileUpload
     from googleapiclient.errors import HttpError
@@ -31,10 +33,28 @@ def parse_args():
     parser.add_argument("--folder-id", required=False, default=None, help="Target Google Drive folder ID")
     parser.add_argument("--flavor", required=False, default="app", help="Flavor name (dev, prod, etc.)")
     parser.add_argument("--service-account-json", required=False, default=None, help="Raw JSON string or file path")
+    parser.add_argument("--fail-on-quota", action="store_true", default=False, help="Fail with exit code 1 if quota exceeded")
     return parser.parse_args()
 
 
 def get_drive_service(creds_input=None):
+    # Option 1: User OAuth2 credentials if provided (no quota limits)
+    refresh_token = os.environ.get("GDRIVE_REFRESH_TOKEN")
+    client_id = os.environ.get("GDRIVE_CLIENT_ID")
+    client_secret = os.environ.get("GDRIVE_CLIENT_SECRET")
+    if refresh_token and client_id and client_secret:
+        print("--> Authenticating via User OAuth2 Credentials (using user personal storage quota)...")
+        creds = Credentials(
+            token=None,
+            refresh_token=refresh_token.strip(),
+            client_id=client_id.strip(),
+            client_secret=client_secret.strip(),
+            token_uri="https://oauth2.googleapis.com/token",
+            scopes=SCOPES
+        )
+        return build('drive', 'v3', credentials=creds)
+
+    # Option 2: Service Account Key
     creds_raw = creds_input or os.environ.get("GDRIVE_SERVICE_ACCOUNT_KEY")
     if not creds_raw or not creds_raw.strip():
         raise ValueError(
@@ -77,6 +97,7 @@ def update_existing_file(service, file_id: str, local_path: str, mime_type: str,
         body=body if body else None,
         media_body=media,
         keepRevisionForever=True,
+        supportsAllDrives=True,
         fields='id, name, webViewLink, webContentLink, version, modifiedTime'
     ).execute()
     return updated_file
@@ -87,6 +108,8 @@ def search_file_in_folder(service, folder_id: str, file_name: str):
     response = service.files().list(
         q=query,
         spaces='drive',
+        supportsAllDrives=True,
+        includeItemsFromAllDrives=True,
         fields='files(id, name, webViewLink, webContentLink, version)',
         pageSize=10
     ).execute()
@@ -95,7 +118,7 @@ def search_file_in_folder(service, folder_id: str, file_name: str):
 
 
 def create_file_in_folder(service, folder_id: str, local_path: str, file_name: str, mime_type: str):
-    print(f"--> Creating new file '{file_name}' in folder: {folder_id}")
+    print(f"--> File '{file_name}' not found in folder. Attempting initial file creation in folder: {folder_id}...")
     media = MediaFileUpload(local_path, mimetype=mime_type, resumable=True)
     body = {
         'name': file_name,
@@ -104,17 +127,18 @@ def create_file_in_folder(service, folder_id: str, local_path: str, file_name: s
     created_file = service.files().create(
         body=body,
         media_body=media,
+        supportsAllDrives=True,
         fields='id, name, webViewLink, webContentLink, version'
     ).execute()
 
-    # Attempt to set public or shared viewer permission if allowed
     try:
         service.permissions().create(
             fileId=created_file['id'],
+            supportsAllDrives=True,
             body={'role': 'reader', 'type': 'anyone'}
         ).execute()
     except Exception as e:
-        print(f"Note: Could not set public link permission (may be restricted by organization policy): {e}")
+        print(f"Note: Could not set public link permission: {e}")
 
     return created_file
 
@@ -134,6 +158,25 @@ def append_step_summary(flavor, file_name, file_id, link, action):
         print(f"Could not write to GITHUB_STEP_SUMMARY: {e}")
 
 
+def append_quota_error_summary(flavor, file_name, folder_id):
+    summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not summary_file:
+        return
+    try:
+        with open(summary_file, "a", encoding="utf-8") as f:
+            f.write(f"\n### Google Drive Upload Notice: `{flavor.upper()}`\n")
+            f.write("> [!WARNING]\n")
+            f.write("> **Google Service Accounts have 0 MB storage quota** and cannot create new files in personal Google Drive folders.\n")
+            f.write(">\n")
+            f.write("> **How to fix this in 1 minute:**\n")
+            f.write(f"> 1. Open your Google Drive folder and upload any file named **`{file_name}`**.\n")
+            f.write("> 2. Right-click the file -> **Copy link** -> copy the `<FILE_ID>`.\n")
+            f.write(f"> 3. In GitHub Secrets, add **`GDRIVE_DEV_FILE_ID`** (or **`GDRIVE_PROD_FILE_ID`**) with that ID.\n")
+            f.write("> 4. Re-run workflow. The build will update the existing file version in-place without needing quota!\n")
+    except Exception as e:
+        print(f"Could not write to GITHUB_STEP_SUMMARY: {e}")
+
+
 def main():
     args = parse_args()
     local_path = os.path.abspath(args.file_path)
@@ -149,9 +192,9 @@ def main():
     print("==================================================")
     print(" Google Drive Artifact Upload / Version Updater")
     print("==================================================")
-    print(f"Local File:    {local_path} ({file_size_mb:.2f} MB)")
-    print(f"Target Name:   {target_name}")
-    print(f"Target Flavor: {args.flavor}")
+    print(f"Local File:     {local_path} ({file_size_mb:.2f} MB)")
+    print(f"Target Name:    {target_name}")
+    print(f"Target Flavor:  {args.flavor}")
     print(f"Target File ID: {args.file_id or '(Not specified)'}")
     print(f"Target Folder:  {args.folder_id or '(Not specified)'}")
     print("==================================================")
@@ -161,7 +204,7 @@ def main():
     target_file = None
     action_taken = ""
 
-    # Strategy 1: Explicit file ID supplied
+    # Strategy 1: Explicit file ID supplied (Updates the user-owned file version)
     if args.file_id and args.file_id.strip():
         file_id = args.file_id.strip()
         try:
@@ -178,12 +221,33 @@ def main():
         existing = search_file_in_folder(service, folder_id, target_name)
         if existing:
             file_id = existing['id']
-            print(f"Found existing file with name '{target_name}' (ID: {file_id}). Updating version...")
+            print(f"Found existing file '{target_name}' (ID: {file_id}) in folder. Updating version...")
             target_file = update_existing_file(service, file_id, local_path, mime_type, target_name)
             action_taken = "Updated Existing File Version"
         else:
-            target_file = create_file_in_folder(service, folder_id, local_path, target_name, mime_type)
-            action_taken = "Created New File"
+            try:
+                target_file = create_file_in_folder(service, folder_id, local_path, target_name, mime_type)
+                action_taken = "Created New File"
+            except HttpError as err:
+                if "storageQuotaExceeded" in str(err) or "Service Accounts do not have storage quota" in str(err):
+                    print("\n" + "=" * 75)
+                    print("::warning::GOOGLE DRIVE SERVICE ACCOUNT QUOTA LIMITATION DETECTED")
+                    print("Google does not assign storage quota to Service Accounts.")
+                    print("Service accounts can ONLY update files created/owned by human Google accounts.")
+                    print("\nQUICK FIX (1 MINUTE):")
+                    print(f"1. In your Google Drive folder, manually upload an initial file named '{target_name}'.")
+                    print("2. Right-click the file -> click 'Copy link' -> copy the <FILE_ID>.")
+                    print(f"3. In GitHub Secrets, set 'GDRIVE_DEV_FILE_ID' (or 'GDRIVE_PROD_FILE_ID') to that ID.")
+                    print("4. Re-run workflow. The build will update the file version in-place successfully!")
+                    print("=" * 75 + "\n")
+                    append_quota_error_summary(args.flavor, target_name, folder_id)
+                    if args.fail_on_quota:
+                        sys.exit(1)
+                    else:
+                        print("Build artifact was already saved in GitHub Actions Artifacts.")
+                        print("Drive upload skipped until file ID secret is added.")
+                        sys.exit(0)
+                raise
 
     if not target_file:
         raise ValueError(
@@ -204,7 +268,6 @@ def main():
 
     append_step_summary(args.flavor, target_name, file_id, link, action_taken)
 
-    # Set GitHub Actions output parameters if running in CI
     gh_output = os.environ.get("GITHUB_OUTPUT")
     if gh_output:
         try:
