@@ -43,10 +43,6 @@ on:
           - alpha
           - beta
           - production
-      rollout_fraction:
-        description: 'Rollout fraction (for production track, 0.1 to 1.0)'
-        required: true
-        default: '1.0'
       release_status:
         description: 'Release status'
         required: true
@@ -56,6 +52,10 @@ on:
           - completed
           - inProgress
           - draft
+      rollout_fraction:
+        description: 'Staged rollout fraction (e.g. 0.2 for 20%, only used if status is inProgress)'
+        required: false
+        default: ''
       release_notes:
         description: 'Release notes (en-US)'
         required: false
@@ -154,12 +154,10 @@ jobs:
       - name: Resolve Version and Auto-Increment Build Number
         id: version
         run: |
-          # 1. Extract base version name and base code from pubspec.yaml
           PUB_VERSION_NAME=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1 | tr -d ' ')
           PUB_VERSION_CODE=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f2 | tr -d ' ')
           PUB_VERSION_CODE=${PUB_VERSION_CODE:-1}
 
-          # 2. Compute strictly increasing versionCode: base pubspec code + GitHub run_number
           AUTO_CODE=$((PUB_VERSION_CODE + GITHUB_RUN_NUMBER))
 
           FINAL_CODE="${{ github.event.inputs.custom_version_code }}"
@@ -167,7 +165,6 @@ jobs:
             FINAL_CODE=$AUTO_CODE
           fi
 
-          # 3. Detect version name: from release branch (e.g. release/v1.2.0), custom input, or pubspec
           BRANCH_NAME="${{ github.ref_name }}"
           DETECTED_NAME=$(echo "$BRANCH_NAME" | sed -n 's/^release\/v*//p')
 
@@ -211,7 +208,7 @@ jobs:
           echo "$NOTES" > distribution/whatsnew/whatsnew-en-US
           echo "Release notes written: $(cat distribution/whatsnew/whatsnew-en-US)"
 
-      - name: Determine Package Name and Track
+      - name: Determine Deployment Parameters
         id: meta
         run: |
           if [ "${{ matrix.flavor }}" = "dev" ]; then
@@ -221,9 +218,40 @@ jobs:
             PACKAGE_NAME="com.grubpac.medical"
             TRACK="${{ github.event.inputs.track_prod || 'internal' }}"
           fi
+
+          STATUS="${{ github.event.inputs.release_status || 'completed' }}"
+          USER_FRACTION=""
+
+          # userFraction is only valid for inProgress releases on non-internal tracks
+          if [ "$STATUS" = "inProgress" ] && [ "$TRACK" != "internal" ]; then
+            INPUT_FRACTION="${{ github.event.inputs.rollout_fraction }}"
+            if [ -n "$INPUT_FRACTION" ] && [ "$INPUT_FRACTION" != "1" ] && [ "$INPUT_FRACTION" != "1.0" ]; then
+              USER_FRACTION="$INPUT_FRACTION"
+            else
+              STATUS="completed"
+              USER_FRACTION=""
+            fi
+          fi
+
+          # Optional mapping file
+          MAPPING_FILE="build/app/outputs/mapping/${{ matrix.flavor }}Release/mapping.txt"
+          MAPPING_ARG=""
+          if [ -f "$MAPPING_FILE" ]; then
+            MAPPING_ARG="$MAPPING_FILE"
+          fi
+
           echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
           echo "track=$TRACK" >> $GITHUB_OUTPUT
-          echo "Deploying $PACKAGE_NAME to track: $TRACK"
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+          echo "user_fraction=$USER_FRACTION" >> $GITHUB_OUTPUT
+          echo "mapping_file=$MAPPING_ARG" >> $GITHUB_OUTPUT
+          echo "=================================================="
+          echo " Package: $PACKAGE_NAME"
+          echo " Track:   $TRACK"
+          echo " Status:  $STATUS"
+          echo " Fraction: ${{USER_FRACTION:-'(none - full release)'}}"
+          echo " Mapping: ${{MAPPING_ARG:-'(none)'}}"
+          echo "=================================================="
 
       - name: Upload to Google Play Console
         uses: r0adkll/upload-google-play@v1
@@ -232,10 +260,10 @@ jobs:
           packageName: ${{ steps.meta.outputs.package_name }}
           releaseFiles: build/app/outputs/bundle/${{ matrix.flavor }}Release/app-${{ matrix.flavor }}-release.aab
           track: ${{ steps.meta.outputs.track }}
-          userFraction: ${{ github.event.inputs.rollout_fraction || 1.0 }}
-          status: ${{ github.event.inputs.release_status || 'completed' }}
+          status: ${{ steps.meta.outputs.status }}
+          userFraction: ${{ steps.meta.outputs.user_fraction }}
           whatsNewDirectory: distribution/whatsnew
-          mappingFile: build/app/outputs/mapping/${{ matrix.flavor }}Release/mapping.txt
+          mappingFile: ${{ steps.meta.outputs.mapping_file }}
 
       - name: Add Deployment Summary
         run: |
@@ -243,7 +271,8 @@ jobs:
           ### Play Console Deployment: `${{ matrix.flavor }}`
           - **Package Name**: `${{ steps.meta.outputs.package_name }}`
           - **Track**: `${{ steps.meta.outputs.track }}`
+          - **Status**: `${{ steps.meta.outputs.status }}`
           - **Version Name**: `${{ steps.version.outputs.version_name }}`
           - **Version Code**: `${{ steps.version.outputs.version_code }}`
-          - **Status**: Successful
+          - **Result**: Successful
           EOF
