@@ -134,7 +134,22 @@ class BoxInfo {
       name: json['name'] as String? ?? '',
       isConnected: rawIsConnected,
       batteryLevel: (json['battery_level'] as num?)?.toInt(),
-      isLocked: json['is_locked'] as bool? ?? false,
+      isLocked: () {
+        if (json['lock_status'] != null) {
+          final status = json['lock_status'].toString().toLowerCase().trim();
+          if (status == 'locked') return true;
+          if (status == 'unlocked') return false;
+        }
+        if (json['is_locked'] != null) {
+          if (json['is_locked'] is bool) return json['is_locked'] as bool;
+          return json['is_locked'].toString().toLowerCase() == 'true';
+        }
+        if (json['locked'] != null) {
+          if (json['locked'] is bool) return json['locked'] as bool;
+          return json['locked'].toString().toLowerCase() == 'true';
+        }
+        return true;
+      }(),
       zone1Temp: (json['zone_1_temp'] as num?)?.toDouble(),
       zone2Temp: (json['zone_2_temp'] as num?)?.toDouble(),
       extTemp: ((json['ext_temp'] ?? json['ambient_temp']) as num?)?.toDouble(),

@@ -257,8 +257,16 @@ class BoxManagementController extends GetxController
       update();
       var res = await boxRepo.removeBox(boxId);
       if (res.statusCode == 200) {
+        String displayName = "Box";
+        for (var b in boxes) {
+          if (b.id == boxId) {
+            displayName = b.name.isNotEmpty ? b.name : (b.boxDisplayId.isNotEmpty ? b.boxDisplayId : "Box");
+            break;
+          }
+        }
         boxes.removeWhere((box) => box.id == boxId);
-        AppToast.showSuccess(message: AppString.boxRemoved);
+        AppToast.showSuccess(
+            message: AppString.boxRemovedSuccess(displayName));
         Navigation.pop(data: {"result": true});
       } else {
         throw Failure(
@@ -448,9 +456,13 @@ class BoxManagementController extends GetxController
                     detailsController.boxConnectionStatus =
                         targetBox.isConnected;
                     detailsController.zoneBox1Switch =
-                        targetBox.settings?.zone1Status ?? true;
+                        targetBox.settings?.zone1Status ??
+                            detailsController.zoneBox1Switch;
                     detailsController.zoneBox2Switch =
-                        targetBox.settings?.zone2Status ?? false;
+                        targetBox.settings?.zone2Status ??
+                            (detailsController.dualZoneSwitch
+                                ? detailsController.zoneBox2Switch
+                                : false);
 
                     detailsController.sliderController.value =
                         AppUtils.normalizeSliderValue(

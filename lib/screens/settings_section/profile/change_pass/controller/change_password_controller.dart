@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:grubpac_driver/core/utils/app_string.dart';
 import 'package:grubpac_driver/core/utils/app_toast.dart';
 import 'package:grubpac_driver/helper/navigation.dart';
+import 'package:grubpac_driver/helper/route_helper.dart';
 import 'package:grubpac_driver/screens/auth/repo/auth_repo.dart';
 class ChangePasswordController extends GetxController {
   final AuthRepo authRepo;
@@ -44,8 +45,9 @@ class ChangePasswordController extends GetxController {
       update();
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        Navigation.pop();
         AppToast.showSuccess(message: AppString.passChangeSuccess);
+        await authRepo.clearSharedPrefrences();
+        Navigation.replaceAll(RouteHelper.login);
       } else {
         AppToast.showError(
           message: response.body['error'] ?? "Failed to change password",

@@ -80,13 +80,20 @@ abstract class AppUtils {
 
   /// GET INITIALS
   static String getInitials(String fullName, {int maxLetters = 2}) {
-    if (fullName.isEmpty) return "";
+    final trimmed = fullName.trim();
+    if (trimmed.isEmpty) return "";
 
-    List<String> names = fullName.trim().split(RegExp(' +'));
+    List<String> names = trimmed.split(RegExp(r'\s+')).where((s) => s.isNotEmpty).toList();
     if (names.isEmpty || maxLetters < 1) return "";
 
-    String initials = "";
+    if (names.length == 1) {
+      final single = names.first;
+      return single.length >= 2
+          ? single.substring(0, 2).toUpperCase()
+          : single.toUpperCase();
+    }
 
+    String initials = "";
     for (var name in names) {
       if (name.isNotEmpty) {
         initials += name[0].toUpperCase();
@@ -94,7 +101,7 @@ abstract class AppUtils {
       if (initials.length >= maxLetters) break;
     }
 
-    return initials.substring(0, initials.length.clamp(1, maxLetters));
+    return initials;
   }
 
   /// FORMAT DURATION

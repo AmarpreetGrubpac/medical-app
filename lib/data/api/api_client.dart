@@ -461,6 +461,11 @@ class ApiClient extends GetxService {
     _log('RESPONSE', uri, response.statusCode);
 
     if (response.statusCode == 401 && authenticated) {
+      // Don't force logout or attempt token refresh on public / auth endpoints
+      if (_isAuthEndpoint(uri)) {
+        return normalized;
+      }
+
       if (!allowRefresh) {
         await _forceLogout();
         return normalized;
@@ -495,6 +500,21 @@ class ApiClient extends GetxService {
       }
     }
     return fallback;
+  }
+
+  bool _isAuthEndpoint(String uri) {
+    return uri == AppConstants.checkAccountApi ||
+        uri == AppConstants.ExistingUserApi ||
+        uri == AppConstants.loginApi ||
+        uri == AppConstants.resendOtpApi ||
+        uri == AppConstants.verifyOtpApi ||
+        uri == AppConstants.setPassword ||
+        uri == AppConstants.forgotPasswordUrl ||
+        uri == AppConstants.resendForgotPasswordUrl ||
+        uri == AppConstants.verifyforgotPasswordotp ||
+        uri == AppConstants.setNewPasswordApi ||
+        uri.contains('/auth/') ||
+        uri.contains('auth/');
   }
 
   Future<void> _forceLogout() async {

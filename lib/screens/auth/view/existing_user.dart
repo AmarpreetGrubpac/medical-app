@@ -173,12 +173,8 @@ class ExistingUserScreen extends StatelessWidget {
                         onPressed: () {
                           controller.loginThroughOtp();
                         },
-                        // onPressed: controller.isFormValid ? controller.login : null,
-                        // isDisabled: !controller.isFormValid,
-                        isDisabled: true,
+                        isDisabled: false,
                         isLoading: controller.isOtpLoading,
-                        allowTapWhenDisabled: true, // 👈 BUT clickable
-
                         title: AppString.LOGINUSINGOTP,
                       ),
                     ),

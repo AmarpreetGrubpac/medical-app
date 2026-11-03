@@ -16,14 +16,22 @@ class AlertsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    final args = Get.arguments;
-    if (args != null &&
-        args["box_name"] != null &&
-        args["box_name"].toString().isNotEmpty) {
-      selectedBox = args["box_name"];
+    applyRouteArguments(Get.arguments);
+  }
+
+  void applyRouteArguments(dynamic args) {
+    if (args is Map) {
+      selectedBoxId = args["box_id"]?.toString();
+      if (args["box_name"] != null &&
+          args["box_name"].toString().isNotEmpty) {
+        selectedBox = args["box_name"].toString();
+      } else {
+        selectedBox = "All";
+      }
+    } else {
+      selectedBoxId = null;
+      selectedBox = "All";
     }
-    if (args is Map && args['box_id'] != null)
-      selectedBoxId = args['box_id'].toString();
     getAlerts();
   }
 
@@ -104,10 +112,12 @@ class AlertsController extends GetxController {
 
   List<AlertModel> get filteredAlerts {
     return alerts.where((alert) {
-      if (selectedBoxId != null && alert.boxId != selectedBoxId) return false;
-      if (selectedBoxId == null &&
-          selectedBox != "All" &&
-          alert.boxName != selectedBox) {
+      if (selectedBoxId != null && selectedBoxId!.isNotEmpty) {
+        if (alert.boxId != selectedBoxId &&
+            (alert.boxName.isEmpty || alert.boxName != selectedBox)) {
+          return false;
+        }
+      } else if (selectedBox != "All" && alert.boxName != selectedBox) {
         return false;
       }
 

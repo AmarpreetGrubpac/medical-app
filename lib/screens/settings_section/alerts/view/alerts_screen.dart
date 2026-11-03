@@ -18,7 +18,12 @@ class AlertsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<AlertsController>(builder: (alertsController) {
+    return GetBuilder<AlertsController>(
+      initState: (_) {
+        final controller = Get.find<AlertsController>();
+        controller.applyRouteArguments(Get.arguments);
+      },
+      builder: (alertsController) {
       return Scaffold(
         body: SafeArea(
           child: Column(

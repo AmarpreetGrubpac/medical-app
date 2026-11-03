@@ -17,6 +17,24 @@ import 'package:grubpac_driver/common_components/role_gated.dart';
 class ProfileDetailsScreen extends StatelessWidget {
   const ProfileDetailsScreen({super.key});
 
+  Widget _buildAvatarInitials(ProfileDetailsController controller) {
+    String initials = AppUtils.getInitials(controller.name);
+    if (initials.isEmpty && controller.email.isNotEmpty) {
+      initials = AppUtils.getInitials(controller.email);
+    }
+    if (initials.isEmpty && controller.phone.isNotEmpty) {
+      initials = "D";
+    }
+    if (initials.isEmpty) {
+      initials = "GP";
+    }
+    return AppText(
+      text: initials.toUpperCase(),
+      fontSize: 28.sp,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ProfileDetailsController>(builder: (controller) {
@@ -53,20 +71,14 @@ class ProfileDetailsScreen extends StatelessWidget {
                                 radius: 60.h,
                                 backgroundColor: AppTheme.contentBrandSecondary,
                                 child: ClipOval(
-                                    child: controller.image.isEmpty
-                                        ? AppText(
-                                            text: AppUtils.getInitials(
-                                                controller.name),
-                                            fontSize: 28.sp)
+                                    child: controller.image.trim().isEmpty
+                                        ? _buildAvatarInitials(controller)
                                         : Image.network(controller.image,
                                             width: 120.h,
                                             height: 120.h,
                                             fit: BoxFit.cover,
                                             errorBuilder: (_, __, ___) =>
-                                                AppText(
-                                                    text: AppUtils.getInitials(
-                                                        controller.name),
-                                                    fontSize: 28.sp))),
+                                                _buildAvatarInitials(controller))),
                               ),
                               Padding(
                                 padding: EdgeInsets.symmetric(vertical: 24.h),

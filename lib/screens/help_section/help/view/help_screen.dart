@@ -28,7 +28,7 @@ class HelpScreen extends StatefulWidget {
 class _HelpScreenState extends State<HelpScreen> {
   @override
   void initState() {
-    Get.find<HelpFaqListController>().getCategoryList();
+    Get.find<HelpFaqListController>().getCategoryList(isFirstLoad: true);
     super.initState();
   }
 

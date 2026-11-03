@@ -146,24 +146,25 @@ class _ZoneBoxes extends StatelessWidget {
                     : ZoneBoxType.disabled,
               ),
             ),
-            if (controller.dualZoneSwitch)
-              Expanded(
-                child: ZoneCard(
-                  zoneName: "Zone 2",
-                  targetTemp:
-                      controller.boxInfo?.settings?.zone2Temp?.toString() ??
-                          "--",
-                  achievedTemp:
-                      controller.boxInfo?.zone2Temp?.toString() ?? "--",
-                  isOn: controller.zoneBox2Switch,
-                  onToggle: isConnected ? controller.toggleZoneBox2 : () {},
-                  type: controller.zoneBox2Switch
-                      ? ZoneBoxType.getType(
-                          controller.boxInfo?.settings?.zone2Temp ??
-                              controller.secondBattery)
-                      : ZoneBoxType.disabled,
-                ),
+            Expanded(
+              child: ZoneCard(
+                zoneName: "Zone 2",
+                targetTemp:
+                    controller.boxInfo?.settings?.zone2Temp?.toString() ??
+                        "--",
+                achievedTemp:
+                    controller.boxInfo?.zone2Temp?.toString() ?? "--",
+                isOn: controller.dualZoneSwitch && controller.zoneBox2Switch,
+                onToggle: (isConnected && controller.dualZoneSwitch)
+                    ? controller.toggleZoneBox2
+                    : () {},
+                type: (controller.dualZoneSwitch && controller.zoneBox2Switch)
+                    ? ZoneBoxType.getType(
+                        controller.boxInfo?.settings?.zone2Temp ??
+                            controller.secondBattery)
+                    : ZoneBoxType.disabled,
               ),
+            ),
           ],
         );
       },

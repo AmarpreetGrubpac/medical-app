@@ -1,0 +1,212 @@
+name: Branch Deploy to Google Play Console
+
+on:
+  push:
+    branches:
+      - 'release/**'
+      - 'deploy/**'
+  workflow_dispatch:
+    inputs:
+      flavor:
+        description: 'Flavor to deploy'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - both
+          - dev
+          - prod
+      track_dev:
+        description: 'Track for Dev flavor (com.grubpac.medical.test)'
+        required: true
+        default: 'internal'
+        type: choice
+        options:
+          - internal
+          - alpha
+          - beta
+      track_prod:
+        description: 'Track for Prod flavor (com.grubpac.medical)'
+        required: true
+        default: 'internal'
+        type: choice
+        options:
+          - internal
+          - alpha
+          - beta
+          - production
+      rollout_fraction:
+        description: 'Rollout fraction (for production track, 0.1 to 1.0)'
+        required: true
+        default: '1.0'
+      release_status:
+        description: 'Release status'
+        required: true
+        default: 'completed'
+        type: choice
+        options:
+          - completed
+          - inProgress
+          - draft
+      release_notes:
+        description: 'Release notes (en-US)'
+        required: false
+        default: 'Performance improvements and bug fixes.'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pre-deploy-check:
+    name: Pre-deployment Quality & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Code Analysis
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+  build-and-deploy:
+    name: Deploy ${{ matrix.flavor }} to Play Console
+    needs: pre-deploy-check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        flavor: ${{ github.event.inputs.flavor == 'dev' && fromJson('["dev"]') || github.event.inputs.flavor == 'prod' && fromJson('["prod"]') || fromJson('["dev", "prod"]') }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Gradle & Pub
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.pub-cache
+          key: ${{ runner.os }}-play-deploy-${{ matrix.flavor }}-${{ hashFiles('**/pubspec.lock', 'android/**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-play-deploy-${{ matrix.flavor }}-
+
+      - name: Configure Android Signing Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 secret is missing! Play Console deployment requires a signed release build."
+            exit 1
+          fi
+
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/app/keystore.jks
+          cat <<EOF > android/key.properties
+          storePassword=$KEYSTORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          storeFile=keystore.jks
+          EOF
+          echo "--> Keystore and key.properties created."
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Extract App Version
+        id: version
+        run: |
+          VERSION_NAME=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1 | tr -d ' ')
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "Building version $VERSION_NAME with versionCode ${{ github.run_number }}"
+
+      - name: Build App Bundle (${{ matrix.flavor }})
+        run: |
+          TARGET_MAIN="lib/main_${{ matrix.flavor }}.dart"
+          flutter build appbundle \
+            --flavor ${{ matrix.flavor }} \
+            -t $TARGET_MAIN \
+            --release \
+            --build-name=${{ steps.version.outputs.version_name }} \
+            --build-number=${{ github.run_number }}
+
+          AAB_PATH="build/app/outputs/bundle/${{ matrix.flavor }}Release/app-${{ matrix.flavor }}-release.aab"
+          if [ ! -f "$AAB_PATH" ]; then
+            echo "::error::Expected AAB not found at $AAB_PATH"
+            exit 1
+          fi
+          echo "aab_path=$AAB_PATH" >> $GITHUB_OUTPUT
+
+      - name: Prepare Release Notes
+        run: |
+          mkdir -p distribution/whatsnew
+          NOTES="${{ github.event.inputs.release_notes || 'Performance improvements and bug fixes.' }}"
+          echo "$NOTES" > distribution/whatsnew/whatsnew-en-US
+          echo "Release notes written: $(cat distribution/whatsnew/whatsnew-en-US)"
+
+      - name: Determine Package Name and Track
+        id: meta
+        run: |
+          if [ "${{ matrix.flavor }}" = "dev" ]; then
+            PACKAGE_NAME="com.grubpac.medical.test"
+            TRACK="${{ github.event.inputs.track_dev || 'internal' }}"
+          else
+            PACKAGE_NAME="com.grubpac.medical"
+            TRACK="${{ github.event.inputs.track_prod || 'internal' }}"
+          fi
+          echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+          echo "track=$TRACK" >> $GITHUB_OUTPUT
+          echo "Deploying $PACKAGE_NAME to track: $TRACK"
+
+      - name: Upload to Google Play Console
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_JSON_KEY }}
+          packageName: ${{ steps.meta.outputs.package_name }}
+          releaseFiles: build/app/outputs/bundle/${{ matrix.flavor }}Release/app-${{ matrix.flavor }}-release.aab
+          track: ${{ steps.meta.outputs.track }}
+          userFraction: ${{ github.event.inputs.rollout_fraction || 1.0 }}
+          status: ${{ github.event.inputs.release_status || 'completed' }}
+          whatsNewDirectory: distribution/whatsnew
+          mappingFile: build/app/outputs/mapping/${{ matrix.flavor }}Release/mapping.txt
+
+      - name: Add Deployment Summary
+        run: |
+          cat <<EOF >> $GITHUB_STEP_SUMMARY
+          ### Play Console Deployment: `${{ matrix.flavor }}`
+          - **Package Name**: `${{ steps.meta.outputs.package_name }}`
+          - **Track**: `${{ steps.meta.outputs.track }}`
+          - **Version Name**: `${{ steps.version.outputs.version_name }}`
+          - **Version Code**: `${{ github.run_number }}`
+          - **Status**: Successful
+          EOF
