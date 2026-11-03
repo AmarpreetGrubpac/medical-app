@@ -88,19 +88,31 @@ def update_existing_file(service, file_id: str, local_path: str, mime_type: str,
     print(f"--> Updating existing file version for ID: {file_id}")
     media = MediaFileUpload(local_path, mimetype=mime_type, resumable=True)
 
-    body = {}
-    if new_name:
-        body['name'] = new_name
-
-    updated_file = service.files().update(
-        fileId=file_id,
-        body=body if body else None,
-        media_body=media,
-        keepRevisionForever=True,
-        supportsAllDrives=True,
-        fields='id, name, webViewLink, webContentLink, version, modifiedTime'
-    ).execute()
-    return updated_file
+    # Note: Do not pass keepRevisionForever=True as it requires Owner permission and fails for Editors with 403 insufficientFilePermissions
+    try:
+        updated_file = service.files().update(
+            fileId=file_id,
+            media_body=media,
+            supportsAllDrives=True,
+            fields='id, name, webViewLink, webContentLink, version, modifiedTime'
+        ).execute()
+        return updated_file
+    except HttpError as err:
+        if "insufficientFilePermissions" in str(err):
+            print("
+" + "=" * 75)
+            print("::error::GOOGLE DRIVE PERMISSION ERROR (insufficientFilePermissions)")
+            print("The Service Account does not have 'Editor' write permissions on this file.")
+            print("
+HOW TO FIX IN GOOGLE DRIVE:")
+            print(f"1. Open your Google Drive and find the file: '{new_name or file_id}'.")
+            print("2. Click 'Share' (or right-click -> Share).")
+            print("3. Check the Service Account email address in the list.")
+            print("   -> It MUST be set to 'Editor' (not 'Viewer').")
+            print("4. If the file is inside a shared folder, also make sure the parent folder has the Service Account as 'Editor'.")
+            print("=" * 75 + "
+")
+        raise
 
 
 def search_file_in_folder(service, folder_id: str, file_name: str):
